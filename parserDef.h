@@ -22,9 +22,10 @@ typedef struct g_node{
 	struct g_node *next;
 }g_node;
 
-g_node_head **grammar;
-node **first;
-node **follow;
+typedef struct{
+	node **first;
+	node **follow;
+}FirstAndFollow;
 
 typedef struct f_node{
 	void (*func_ptr)(void);
