@@ -20,7 +20,7 @@ typedef struct{
 		char* lexeme;
 		int value_of_int;
 		float value_of_real;
-	};
+	}u;
 }tokenInfo;
 
 //symbol table implementation
@@ -37,7 +37,7 @@ typedef struct{
 		int state;
 		tokenInfo* (*return_token_function)(void);
 		void (*error_function)(void);
-	};
+	}u;
 }TRANSITION_TABLE_ELEM;
 
 

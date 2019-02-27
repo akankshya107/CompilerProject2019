@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include "lexerDef.h"
 #define NO_OF_RULES 45
 #define NO_OF_GRAMMAR_RULES 100
@@ -5,27 +6,25 @@
 typedef struct node{
 	TOKEN tokenName;
 	struct node *next;
-}node;
-
-struct g_node;
-
-typedef struct{
-	NON_TERMINAL non_terminal;
-	struct g_node *next;
-}g_node_head;
-
-typedef struct g_node{
-	union{
-		TOKEN terminal;
-		g_node_head *nonterminal;
-	};
-	struct g_node *next;
-}g_node;
+}node;    //used for first and follow
 
 typedef struct{
 	node **first;
 	node **follow;
 }FirstAndFollow;
+
+FirstAndFollow *f;
+
+typedef struct g_node{
+	bool is_term;
+	union{
+		TOKEN terminal;
+		NON_TERMINAL nonterminal;
+	}elem;
+	struct g_node *next;
+}g_node;
+
+g_node **grammar;
 
 typedef struct f_node{
 	void (*func_ptr)(void);
@@ -39,7 +38,7 @@ typedef struct{
 
 typedef struct{
 	g_node *children;
-	g_node_head *nonterminal;
+	g_node *nonterminal;
 }nonLeafNode;
 
 typedef union treeNode{

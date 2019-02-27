@@ -1,4 +1,5 @@
-#include <lexer.h>
+#include "lexer.h"
+#include <stdlib.h>
 TRANSITION_TABLE_ELEM **transition_table;
 
 void populate_transition_table(){
