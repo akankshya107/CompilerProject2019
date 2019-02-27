@@ -10,7 +10,7 @@ typedef struct node{
 struct g_node;
 
 typedef struct{
-	char* nonterminal;
+	NON_TERMINAL non_terminal;
 	struct g_node *next;
 }g_node_head;
 
