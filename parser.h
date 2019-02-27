@@ -1,8 +1,8 @@
 #include "parserDef.h"
 FirstAndFollow *ComputeFirstAndFollowSets(g_node **grammar);
-void createParseTable(FirstAndFollow *f, table T);
-void parseInputSourceCode(char *testcaseFile, table T);
-void printParseTree(treeNode *t, char *outfile);
+void createParseTable(FirstAndFollow *f, parse_table T);
+void parseInputSourceCode(char *testcaseFile, parse_table T);
+// void printParseTree(treeNode *t, char *outfile);
 
 //Aux functions
 g_node** populateGrammar();

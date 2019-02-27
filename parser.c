@@ -9,18 +9,15 @@ FirstAndFollow *ComputeFirstAndFollowSets(g_node **grammar){
 	return f;
 }
 
-void createParseTable(FirstAndFollow *f, table T){
-	
+void createParseTable(FirstAndFollow *f, parse_table T){
+	T = (parse_table_elem**)malloc(sizeof(parse_table_elem*)*NO_OF_RULES);
+	for(int i=0; i<NO_OF_RULES; i++){
+		T[i]=(parse_table_elem*)malloc(sizeof(parse_table_elem)*(eps+1));
+	}
 }
 
-void parseInputSourceCode(char *testcaseFile, table T){
-	grammar = populateGrammar();
-	f = ComputeFirstAndFollowSets(grammar);
-	T = (f_node**)malloc(sizeof(f_node*)*NO_OF_RULES);
-	for(int i=0; i<NO_OF_RULES; i++){
-		T[i]=(f_node*)malloc(sizeof(f_node)*(eps+1));
-	}
-	createParseTable(f, T);
+void parseInputSourceCode(char *testcaseFile, parse_table T){
+	
 }
 
 g_node** populateGrammar(){
