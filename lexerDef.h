@@ -1,4 +1,5 @@
 #define NO_OF_STATES 55
+#define BUF_LENGTH 512
 char *input_buffer;
 char *input_buffer_twin;
 

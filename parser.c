@@ -1,5 +1,7 @@
 #include <stdlib.h>
-#include "parser.h"
+#include "lexer.h"
+#define LEX_DEF_INCLUDED
+#include "parserDef.h"
 
 FirstAndFollow *ComputeFirstAndFollowSets(g_node **grammar){
 	FirstAndFollow *f = (FirstAndFollow*)malloc(sizeof(FirstAndFollow));

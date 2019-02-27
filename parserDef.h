@@ -1,5 +1,9 @@
 #include <stdbool.h>
+
+#ifndef LEX_DEF_INCLUDED
 #include "lexerDef.h"
+#endif
+
 #define NO_OF_RULES 45
 #define NO_OF_GRAMMAR_RULES 100
 
