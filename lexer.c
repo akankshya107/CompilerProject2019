@@ -151,7 +151,7 @@ void populate_transition_table(){
 
                 else
                 {
-                    transition_table[0][j].u.error_function=symbol_not_found;
+                    transition_table[0][j].u.error_function=&symbol_not_found;
                     transition_table[0][j].flag=0;
                 }
         
