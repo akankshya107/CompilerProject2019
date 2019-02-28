@@ -5,9 +5,9 @@ extern parse_table T;
 int main(void){
 	//menu outline
 	//must call parser
-	// grammar = populateGrammar();
+	grammar = populateGrammar();
 	// f = ComputeFirstAndFollowSets(grammar);
 	// createParseTable(f, T);
-	removeComments("testcases/testcase1.txt", "testcases/clean.txt");
+	// removeComments("testcases/testcase1.txt", "testcases/clean.txt");
 	return 0;
 }

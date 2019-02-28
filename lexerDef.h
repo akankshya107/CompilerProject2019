@@ -12,9 +12,18 @@ typedef enum {
 	TK_GT, TK_GE, TK_NE, eps
 } TOKEN;
 typedef enum {
-	program
+	program, mainFunction, otherFunctions, function, input_par, output_par,
+	parameter_list, dataType, primitiveDatatype, constructedDatatype, 
+	remaining_list, stmts, typeDefinitions, typeDefinition, fieldDefinitions,
+	fieldDefinition, moreFields, declarations, declaration, global_or_not, 
+	otherStmts, stmt, assignmentStmt, singleOrRecId, new_24, funCallStmt,
+	outputParameters, inputParameters, iterativeStmt, conditionalStmt,
+	elsePart, ioStmt, allVar, arithmeticExpression, expPrime, term,
+	termPrime, factor, highPrecedenceOperator, lowPrecedenceOperator, 
+	all, temp, booleanExpression, var, logicalOp, relationalOp, returnStmt, 
+	optionalReturn, idList, more_ids
 } NON_TERMINAL;
-
+//IMPORTANT: NO DISTINGUISHING BETWEEN ALLVAR AND ALL
 typedef enum  {
 	is_lexeme, 
 	is_int,
