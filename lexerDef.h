@@ -44,7 +44,7 @@ typedef struct{
 	TRANSITION_TYPE flag;
 	union{
 		int state;
-		tokenInfo* (*return_token_function)(TOKEN,int,FLAG_TOKEN_TYPE);
+		tokenInfo* (*return_token_function)(char*);
 		void (*error_function)(void);
 	}u;
 }TRANSITION_TABLE_ELEM;
