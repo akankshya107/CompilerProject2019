@@ -1,4 +1,5 @@
 #define NO_OF_STATES 55
+#define MAX_LEX_LENGTH 20
 char *input_buffer;
 char *input_buffer_twin;
 
@@ -25,7 +26,7 @@ typedef struct{
 	int line_no;
 	FLAG_TOKEN_TYPE flag;
 	union{
-		char* lexeme;
+		char lexeme[MAX_LEX_LENGTH];
 		int value_of_int;
 		float value_of_real;
 	}u;
@@ -43,7 +44,7 @@ typedef struct{
 	TRANSITION_TYPE flag;
 	union{
 		int state;
-		tokenInfo* (*return_token_function)(void);
+		tokenInfo* (*return_token_function)(TOKEN,int,FLAG_TOKEN_TYPE);
 		void (*error_function)(void);
 	}u;
 }TRANSITION_TABLE_ELEM;
