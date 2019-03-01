@@ -6,3 +6,4 @@
 * First and Follow Set: interface
 * getNextToken: pseudocode
 * Grammar node must be doubly linked list
+* Twin buffer - not needed?

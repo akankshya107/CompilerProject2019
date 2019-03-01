@@ -61,8 +61,12 @@ typedef struct{
 	TRANSITION_TYPE flag;
 	union{
 		int state;
-		tokenInfo* (*return_token_function)(char*);
-		tokenInfo* (*error_function)(char*);
+		// tokenInfo* (*return_token_function)(char*);
+		struct{
+			TOKEN tkname;
+			bool is_retract;
+		}func;
+		void (*error_function)(char*, int);
 	}u;
 }TRANSITION_TABLE_ELEM;
 
