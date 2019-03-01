@@ -65,14 +65,43 @@ g_node_head** populateGrammar(){
 	g_node *ptr, *pnext;
 	//Rule 0
 	ptr = NULL;
-	pnext = grammar[0]->next = create_g_node(0, otherFunctions);
-	printf("%d\n", pnext->elem.nonterminal);
-	ptr = pnext->next = create_g_node(0, mainFunction);
-	ptr->prev = pnext;
-	printf("%d\n", ptr->prev->elem.nonterminal);
+	pnext=first_gnode(grammar[0],otherFunctions,0);
+	pnext=dl_nodes(pnext,0,mainFunction);
+	print_gnode(pnext);
+	//Rule 1
+	pnext=first_gnode(grammar[1],TK_MAIN,1);
+	pnext=dl_nodes(pnext,stmts,0);
+	pnext=dl_nodes(pnext,TK_END,1);
+
+
 	//so on
 
 	return grammar;
+}
+g_node* first_gnode(g_node_head* h,int no,bool is_term)
+{
+	pnext = h->next = create_g_node(is_term, no);
+	pnext->prev=NULL;
+	pnext->next=NULL;
+	return pnext;
+}
+g_node* dl_nodes(gnode* pnext,int no,bool is_term)
+{
+	ptr=pnext->next=create_g_node(is_term,no);
+	ptr->prev=pnext;
+	ptr->next=NULL;
+
+	return ptr;
+}
+
+void print_gnode(gnode* ptr)
+{
+	if(ptr->is_term)
+	{
+		printf("%d\n", ptr->prev->elem.terminal);
+	}
+	else
+	printf("%d\n", ptr->prev->elem.terminal);
 }
 
 // node* first(NON_TERMINAL nt_index){
