@@ -1,6 +1,18 @@
-#include "lexer.h"
+#include "lexerDef.h"
+#define LEX_DEF_INCLUDED
+#include<stdio.h>
 #include <stdlib.h>
 TRANSITION_TABLE_ELEM **transition_table;
+
+
+void symbol_not_found()
+{
+    printf("Symbol not Found");
+}
+
+tokenInfo* return_token(char* c){
+
+}
 
 void populate_transition_table(){
     TRANSITION_TABLE_ELEM **transition_table;

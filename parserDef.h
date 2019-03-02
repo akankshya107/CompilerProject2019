@@ -1,5 +1,7 @@
 #include <stdbool.h>
+#ifndef LEX_DEF_INCLUDED
 #include "lexerDef.h"
+#endif
 #define NO_OF_RULES 45
 #define NO_OF_GRAMMAR_RULES 100
 
@@ -30,6 +32,7 @@ typedef struct g_node{
 		NON_TERMINAL nonterminal;
 	}elem;
 	struct g_node *next;
+	struct g_node *prev; //doubly linked list
 }g_node;
 
 g_node **grammar;

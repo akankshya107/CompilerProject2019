@@ -1,5 +1,6 @@
 #define NO_OF_STATES 55
 #define MAX_LEX_LENGTH 20
+#define LEX_DEF_INCLUDED
 char *input_buffer;
 char *input_buffer_twin;
 
@@ -12,7 +13,16 @@ typedef enum {
 	TK_GT, TK_GE, TK_NE, eps
 } TOKEN;
 typedef enum {
-	program
+	program, mainFunction, otherFunctions, function, input_par, output_par,
+	parameter_list, dataType, primitiveDatatype, constructedDatatype, 
+	remaining_list, stmts, typeDefinitions, typeDefinition, fieldDefinitions,
+	fieldDefinition, moreFields, declarations, declaration, global_or_not, 
+	otherStmts, stmt, assignmentStmt, singleOrRecId, new_24, funCallStmt,
+	outputParameters, inputParameters, iterativeStmt, conditionalStmt,
+	elsePart, ioStmt, allVar, arithmeticExpression, expPrime, term,
+	termPrime, factor, highPrecedenceOperator, lowPrecedenceOperator, 
+	all, temp, booleanExpression, var, logicalOp, relationalOp, returnStmt, 
+	optionalReturn, idList, more_ids
 } NON_TERMINAL;
 
 typedef enum  {

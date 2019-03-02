@@ -54,6 +54,35 @@ void parseInputSourceCode(char *testcaseFile, parse_table T){
 	
 }
 
+
+g_node* first_gnode(g_node_head* h,int no,bool is_term)
+{
+	g_node* pnext;
+	pnext = h->next = create_g_node(is_term, no);
+	pnext->prev=NULL;
+	pnext->next=NULL;
+	return pnext;
+}
+g_node* dl_nodes(g_node* pnext,int no,bool is_term)
+{
+	g_node* ptr;
+	ptr=pnext->next=create_g_node(is_term,no);
+	ptr->prev=pnext;
+	ptr->next=NULL;
+
+	return ptr;
+}
+
+void print_gnode(g_node* ptr)
+{
+	if(ptr->is_term)
+	{
+		printf("%d\n", ptr->prev->elem.terminal);
+	}
+	else
+	printf("%d\n", ptr->prev->elem.terminal);
+}
+
 g_node_head** populateGrammar(){
 	g_node_head **grammar = (g_node_head**)malloc(sizeof(g_node_head*)*NO_OF_GRAMMAR_RULES); //array of g_node_head pointers
 	//explicitly populate?
@@ -77,31 +106,6 @@ g_node_head** populateGrammar(){
 	//so on
 
 	return grammar;
-}
-g_node* first_gnode(g_node_head* h,int no,bool is_term)
-{
-	pnext = h->next = create_g_node(is_term, no);
-	pnext->prev=NULL;
-	pnext->next=NULL;
-	return pnext;
-}
-g_node* dl_nodes(gnode* pnext,int no,bool is_term)
-{
-	ptr=pnext->next=create_g_node(is_term,no);
-	ptr->prev=pnext;
-	ptr->next=NULL;
-
-	return ptr;
-}
-
-void print_gnode(gnode* ptr)
-{
-	if(ptr->is_term)
-	{
-		printf("%d\n", ptr->prev->elem.terminal);
-	}
-	else
-	printf("%d\n", ptr->prev->elem.terminal);
 }
 
 // node* first(NON_TERMINAL nt_index){
