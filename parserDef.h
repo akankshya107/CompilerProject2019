@@ -1,7 +1,7 @@
 #include <stdbool.h>
 #include "lexerDef.h"
 #define NO_OF_RULES 45
-#define NO_OF_GRAMMAR_RULES 100
+#define NO_OF_GRAMMAR_RULES 88
 
 typedef struct node{
 	TOKEN tokenName;
