@@ -367,10 +367,18 @@ g_node_head** populateGrammar(){
 
 
 
+=======
+	pnext = grammar[0]->next = create_g_node(0, otherFunctions);
+	printf("%d\n", pnext->elem.nonterminal);
+	ptr = pnext->next = create_g_node(0, mainFunction);
+	ptr->prev = pnext;
+	printf("%d\n", ptr->prev->elem.nonterminal);
+>>>>>>> 992a544f8f5c4d11c753a8c85247ec446de1a460
 	//so on
 
 	return grammar;
 }
+<<<<<<< HEAD
 g_node* first_gnode(g_node_head* h,int no,bool is_term)
 {
 	pnext = h->next = create_g_node(is_term, no);
@@ -396,6 +404,8 @@ void print_gnode(gnode* ptr)
 	else
 	printf("%d\n", ptr->prev->elem.terminal);
 }
+=======
+>>>>>>> 992a544f8f5c4d11c753a8c85247ec446de1a460
 
 // node* first(NON_TERMINAL nt_index){
 	
