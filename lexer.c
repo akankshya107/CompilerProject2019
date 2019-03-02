@@ -5,10 +5,6 @@
 TRANSITION_TABLE_ELEM **transition_table;
 
 
-void symbol_not_found()
-{
-    printf("Symbol not Found");
-}
 
 tokenInfo* return_token(char* c){
 
@@ -164,7 +160,7 @@ void populate_transition_table(){
 
                 else
                 {
-                    transition_table[0][j].u.error_function=&symbol_not_found;
+                    transition_table[0][j].u.error_function=&unknown_symbol;
                     transition_table[0][j].flag=2;
                 }
         
@@ -215,7 +211,7 @@ void populate_transition_table(){
         }
         else
         {
-            transition_table[7][j].u.error_function=&symbol_not_found;
+            transition_table[7][j].u.error_function=&unknown_pattern;
             transition_table[7][j].flag=2;
         }
 
@@ -266,7 +262,7 @@ void populate_transition_table(){
 
         else
         {
-            transition_table[13][j].u.error_function=&symbol_not_found;
+            transition_table[13][j].u.error_function=&unknown_pattern;
             transition_table[13][j].flag=2;
         }
     }
@@ -279,7 +275,7 @@ void populate_transition_table(){
 
         else
         {
-            transition_table[14][j].u.error_function=&symbol_not_found;
+            transition_table[14][j].u.error_function=&unknown_pattern;
             transition_table[14][j].flag=2;
         }
     }
@@ -296,8 +292,8 @@ void populate_transition_table(){
 
         else
         {
-            transition_table[16][j].u.error_function=&symbol_not_found;
-            transition_table[16][j].flag=2;
+            transition_table[16][j].u.state=18;
+            transition_table[16][j].flag=0;
         }
     }
     for(j=0;j<=127;j++)
@@ -319,7 +315,7 @@ void populate_transition_table(){
 
         else
         {
-            transition_table[19][j].u.error_function=&symbol_not_found;
+            transition_table[19][j].u.error_function=&unknown_pattern;
             transition_table[19][j].flag=2;
         }
     }
@@ -362,7 +358,129 @@ void populate_transition_table(){
 
 }
 
-FILE *getStream(FILE *fp){
-    size_t no_of_bytes_read = fread(input_buffer, sizeof(char), 512, fp);
+void *getStream(FILE *fp){
+    size_t no_of_bytes_read1 = fread(input_buffer, sizeof(char), BUF_LENGTH, fp);
     return fp;
+}
+
+tokenInfo* getNextToken(FILE *fp){
+    //Rough: some implementation left
+    if(!global_flag){
+        getStream(fp);
+        global_flag = 1;
+    }
+    int j=0, state=0;
+    bool flag = 1;
+    int ch;
+    char* lex = (char*)malloc(sizeof(char)*MAX_LENGTH); //efficiently do this
+    while(1){
+        ch = input_buffer[i];
+        if(transition_table[state][ch].flag==0){
+            if(ch=='\n')
+            {
+                line_count+=1;
+            }
+            state = transition_table[state][ch].u.state;
+            lex[j++]=ch;
+            i++;
+            if(i==BUF_LENGTH) {
+                getStream(fp);
+                i=0;
+            }
+        }else if(transition_table[state][ch].flag==1)
+        {
+            lex[j]='\0'
+            if(transition_table[state][ch].u.func.is_retract)
+            {
+                
+                i--;
+            }
+            if(transition_table[state][ch].u.func.tkname==TK_NUM)
+            {
+                int num=get_num(char* lex);
+                return generate_token_info2(transition_table[state][ch].u.func.tkname,line_no,1,num);
+            }
+            else if(transition_table[state][ch].u.func.tkname==TK_RNUM)
+            {
+                float num=get_rnum(char* lex);
+                return generate_token_info31(transition_table[state][ch].u.func.tkname,line_no,2,num);
+            }
+            else
+            {
+                return generate_token_info1(transition_table[state][ch].u.func.tkname,line_no,0,lex);
+            }
+            
+
+        }else{
+            lex='\0';
+            transition_table[state][ch].u.error_function(lex);
+        }
+    }
+}
+
+int get_num(char* c)
+{
+    int digits=strlen(c);
+    int sum=0;
+    for(int j=0;j<digits;j++)
+    {
+        sum=sum*10+(c[j]-'0');
+    }
+    return sum;
+}
+
+float get_rnum(char*c)
+{
+    int digits=strlen(c);
+    int sum=0;
+    for(int j=0;j<digits-3;j++)
+    {
+        sum=sum*10+(c[j]-'0');
+    }
+    printf("sum: %d\n",sum);
+    int sum1=0;
+    for(int j=digits-2;j<digits;j++)
+    {
+        sum1=sum1*10+(c[j]-'0');
+    }
+    printf("sum1: %d\n",sum1);
+    sum=sum*100+sum1;
+    float temp=sum/100.0;
+    //temp+=sum;
+    return temp;
+}
+tokenInfo* generate_token_info1(TOKEN tkname,int line_no,char* c)
+{
+    tokenInfo* tk=(tokenInfo*) malloc(sizeof(tokenInfo));
+    tk->tokenName=tkname;
+    tk->flag=0;
+    tk->line_no=line_no;
+    tk->u.lexeme=c;
+}
+
+tokenInfo* generate_token_info2(TOKEN tkname,int line_no,int num)
+{
+    tokenInfo* tk=(tokenInfo*) malloc(sizeof(tokenInfo));
+    tk->tokenName=tkname;
+    tk->flag=1;
+    tk->line_no=line_no;
+    tk->u.value_of_int=num;
+}
+
+tokenInfo* generate_token_info3(TOKEN tkname,int line_no,float num)
+{
+    tokenInfo* tk=(tokenInfo*) malloc(sizeof(tokenInfo));
+    tk->tokenName=tkname;
+    tk->flag=0;
+    tk->line_no=line_no;
+    tk->u.value_of_real=num;
+}
+
+void unknown_symbol(char c)
+{
+    printf("Unknown Symbol %c",c);
+}
+void unknown_pattern(char* c)
+{
+    printf("Unknown Pattern %s",c);
 }

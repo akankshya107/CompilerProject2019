@@ -43,7 +43,7 @@ typedef struct{
 	int line_no;
 	FLAG_TOKEN_TYPE flag;
 	union{
-		char lexeme[MAX_LEX_LENGTH];
+		char* lexeme;
 		int value_of_int;
 		float value_of_real;
 	}u;
@@ -58,7 +58,7 @@ typedef enum {
 } TRANSITION_TYPE;
 
 typedef struct{
-	TRANSITION_TYPE flag;
+	TRANSITION_TYPE flag;//flag=0,1,2,3
 	union{
 		int state;
 		// tokenInfo* (*return_token_function)(char*);
@@ -66,7 +66,9 @@ typedef struct{
 			TOKEN tkname;
 			bool is_retract;
 		}func;
-		void (*error_function)(char*, int);
+		void (*error_function)(char*);
+		// void (*unknown_symbol)(char );
+		// void (*unknown_pattern)(char* );
 	}u;
 }TRANSITION_TABLE_ELEM;
 
