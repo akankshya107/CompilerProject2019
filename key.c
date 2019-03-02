@@ -17,7 +17,7 @@ hash_elem *create_hash_elem(){
 }
 
 hashTable populateKeyWordTable(){
-    KeyWordTable = (hashTable)malloc(sizeof(hash_elem*)*NO_OF_KEYWORDS);
+    KeyWordTable = (hashTable)malloc(sizeof(hash_elem*)*43);
 
     int index;
     //populate this

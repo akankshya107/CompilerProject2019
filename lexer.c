@@ -42,6 +42,16 @@ tokenInfo *return_no_token(char *lexeme, TOKEN tkname, int lineno, bool is_retra
     return ti;
 }
 
+void unknown_pattern (char *arr, int line_num){
+    printf("Line %d: Unknown pattern %s \n",line_num, arr);
+    
+}
+
+void unknown_symbol (char *arr, int line_num){
+    printf("Line %d: Unknown symbol %s \n",line_num, arr);
+    
+}
+
 void populate_transition_table(){
     TRANSITION_TABLE_ELEM **transition_table = (TRANSITION_TABLE_ELEM**)malloc(sizeof(TRANSITION_TABLE_ELEM*)*sizeof(NO_OF_STATES));
     for(int i=0; i<NO_OF_STATES; i++){
@@ -421,8 +431,8 @@ tokenInfo* getNextToken(FILE *fp){
             lex[j++]=ch;
             input_buffer_pointer++;
         }else if(transition_table[state][ch].flag==1){
+            lex[j]='\0';
             if(transition_table[state][ch].u.func.func_flag==0){
-                lex[j]='\0';
                 return return_str_token(lex, transition_table[state][ch].u.func.tkname, line_count, transition_table[state][ch].u.func.is_retract, &input_buffer_pointer);
             }else if(transition_table[state][ch].u.func.func_flag==1){ //for TK_FIELDID and TK_FUNID
                 hash_elem *k = lookup(lex);
