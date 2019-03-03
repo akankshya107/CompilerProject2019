@@ -110,25 +110,131 @@ g_node_head** populateGrammar(){
 
 	return grammar;
 }
-void first(NON_TERMINAL nt_index)
+void add_node_to_first(node_head_first* head,TOKEN tk, int rule)
 {
-	node* head=NULL;
-	return head;
-	if(f->first[nt_index]->head!=NULL)
+	node* temp=create_node(tk,rule);
+    temp->next=f->first[nt]->head;
+    f->first[nt]->head=temp;
+	
+}
+
+void add_list_to_first(node_head_first* head, node* list)
+{
+    node* curr;
+    curr=list;
+    while(curr!=NULL)
+    {
+        curr->next=head->head;
+        head->head=curr;
+    }
+}
+
+void recurse_first(node_head_first* node_head,g_node* temp, int rule_no)
+{
+    if(temp==NULL)
 	{
-		return;
+		add_node_to_first(node_head,eps,rule_no);		
 	}
 
 	else
 	{
-		int* rules=nonterminal_str[nt_index]->;
-
+        if(!temp->is_term)
+        {
+            if(f->first[temp->elem.nonterminal]->head!=NULL)
+            {
+                if(!(f->first[temp->elem.nonterminal]->has_eps))
+		        {
+                    add_list_to_first(node_head,f->first[temp->elem.nonterminal]->head);
+                }
+                else
+                {
+                    recurse_first(node_head,temp->next, rule_no);
+                }
+            
+            }
+            else
+            {
+                first(first[temp->elem.nonterminal]);
+                if(!f->first[temp->elem.nonterminal]->has_eps)
+                {
+                    add_list_to_first(head,first[temp->elem.nonterminal]->head);
+                }
+                else
+                {
+                    recurse_first(node_head,temp->next,rule_no);
+                }
+                        
+            }
+        }
+        else
+        {
+            add_node_to_first(head, temp->elem.terminal, rule_no);
+        }
+        	
 	}
-	
-
-
-
 }
+
+void first (NON_TERMINAL nt)
+{
+    if(f->first[nt]->head!=NULL)
+    {
+        return;
+    }
+    else
+    {
+        int* rule= nonTerminalStringTable[nt]->rules;
+        int length= nonTerminalStringTable[nt]->length;
+        int i;
+        g_node* iterator=NULL;
+        node* temp=NULL;
+        for(i=0;i<length;i++)
+        {
+            iterator =grammar[rule[i]]->next;
+            while(iterator!=NULL)
+            {
+                if(grammar[rule[i]]->next.is_term)
+                {
+                    if(grammar[rule[i]]->next.elem.terminal==eps)
+                    {
+                        f->first[nt]->has_eps=true;
+                    }
+                    add_node_to_first(grammar[rule[i]]->next->elem.terminal,rule[i]);
+                }
+                else
+                {
+                    if(f->first[iterator->elem.nonterminal]->head!=NULL)
+                    {
+                        if(!(f->first[iterator->elem.nonterminal]->has_eps))
+		                {
+                            add_list_to_first(f->first[nt],f->first[iterator->elem.nonterminal]->head);
+                        }
+                        else
+                        {
+                            recurse_first(f->first[nt],iterator->next, rule[i]);
+                        }
+                    }
+
+                    else
+                    {
+                        
+                        first(first[iterator->elem.nonterminal]);
+                        if(!f->first[iterator->elem.nonterminal]->has_eps)
+                        {
+                            add_list_to_first(f->first[nt],first[iterator->elem.nonterminal]->head)
+                        }
+                        else
+                        {
+                            recurse_first(f->first[nt],iterator->next,rule[i];
+                        }
+                    }
+                    
+                }
+                iterator=iterator->next;
+            }           
+        }
+    }   
+}
+
 void add_nodetof(node_head_follow* head,TOKEN tk)
 {
 	if(tk==eps)
@@ -283,10 +389,12 @@ FirstAndFollow *ComputeFirstAndFollowSets(g_node **grammar){
 		f->first[i] = create_head_first(i);
 	}
 	for(int i=0; i<NO_OF_RULES; i++){
+		if(f->first[i]->head==NULL)
 		first(i);
 	}
 //Do not merge these for loops into one
 	for(int i=0; i<NO_OF_RULES; i++){
+		
 		f->follow[i] = create_head_follow(i);
 		
 	}

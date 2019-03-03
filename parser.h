@@ -19,5 +19,9 @@ node_head_follow* create_head_follow(NON_TERMINAL nt_index);
 void add_ftof(node_head_follow* head,node* firstorfollow);
 void add_nodetof(node_head_follow* head,TOKEN tk);
 void clear_flags_follow();
+void recurse_first(node_head_first* node_head,g_node* temp, int rule_no);
+void add_list_to_first(node_head_first* head, node* list);
+void add_node_to_first(node_head_first* head,TOKEN tk, int rule);
+
 //Error recovery functions
 //Function pointer functions
