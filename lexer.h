@@ -10,4 +10,5 @@ void removeComments(char *testcaseFile, char *cleanFile); //char* refers to file
 //Auxiliary functions
 void populate_transition_table();
 void populateNonTerminalStringTable();
-void populateTerminalStringTable();
+char *TerminalString();
+void printTT();

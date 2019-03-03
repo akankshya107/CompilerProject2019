@@ -1,4 +1,5 @@
 #include "key.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 int hash(char *str){
@@ -15,6 +16,7 @@ hash_elem *create_hash_elem(int tkname, char *str){
     h->str = str;
     h->tkname = tkname;
     h->next=NULL;
+    return h;
 }
 
 void insertIntoHT(hash_elem *elem){
@@ -31,9 +33,11 @@ void insertIntoHT(hash_elem *elem){
     }
 }
 
-hashTable populateKeyWordTable(){
+void populateKeyWordTable(){
     KeyWordTable = (hashTable)malloc(sizeof(hash_elem*)*43);
-
+    for(int i=0; i<43; i++){
+        KeyWordTable[i]=create_hash_elem(0, "none");
+    }
     int index;
     //populate this
     //with
@@ -108,7 +112,6 @@ hashTable populateKeyWordTable(){
     //else
     insertIntoHT(create_hash_elem(TK_ELSE, "else"));
 
-    return KeyWordTable;
 }
 
 hash_elem* lookup(char *str){
@@ -116,10 +119,10 @@ hash_elem* lookup(char *str){
     hash_elem *temp =KeyWordTable[index]->next;
     while(temp!=NULL){
         if(strcmp(str, temp->str)==0){
+            // printf("%s\n", str);
             return temp;
         }
         temp=temp->next;
     }
-    hash_elem *ret = create_hash_elem(-1, "none");
-    return ret;
+    return KeyWordTable[index];
 }

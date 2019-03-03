@@ -6,9 +6,9 @@
 #include <string.h>
 TRANSITION_TABLE_ELEM **transition_table;
 
-void populateTerminalStringTable(){
-
-    // terminalStringTable =  { "TK_ASSIGNOP", "TK_COMMENT", "TK_FIELDID", "TK_ID", "TK_NUM", "TK_RNUM", "TK_FUNID", "TK_RECORDID", "TK_WITH", "TK_PARAMETERS", "TK_END", "TK_WHILE", "TK_TYPE", "TK_MAIN", "TK_GLOBAL", "TK_PARAMETER", "TK_LIST", "TK_SQL", "TK_SQR", "TK_INPUT", "TK_OUTPUT", "TK_INT", "TK_REAL", "TK_COMMA", "TK_SEM", "TK_COLON", "TK_DOT", "TK_ENDWHILE", "TK_OP", "TK_CL", "TK_IF", "TK_THEN", "TK_ENDIF", "TK_READ", "TK_WRITE", "TK_RETURN", "TK_PLUS", "TK_MINUS", "TK_MUL", "TK_DIV", "TK_CALL", "TK_RECORD", "TK_ENDRECORD", "TK_ELSE", "TK_AND", "TK_OR", "TK_NOT", "TK_LT", "TK_LE", "TK_EQ", "TK_GT", "TK_GE", "TK_NE", "eps", "EOS" };
+char *TerminalString(int index){
+    static char *terminalStringTable[EOS+1] =  { "TK_ASSIGNOP", "TK_COMMENT", "TK_FIELDID", "TK_ID", "TK_NUM", "TK_RNUM", "TK_FUNID", "TK_RECORDID", "TK_WITH", "TK_PARAMETERS", "TK_END", "TK_WHILE", "TK_TYPE", "TK_MAIN", "TK_GLOBAL", "TK_PARAMETER", "TK_LIST", "TK_SQL", "TK_SQR", "TK_INPUT", "TK_OUTPUT", "TK_INT", "TK_REAL", "TK_COMMA", "TK_SEM", "TK_COLON", "TK_DOT", "TK_ENDWHILE", "TK_OP", "TK_CL", "TK_IF", "TK_THEN", "TK_ENDIF", "TK_READ", "TK_WRITE", "TK_RETURN", "TK_PLUS", "TK_MINUS", "TK_MUL", "TK_DIV", "TK_CALL", "TK_RECORD", "TK_ENDRECORD", "TK_ELSE", "TK_AND", "TK_OR", "TK_NOT", "TK_LT", "TK_LE", "TK_EQ", "TK_GT", "TK_GE", "TK_NE", "eps", "EOS" };
+    return terminalStringTable[index];
 }
 
 void populateNonTerminalStringTable(){
@@ -26,9 +26,9 @@ tokenInfo *return_str_token(char *lexeme, TOKEN tkname, int lineno, bool is_retr
     ti->tokenName = tkname;
     ti->flag = 0;
     ti->u.lexeme = lexeme;
-    if(!is_retract){
+    if(is_retract){
         if(*input_buffer_pointer!=0){
-            input_buffer_pointer++;
+            *input_buffer_pointer=*input_buffer_pointer-1;
         }
     }
     return ti;
@@ -47,9 +47,9 @@ tokenInfo *return_no_token(char *lexeme, TOKEN tkname, int lineno, bool is_retra
         ti->flag = 2;
         ti->u.value_of_real = atof(lexeme);
     }
-    if(!is_retract){
+    if(is_retract){
         if(*input_buffer_pointer!=0){
-            input_buffer_pointer++;
+            *input_buffer_pointer=*input_buffer_pointer-1;
         }
     }
     return ti;
@@ -66,161 +66,162 @@ void unknown_symbol(char *arr, int line_num){
 }
 
 void populate_transition_table(){
-    TRANSITION_TABLE_ELEM **transition_table = (TRANSITION_TABLE_ELEM**)malloc(sizeof(TRANSITION_TABLE_ELEM*)*sizeof(NO_OF_STATES));
-    printf("lol");
+    transition_table = (TRANSITION_TABLE_ELEM**)malloc(sizeof(TRANSITION_TABLE_ELEM*)*NO_OF_STATES);
+    // printf("lol");
     for(int i=0; i<NO_OF_STATES; i++){
         transition_table[i]=(TRANSITION_TABLE_ELEM*)malloc(sizeof(TRANSITION_TABLE_ELEM)*(128));
         // printf("%p\n", transition_table[i]);
     }
-    printf("L");
+    // printf("L");
     int j;
     for(j=0;j<=127;j++)
     {
-        // switch(j)
-        // {
-        //     case ',':{
-        //         transition_table[0][j].u.state=1;
-        //         transition_table[0][j].flag=0;
-        //         break;
-        //     }
-        //     case ';':{
-        //         transition_table[0][j].u.state=2;
-        //         transition_table[0][j].flag=0;
-        //         break;
-        //     }
-        //     case ':':{
-        //         transition_table[0][j].u.state=3;
-        //         transition_table[0][j].flag=0;
-        //         break;
-        //     }
-        //     case '.':{
-        //         transition_table[0][j].u.state=4;
-        //         transition_table[0][j].flag=0;
-        //         break;
-        //     }
-        //     case '(':{
-        //         transition_table[0][j].u.state=5;
-        //         transition_table[0][j].flag=0;
-        //         break;
-        //     }
-        //     case ')':{
-        //         transition_table[0][j].u.state=6;
-        //         transition_table[0][j].flag=0;
-        //         break;
-        //     }
-        //     case '=':{
-        //         transition_table[0][j].u.state=7;
-        //         transition_table[0][j].flag=0;
-        //         break;
-        //     }
-        //     case '~':{
-        //         transition_table[0][j].u.state=9;
-        //         transition_table[0][j].flag=0;
-        //         break;
-        //     }
-        //     case '<':{
-        //         transition_table[0][j].u.state=10;
-        //         transition_table[0][j].flag=0;
-        //         break;
-        //     }
-        //     case '>':{
-        //         transition_table[0][j].u.state=16;
-        //         transition_table[0][j].flag=0;
-        //         break;
-        //     }
-        //     case '!':{
-        //         transition_table[0][j].u.state=19;
-        //         transition_table[0][j].flag=0;
-        //         break;
-        //     }
-        //     case '[':{
-        //         transition_table[0][j].u.state=21;
-        //         transition_table[0][j].flag=0;
-        //         break;
-        //     }
-        //     case ']':{
-        //         transition_table[0][j].u.state=22;
-        //         transition_table[0][j].flag=0;
-        //         break;
-        //     }
-        //     case '+':{
-        //         transition_table[0][j].u.state=23;
-        //         transition_table[0][j].flag=0;
-        //         break;
-        //     }
-        //     case '-':{
-        //         transition_table[0][j].u.state=24;
-        //         transition_table[0][j].flag=0;
-        //         break;
-        //     }
-        //     case '*':{
-        //         transition_table[0][j].u.state=25;
-        //         transition_table[0][j].flag=0;
-        //         break;
-        //     }
-        //     case '/':{
-        //         transition_table[0][j].u.state=26;
-        //         transition_table[0][j].flag=0;
-        //         break;
-        //     }
-        //     case '@':{
-        //         transition_table[0][j].u.state=29;
-        //         transition_table[0][j].flag=0;
-        //         break;
-        //     }
+        switch(j)
+        {
+            case ',':{
+                transition_table[0][j].u.state=1;
+                transition_table[0][j].flag=0;
+                break;
+            }
+            case ';':{
+                transition_table[0][j].u.state=2;
+                transition_table[0][j].flag=0;
+                break;
+            }
+            case ':':{
+                transition_table[0][j].u.state=3;
+                transition_table[0][j].flag=0;
+                break;
+            }
+            case '.':{
+                transition_table[0][j].u.state=4;
+                transition_table[0][j].flag=0;
+                break;
+            }
+            case '(':{
+                transition_table[0][j].u.state=5;
+                transition_table[0][j].flag=0;
+                break;
+            }
+            case ')':{
+                transition_table[0][j].u.state=6;
+                transition_table[0][j].flag=0;
+                break;
+            }
+            case '=':{
+                transition_table[0][j].u.state=7;
+                transition_table[0][j].flag=0;
+                break;
+            }
+            case '~':{
+                transition_table[0][j].u.state=9;
+                transition_table[0][j].flag=0;
+                break;
+            }
+            case '<':{
+                transition_table[0][j].u.state=10;
+                transition_table[0][j].flag=0;
+                break;
+            }
+            case '>':{
+                transition_table[0][j].u.state=16;
+                transition_table[0][j].flag=0;
+                break;
+            }
+            case '!':{
+                transition_table[0][j].u.state=19;
+                transition_table[0][j].flag=0;
+                break;
+            }
+            case '[':{
+                transition_table[0][j].u.state=21;
+                transition_table[0][j].flag=0;
+                break;
+            }
+            case ']':{
+                transition_table[0][j].u.state=22;
+                transition_table[0][j].flag=0;
+                break;
+            }
+            case '+':{
+                transition_table[0][j].u.state=23;
+                transition_table[0][j].flag=0;
+                break;
+            }
+            case '-':{
+                transition_table[0][j].u.state=24;
+                transition_table[0][j].flag=0;
+                break;
+            }
+            case '*':{
+                transition_table[0][j].u.state=25;
+                transition_table[0][j].flag=0;
+                break;
+            }
+            case '/':{
+                transition_table[0][j].u.state=26;
+                transition_table[0][j].flag=0;
+                break;
+            }
+            case '@':{
+                transition_table[0][j].u.state=29;
+                transition_table[0][j].flag=0;
+                break;
+            }
 
-        //     case '&':{
-        //         transition_table[0][j].u.state=32;
-        //         transition_table[0][j].flag=0;
-        //         break;
-        //     }
-        //     case '#':{
-        //         transition_table[0][j].u.state=41;
-        //         transition_table[0][j].flag=0;
-        //         break;
-        //     }
-        //     case '_':{
-        //         transition_table[0][j].u.state=44;
-        //         transition_table[0][j].flag=0;
-        //         break;
-        //     }
-        //     case '%':{
-        //         transition_table[0][j].u.state=53;
-        //         transition_table[0][j].flag=0;
-        //         break;
-        //     }
+            case '&':{
+                transition_table[0][j].u.state=32;
+                transition_table[0][j].flag=0;
+                break;
+            }
+            case '#':{
+                transition_table[0][j].u.state=41;
+                transition_table[0][j].flag=0;
+                break;
+            }
+            case '_':{
+                transition_table[0][j].u.state=44;
+                transition_table[0][j].flag=0;
+                break;
+            }
+            case '%':{
+                transition_table[0][j].u.state=53;
+                transition_table[0][j].flag=0;
+                break;
+            }
             
-        //     default:
-        //     {
-        //         if(j>='b'&&j<='d')
-        //         {
-        //             transition_table[0][j].u.state=35;
-        //             transition_table[0][j].flag=0;
-        //         }
+            default:
+            {
+                // printf("%d\n", j);
+                if((j>='b') && (j<='d'))
+                {
+                    transition_table[0][j].u.state=35;
+                    transition_table[0][j].flag=0;
+                }
 
-        //         else if(j=='a'||(j>'d'&&j<='z'))
-        //         {
-        //             transition_table[0][j].u.state=39;
-        //             transition_table[0][j].flag=0;
-        //         }
+                else if((j=='a')||(j>'d'&&j<='z'))
+                {
+                    transition_table[0][j].u.state=39;
+                    transition_table[0][j].flag=0;
+                }
 
-        //         else if(j>='0'&&j<='9')
-        //         {
-        //             transition_table[0][j].u.state=48;
-        //             transition_table[0][j].flag=0;
-        //         }
-        //         else if((j==' ')||(j=='\t')||(j=='\n'))
-        //         {
-        //             transition_table[0][j].u.state=27;
-        //             transition_table[0][j].flag=0;
-        //         }
-        //         else
-        //         {
-        //             transition_table[0][j].u.error_function=&unknown_symbol;
-        //             transition_table[0][j].flag=2;
-        //         }
-        //     }
-        // }
+                else if((j>='0')&&(j<='9'))
+                {
+                    transition_table[0][j].u.state=48;
+                    transition_table[0][j].flag=0;
+                }
+                else if ((j==' ')||(j=='\t')||(j=='\n'))
+                {
+                    transition_table[0][j].flag=0;
+                    transition_table[0][j].u.state=27;
+                }
+                else
+                {
+                    transition_table[0][j].u.error_function=&unknown_symbol;
+                    transition_table[0][j].flag=2;
+                }
+            }
+        }
     // // }
 
     // // for(j=0;j<=127;j++)
@@ -449,11 +450,11 @@ void populate_transition_table(){
         if ((j==' ')||(j=='\t')||(j=='\n'))
         {
             transition_table[27][j].flag=0;
-            transition_table[27][j].u.state=55;
+            transition_table[27][j].u.state=27;
         }
         else{
             transition_table[27][j].flag=0;
-            transition_table[27][j].u.state=56;
+            transition_table[27][j].u.state=28;
         }
     // // }
     // // for(j=0; j<=127; j++){
@@ -531,7 +532,7 @@ void populate_transition_table(){
     // // }
     // // for(j=0;j<=127;j++)
     // // {
-        if((j<=7)&&(j>=2))
+        if((j<='7')&&(j>='2'))
         {
             transition_table[35][j].flag=0;
             transition_table[35][j].u.state=36;
@@ -549,7 +550,7 @@ void populate_transition_table(){
     // // }
     // // for(j=0;j<=127;j++)
     // // {
-        if((j<=7)&&(j>=2))
+        if((j<='7')&&(j>='2'))
         {
             transition_table[36][j].flag=0;
             transition_table[36][j].u.state=37;
@@ -567,7 +568,7 @@ void populate_transition_table(){
     // // }
     // // for(j=0;j<=127;j++)
     // // {
-        if((j<=7)&&(j>=2))
+        if((j<='7')&&(j>='2'))
         {
             transition_table[37][j].flag=0;
             transition_table[37][j].u.state=37;
@@ -658,7 +659,7 @@ void populate_transition_table(){
             transition_table[45][j].flag=0;
             transition_table[45][j].u.state=45;
         }
-        else if ((j>=0)&&(j<=9))
+        else if ((j>='0')&&(j<='9'))
         {
             transition_table[45][j].flag=0;
             transition_table[45][j].u.state=46;
@@ -671,7 +672,7 @@ void populate_transition_table(){
     // // }
     // // for(j=0;j<=127;j++)
     // // {
-        if ((j>=0)&&(j<=9))
+        if ((j>='0')&&(j<='9'))
         {
             transition_table[46][j].flag=0;
             transition_table[46][j].u.state=46;
@@ -691,7 +692,7 @@ void populate_transition_table(){
     // // }
     // // for(j=0;j<=127;j++)
     // // {
-        if ((j>=0)&&(j<=9))
+        if ((j>='0')&&(j<='9'))
         {
             transition_table[48][j].flag=0;
             transition_table[48][j].u.state=48;
@@ -716,7 +717,7 @@ void populate_transition_table(){
     // // }
     // // for(j=0;j<=127;j++)
     // // {
-        if ((j>=0)&&(j<=9))
+        if ((j>='0')&&(j<='9'))
         {
             transition_table[50][j].flag=0;
             transition_table[50][j].u.state=51;
@@ -729,7 +730,7 @@ void populate_transition_table(){
     // // }
     // // for(j=0;j<=127;j++)
     // // {
-        if ((j>=0)&&(j<=9))
+        if ((j>='0')&&(j<='9'))
         {
             transition_table[51][j].flag=0;
             transition_table[51][j].u.state=52;
@@ -749,7 +750,7 @@ void populate_transition_table(){
     // // }
     // // for(j=0;j<=127;j++)
     // // {
-        if ((j==' ')||(j=='\t')||(j=='\n'))
+        if ((j=='\n')||(j==' '))
         {
             transition_table[53][j].flag=0;
             transition_table[53][j].u.state=54;
@@ -770,18 +771,20 @@ void populate_transition_table(){
 
 size_t getStream(FILE *fp){
     size_t no_of_bytes_read1 = fread(input_buffer, sizeof(char), BUF_LENGTH, fp);
+    // printf("%d\n", no_of_bytes_read1);
     return no_of_bytes_read1;
 }
 
 tokenInfo* getNextToken(FILE *fp){
     //Rough: some implementation left
     //static ints
-    static int line_count = 0;
+    static int line_count = 1;
     static int input_buffer_pointer=0;
     static bool global_flag = 0;
     static size_t no_of_bytes;
 
     if(!global_flag){
+        input_buffer=(char*)malloc(sizeof(char)*BUF_LENGTH);
         no_of_bytes=getStream(fp);
         global_flag = 1;
     }
@@ -796,8 +799,8 @@ tokenInfo* getNextToken(FILE *fp){
                 input_buffer_pointer=0;
             }else{
 
-                if(state==0){
-                    printf("EOF\n");
+                if(state==0 || state==27 || state==28 || state==53 || state==54){
+                    // printf("EOF\n");
                 }
                 else if(transition_table[state][0].flag==1){
                     lex[j]='\0';
@@ -825,21 +828,26 @@ tokenInfo* getNextToken(FILE *fp){
                     unknown_pattern(lex, line_count);
                 }
                 return return_str_token("EOS", EOS, line_count, 0, &input_buffer_pointer);
+            
             }
         }
         ch = input_buffer[input_buffer_pointer];
-        if(ch=='\n') line_count++;
         if(transition_table[state][ch].flag==0){
             state = transition_table[state][ch].u.state;
             lex[j++]=ch;
             input_buffer_pointer++;
+            if(ch=='\n') line_count++;
         }else if(transition_table[state][ch].flag==1){
-            lex[j]='\0';
+            if(transition_table[state][ch].u.func.is_retract) {
+                if(lex[j-1]=='\n') line_count--;
+                lex[j-1]='\0';
+            }
+            else lex[j]='\0';
             if(transition_table[state][ch].u.func.func_flag==0){
                 return return_str_token(lex, transition_table[state][ch].u.func.tkname, line_count, transition_table[state][ch].u.func.is_retract, &input_buffer_pointer);
             }else if(transition_table[state][ch].u.func.func_flag==1){ //for TK_FIELDID and TK_FUNID
                 hash_elem *k = lookup(lex);
-                if(k->tkname>0){
+                if(k->tkname!=0){
                     return return_str_token(k->str, k->tkname, line_count, 1, &input_buffer_pointer);
                 }
                 else{
@@ -849,11 +857,15 @@ tokenInfo* getNextToken(FILE *fp){
                 return return_no_token(lex, transition_table[state][ch].u.func.tkname, line_count, transition_table[state][ch].u.func.is_retract, &input_buffer_pointer);
             }else if(transition_table[state][ch].u.func.func_flag==3){
                 state=0;
+                memset(lex, 0, sizeof(char)*MAX_LENGTH);
+                j=0;
+                input_buffer_pointer--;
             }
             else{
                 printf("Error in transition table");
             }
         }else{
+            lex[j-1]='\0';
             transition_table[state][ch].u.error_function(lex, line_count);
             memset(lex, 0, sizeof(char)*MAX_LENGTH);
             j=0;

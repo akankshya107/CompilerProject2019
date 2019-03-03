@@ -1,32 +1,35 @@
 #include <stdio.h>
 #include "lexer.h"
+#include "key.h"
 #include "parser.h"
 extern parse_table T;
 int main(int argc, char *argv[]){
 	int option;
-	if(1){
+	while(1){
 		scanf("%d", &option);
 		printf("Entered: %d\n", option);
-		printf("%d", (option==1));
+		// printf("%d", (option==1));
 		if(option==0){
-			// break;
+			break;
 		}else if(option==1){
 			removeComments(argv[1], "clean.txt");
 		}else if(option==2){
 			// //Invoke only lexer
-			printf("lyf");
+			// printf("lyf");
 			FILE *fp = fopen("testcase1.txt", "r");
 			populate_transition_table();
-			printf("lyf");
+			// printTT();
+			populateKeyWordTable();
+			// printf("lyf");
 			// // populateTerminalStringTable();
 			// // populateNonTerminalStringTable()
-			// tokenInfo *ti;
-			// do{
-			// 	ti = getNextToken(fp);
-			// 	if(ti->tokenName==TK_NUM) printf("Line %d: Token %d, Lexeme %d", ti->line_no, ti->tokenName, ti->u.value_of_int);
-			// 	else if(ti->tokenName==TK_RNUM) printf("Line %d: Token %d, Lexeme %f", ti->line_no, ti->tokenName, ti->u.value_of_real);
-			// 	else printf("Line %d: Token %d, Lexeme %s", ti->line_no, ti->tokenName, ti->u.lexeme);
-			// }while(ti->tokenName!=EOS);
+			tokenInfo *ti;
+			do{
+				ti = getNextToken(fp);
+				if(ti->tokenName==TK_NUM) printf("Line %d: Token %s, Lexeme %d\n", ti->line_no, TerminalString(ti->tokenName), ti->u.value_of_int);
+				else if(ti->tokenName==TK_RNUM) printf("Line %d: Token %s, Lexeme %.2f\n", ti->line_no, TerminalString(ti->tokenName), ti->u.value_of_real);
+				else printf("Line %d: Token %s, Lexeme %s\n", ti->line_no, TerminalString(ti->tokenName), ti->u.lexeme);
+			}while(ti->tokenName!=EOS);
 			
 		}else if(option==3){
 
