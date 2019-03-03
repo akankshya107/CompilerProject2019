@@ -147,56 +147,65 @@ g_node_head** populateGrammar(){
 
 node* follow(NON_TERMINAL nt_index)
 {
-	g_node* temp;
-	// g_node_head* follow_head=create_g_node_head(nt_index)
-	node* head=NULL;
-	node* temp_node;
-	for(int i=0; i<NO_OF_GRAMMAR_RULES; i++)
+	if(f->follow[nt_index]->head!=NULL)
+		return f->follow[nt_index]->head;
+	else
 	{
-		temp=grammar[i]->next;
-		while(temp!=NULL)
+		
+		g_node* temp;
+		
+		// g_node_head* follow_head=create_g_node_head(nt_index)
+		node* head=NULL;
+		node* temp_node;
+		f->follow[nt_index]->head=head;
+		f->follow[nt_index]->nt=nt_index;
+		for(int i=0; i<NO_OF_GRAMMAR_RULES; i++)
 		{
-			if(!temp->is_term)
+			temp=grammar[i]->next;
+			while(temp!=NULL)
 			{
-				if(temp->elem.nonterminal==nt_index)
+				if(!temp->is_term)
 				{
-					if(temp->next==NULL)
+					if(temp->elem.nonterminal==nt_index)
 					{
-						temp_node=follow(grammar[i]->non_terminal);
-					}
-					else
-					{
-						if(temp->next->is_term)
+						if(temp->next==NULL)
 						{
-							temp_node=create_node(temp->next->elem.terminal,i);
-							temp_node->next=head;
-							head=temp_node;
+							temp_node=follow(grammar[i]->non_terminal);
 						}
-
 						else
 						{
-							// f->follow
-							if(!f->first[temp->next->elem.nonterminal]->has_eps))
+							if(temp->next->is_term)
 							{
-								temp_node=f->first[temp->next->elem.nonterminal]->head;
+								temp_node=create_node(temp->next->elem.terminal,i);
 								temp_node->next=head;
 								head=temp_node;
 							}
 
 							else
 							{
-								first_eps(temp->next,grammar[i]);
-							}
-							
-						}
-					}
+								
+								if(!f->first[temp->next->elem.nonterminal]->has_eps)
+								{
+									temp_node=f->first[temp->next->elem.nonterminal]->head;
+									temp_node->next=head;
+									head=temp_node;
+								}
 
+								else
+								{
+									first_eps(temp->next,grammar[i]);
+								}
+								
+							}
+						}
+
+					}
+					else
+					{
+						temp=temp->next;
+					}
+					
 				}
-				else
-				{
-					temp=temp->next;
-				}
-				
 			}
 		}
 	}
@@ -219,13 +228,12 @@ node* first_eps(node* temp,g_node_head* g)
 
 	else
 	{
-		if(f->first[temp->tokenName]->)
-		if(first(temp)->has_eps)
+		if(f->first[temp->tokenName]->has_eps)
 		return first_eps(temp->next,g);
 
 		else
 		{
-			return first(temp)->head;
+			return first(temp);
 		}
 		
 	}

@@ -10,6 +10,19 @@ typedef struct node{
 	int rule_no_index;
 	struct node *next;
 }node;    //used for first and follow
+typedef struct node_head_follow
+{
+	NON_TERMINAL nt;
+	bool is_visited;
+	node* head;
+}node_head_follow;
+
+typedef struct node_head_first
+{
+	NON_TERMINAL nt;
+	bool has_eps;
+	node* head;
+}node_head_first;
 
 typedef struct{
 	node_head_first **first;
@@ -38,19 +51,6 @@ typedef struct g_node{
 
 g_node_head **grammar;
 
-typedef struct node_head_follow
-{
-	NON_TERMINAL nt;
-	bool is_visited;
-	node* head;
-}node_head_follow;
-
-typedef struct node_head_first
-{
-	NON_TERMINAL nt;
-	bool has_eps;
-	node* head;
-}node_head_first;
 
 typedef struct f_node{
 	bool is_error;
