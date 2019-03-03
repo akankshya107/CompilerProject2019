@@ -15,9 +15,9 @@ int main(int argc, char *argv[]){
 		}else if(option==2){
 			// //Invoke only lexer
 			printf("lyf");
-			// FILE *fp = fopen(argv[1], "r");
-			// populate_transition_table();
-			// printf("lyf");
+			FILE *fp = fopen("testcase1.txt", "r");
+			populate_transition_table();
+			printf("lyf");
 			// // populateTerminalStringTable();
 			// // populateNonTerminalStringTable()
 			// tokenInfo *ti;
