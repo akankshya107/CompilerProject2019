@@ -110,10 +110,24 @@ g_node_head** populateGrammar(){
 
 	return grammar;
 }
-node* first(NON_TERMINAL nt_index)
+void first(NON_TERMINAL nt_index)
 {
 	node* head=NULL;
 	return head;
+	if(f->first[nt_index]->head!=NULL)
+	{
+		return;
+	}
+
+	else
+	{
+		int* rules=nonterminal_str[nt_index]->;
+
+	}
+	
+
+
+
 }
 void add_nodetof(node_head_follow* head,TOKEN tk)
 {

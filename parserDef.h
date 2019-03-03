@@ -12,14 +12,12 @@ typedef struct node{
 }node;    //used for first and follow
 typedef struct node_head_follow
 {
-	NON_TERMINAL nt;
 	bool is_visited;
 	node* head;
 }node_head_follow;
 
 typedef struct node_head_first
 {
-	NON_TERMINAL nt;
 	bool has_eps;
 	node* head;
 }node_head_first;
@@ -51,6 +49,12 @@ typedef struct g_node{
 
 g_node_head **grammar;
 
+typedef struct nonterminal_str{
+	char *nonterminal;
+	int *rules;
+}nonterminal_str;
+
+nonterminal_str **nonTerminalStringTable;
 
 typedef struct f_node{
 	bool is_error;
