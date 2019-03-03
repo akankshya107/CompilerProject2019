@@ -12,6 +12,11 @@ node* create_node();
 g_node* first_gnode(g_node_head* h,int no,bool is_term);
 g_node* dl_nodes(g_node* pnext,int no,bool is_term);
 void print_gnode(g_node* ptr);
+node* first_eps(node* temp,g_node_head* g);
+node* first(NON_TERMINAL nt_index);
+node* follow(NON_TERMINAL nt_index);
+node_head_follow* create_head_follow(NON_TERMINAL nt_index);
+
 
 //Error recovery functions
 //Function pointer functions

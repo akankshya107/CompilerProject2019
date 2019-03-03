@@ -476,9 +476,9 @@ tokenInfo* generate_token_info3(TOKEN tkname,int line_no,float num)
     tk->u.value_of_real=num;
 }
 
-void unknown_symbol(char c)
+void unknown_symbol(char* c)
 {
-    printf("Unknown Symbol %c",c);
+    printf("Unknown Symbol %s",c);
 }
 void unknown_pattern(char* c)
 {

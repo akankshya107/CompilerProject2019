@@ -9,6 +9,23 @@ g_node_head* create_g_node_head(NON_TERMINAL nt){
 	head->next = NULL;
 	return head;
 }
+node_head_follow* create_head_follow(NON_TERMINAL nt_index)
+{
+	node_head_follow* head=(node_head_follow*) malloc(sizeof(node_head_follow));
+	head->nt=nt_index;
+	head->is_visited=false;
+	head->head=NULL;
+	return head;
+}
+
+node_head_first* create_head_first(NON_TERMINAL nt_index)
+{
+	node_head_first* head=(node_head_first*) malloc(sizeof(node_head_first));
+	head->nt=nt_index;
+	head->has_eps=false;
+	head->head=NULL;
+	return head;
+}
 
 g_node* create_g_node(bool is_term, int value){
 	g_node *g = (g_node*)malloc(sizeof(g_node));
@@ -30,9 +47,29 @@ node* create_node(TOKEN tkname, int rule_no){
 
 FirstAndFollow *ComputeFirstAndFollowSets(g_node **grammar){
 	FirstAndFollow *f = (FirstAndFollow*)malloc(sizeof(FirstAndFollow));
-	f->first = (node**)malloc(sizeof(node*)*NO_OF_RULES);
-	f->follow = (node**)malloc(sizeof(node*)*NO_OF_RULES);
-	
+	// f->first = (node_head**)malloc(sizeof(node*)*NO_OF_RULES);
+	f->first = (node_head_first**)malloc(sizeof(node_head_first*)*NO_OF_RULES);
+
+	f->follow = (node_head_follow**)malloc(sizeof(node_head_follow*)*NO_OF_RULES);
+
+	for(int i=0; i<NO_OF_RULES; i++){
+		f->first[i] = create_head_first(i);
+	}
+	for(int i=0; i<NO_OF_RULES; i++){
+		f->first[i]->head = first(i);
+	}
+
+	for(int i=0; i<NO_OF_RULES; i++){
+		f->follow[i] = create_head_follow(i);
+		// temp=create_head_follow(i);
+		
+	}
+	for(int i=0; i<NO_OF_RULES; i++){
+		// f->first[i]->
+		f->follow[i]->head = follow(i);
+	}
+
+
 	//First: recursive search til encounter a terminal
 	// for(int i=0; i<NO_OF_RULES; i++){
 	// 	f->first[i]->next = first(i);
@@ -106,6 +143,93 @@ g_node_head** populateGrammar(){
 	//so on
 
 	return grammar;
+}
+
+node* follow(NON_TERMINAL nt_index)
+{
+	g_node* temp;
+	// g_node_head* follow_head=create_g_node_head(nt_index)
+	node* head=NULL;
+	node* temp_node;
+	for(int i=0; i<NO_OF_GRAMMAR_RULES; i++)
+	{
+		temp=grammar[i]->next;
+		while(temp!=NULL)
+		{
+			if(!temp->is_term)
+			{
+				if(temp->elem.nonterminal==nt_index)
+				{
+					if(temp->next==NULL)
+					{
+						temp_node=follow(grammar[i]->non_terminal);
+					}
+					else
+					{
+						if(temp->next->is_term)
+						{
+							temp_node=create_node(temp->next->elem.terminal,i);
+							temp_node->next=head;
+							head=temp_node;
+						}
+
+						else
+						{
+							// f->follow
+							if(!f->first[temp->next->elem.nonterminal]->has_eps))
+							{
+								temp_node=f->first[temp->next->elem.nonterminal]->head;
+								temp_node->next=head;
+								head=temp_node;
+							}
+
+							else
+							{
+								first_eps(temp->next,grammar[i]);
+							}
+							
+						}
+					}
+
+				}
+				else
+				{
+					temp=temp->next;
+				}
+				
+			}
+		}
+	}
+}
+
+node* first_eps(node* temp,g_node_head* g)
+{
+	if(temp==NULL)
+	{
+		// if(f->follow[g->non_terminal].is_visited)
+		// return NULL;
+		// else
+		{
+			
+			return (follow(g->non_terminal));
+		}
+		
+		
+	}
+
+	else
+	{
+		if(f->first[temp->tokenName]->)
+		if(first(temp)->has_eps)
+		return first_eps(temp->next,g);
+
+		else
+		{
+			return first(temp)->head;
+		}
+		
+	}
+	
 }
 
 // node* first(NON_TERMINAL nt_index){
