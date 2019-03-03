@@ -51,17 +51,16 @@ FirstAndFollow *ComputeFirstAndFollowSets(g_node **grammar){
 	f->first = (node_head_first**)malloc(sizeof(node_head_first*)*NO_OF_RULES);
 
 	f->follow = (node_head_follow**)malloc(sizeof(node_head_follow*)*NO_OF_RULES);
-
+//Do not merge these forloops into one
 	for(int i=0; i<NO_OF_RULES; i++){
 		f->first[i] = create_head_first(i);
 	}
 	for(int i=0; i<NO_OF_RULES; i++){
 		f->first[i]->head = first(i);
 	}
-
+//Do not merge these for loops into one
 	for(int i=0; i<NO_OF_RULES; i++){
 		f->follow[i] = create_head_follow(i);
-		// temp=create_head_follow(i);
 		
 	}
 	for(int i=0; i<NO_OF_RULES; i++){
@@ -147,97 +146,137 @@ g_node_head** populateGrammar(){
 
 node* follow(NON_TERMINAL nt_index)
 {
+	clear_flags_follow();
 	if(f->follow[nt_index]->head!=NULL)
+	{
+		f->follow[nt_index]->is_visited=true;
 		return f->follow[nt_index]->head;
+	}
 	else
 	{
-		
-		g_node* temp;
-		
-		// g_node_head* follow_head=create_g_node_head(nt_index)
-		node* head=NULL;
-		node* temp_node;
-		f->follow[nt_index]->head=head;
-		f->follow[nt_index]->nt=nt_index;
-		for(int i=0; i<NO_OF_GRAMMAR_RULES; i++)
+		if(f->follow[nt_index]->is_visited)
+		return f->follow[nt_index]->head;
+		else
 		{
-			temp=grammar[i]->next;
-			while(temp!=NULL)
+			f->follow[nt_index]->is_visited=true;
+			g_node* temp;
+			f->follow[nt_index]->nt=nt_index;
+			for(int i=0; i<NO_OF_GRAMMAR_RULES; i++)
 			{
-				if(!temp->is_term)
+				temp=grammar[i]->next;
+				while(temp!=NULL)
 				{
-					if(temp->elem.nonterminal==nt_index)
+					if(!temp->is_term)
 					{
-						if(temp->next==NULL)
+						if(temp->elem.nonterminal==nt_index)
 						{
-							temp_node=follow(grammar[i]->non_terminal);
-						}
-						else
-						{
-							if(temp->next->is_term)
+							if(temp->next==NULL)
 							{
-								temp_node=create_node(temp->next->elem.terminal,i);
-								temp_node->next=head;
-								head=temp_node;
+								// add follow of grammar[i]->non_terminal to 
+								//current follow
+								add_ftof(f->follow[nt_index],follow(grammar[i]->non_terminal));
 							}
-
 							else
 							{
-								
-								if(!f->first[temp->next->elem.nonterminal]->has_eps)
+								if(temp->next->is_term)
 								{
-									temp_node=f->first[temp->next->elem.nonterminal]->head;
-									temp_node->next=head;
-									head=temp_node;
+									add_nodetof(f->follow[nt_index],temp->next->elem.terminal);
 								}
 
 								else
 								{
-									first_eps(temp->next,grammar[i]);
+									
+									if(!f->first[temp->next->elem.nonterminal]->has_eps)
+									{
+										//add first of temp->next->elem.nonterminal to the 
+										//current follow
+										add_ftof(f->follow[nt_index],f->first[temp->next->elem.nonterminal]->head);
+									}
+
+									else
+									{
+										first_eps(f->follow[nt_index]->head,temp->next,grammar[i]);
+									}
+									
 								}
-								
 							}
 						}
-
+						
 					}
-					else
-					{
-						temp=temp->next;
-					}
-					
+					temp=temp->next;
 				}
 			}
 		}
 	}
 }
 
-node* first_eps(node* temp,g_node_head* g)
+void first_eps(node_head_follow* node_head,g_node* temp,g_node_head* g)
 {
 	if(temp==NULL)
 	{
 		// if(f->follow[g->non_terminal].is_visited)
 		// return NULL;
 		// else
-		{
-			
-			return (follow(g->non_terminal));
-		}
-		
+		add_ftof(node_head,follow(g->non_terminal))
 		
 	}
 
 	else
 	{
-		if(f->first[temp->tokenName]->has_eps)
-		return first_eps(temp->next,g);
+		if(!f->first[temp->elem.nonterminal]->has_eps)
+		add_ftof(node_head,first(temp->elem.nonterminal));
+		 
 
 		else
 		{
-			return first(temp);
+			first_eps(node_head,temp->next,g);	
+			// return first(temp);first
 		}
 		
 	}
 	
+}
+void add_nodetof(node_head_follow* head,TOKEN tk)
+{
+	node* temp=head->head;
+	int flag=0;
+	node* temp_node;
+	while(temp!=NULL)
+	{
+		if(temp->tokenName==tk)
+		{
+			flag=1;
+			break;
+		}
+		else
+		{
+			temp=temp->next;
+		}
+		
+	}
+	if(flag==0)
+	{
+		temp_node=create_node(temp->next->elem.terminal,i);
+		temp_node->next=head->head;
+		head->head=temp_node;
+	}
+}
+void add_ftof(node_head_follow* head,node* firstorfollow)
+{
+	node* temp=firstorfollow;
+	while(temp!=NULL)
+	{
+		add_nodetof(head,temp->tokenName);
+		temp=temp->next;
+	}
+}
+
+void clear_flags_follow()
+{
+	for(int i=0; i<NO_OF_RULES; i++)
+	{
+		f->follow[i]->is_visited=false;
+	}
 }
 
 // node* first(NON_TERMINAL nt_index){
