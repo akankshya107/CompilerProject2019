@@ -6,6 +6,19 @@
 #include <string.h>
 TRANSITION_TABLE_ELEM **transition_table;
 
+void populateTerminalStringTable(){
+
+    // terminalStringTable =  { "TK_ASSIGNOP", "TK_COMMENT", "TK_FIELDID", "TK_ID", "TK_NUM", "TK_RNUM", "TK_FUNID", "TK_RECORDID", "TK_WITH", "TK_PARAMETERS", "TK_END", "TK_WHILE", "TK_TYPE", "TK_MAIN", "TK_GLOBAL", "TK_PARAMETER", "TK_LIST", "TK_SQL", "TK_SQR", "TK_INPUT", "TK_OUTPUT", "TK_INT", "TK_REAL", "TK_COMMA", "TK_SEM", "TK_COLON", "TK_DOT", "TK_ENDWHILE", "TK_OP", "TK_CL", "TK_IF", "TK_THEN", "TK_ENDIF", "TK_READ", "TK_WRITE", "TK_RETURN", "TK_PLUS", "TK_MINUS", "TK_MUL", "TK_DIV", "TK_CALL", "TK_RECORD", "TK_ENDRECORD", "TK_ELSE", "TK_AND", "TK_OR", "TK_NOT", "TK_LT", "TK_LE", "TK_EQ", "TK_GT", "TK_GE", "TK_NE", "eps", "EOS" };
+}
+
+void populateNonTerminalStringTable(){
+    nonTerminalStringTable = (nonterminal_str**)malloc(sizeof(nonterminal_str*)*NO_OF_RULES);
+    for(int i=0; i<NO_OF_RULES; i++){
+        nonTerminalStringTable[i]=(nonterminal_str*)malloc(sizeof(nonterminal_str));
+    }
+    //populate
+}
+
 //Normal return token function with retracting and without 
 tokenInfo *return_str_token(char *lexeme, TOKEN tkname, int lineno, bool is_retract, int *input_buffer_pointer){
     tokenInfo *ti = (tokenInfo*)malloc(sizeof(tokenInfo));
@@ -26,7 +39,7 @@ tokenInfo *return_no_token(char *lexeme, TOKEN tkname, int lineno, bool is_retra
     tokenInfo *ti = (tokenInfo*)malloc(sizeof(tokenInfo));
     ti->line_no = lineno;
     ti->tokenName = tkname;
-    if(tkname==TK_INT) {
+    if(tkname==TK_NUM) {
         ti->flag = 1;
         ti->u.value_of_int = atoi(lexeme);
     }
@@ -760,9 +773,9 @@ void populate_transition_table(){
         }
 }  
 
-void *getStream(FILE *fp){
+size_t getStream(FILE *fp){
     size_t no_of_bytes_read1 = fread(input_buffer, sizeof(char), BUF_LENGTH, fp);
-    return fp;
+    return no_of_bytes_read1;
 }
 
 tokenInfo* getNextToken(FILE *fp){
@@ -771,9 +784,10 @@ tokenInfo* getNextToken(FILE *fp){
     static int line_count = 0;
     static int input_buffer_pointer=0;
     static bool global_flag = 0;
+    static size_t no_of_bytes;
 
     if(!global_flag){
-        getStream(fp);
+        no_of_bytes=getStream(fp);
         global_flag = 1;
     }
 
@@ -781,9 +795,42 @@ tokenInfo* getNextToken(FILE *fp){
     int ch;
     char* lex = (char*)malloc(sizeof(char)*MAX_LENGTH);
     while(1){
-        if(input_buffer_pointer==BUF_LENGTH) {
-            getStream(fp);
-            input_buffer_pointer=0;
+        if(input_buffer_pointer==no_of_bytes) {
+            if(no_of_bytes==BUF_LENGTH){
+                no_of_bytes=getStream(fp);
+                input_buffer_pointer=0;
+            }else{
+
+                if(state==0){
+                    printf("EOF\n");
+                }
+                else if(transition_table[state][0].flag==1){
+                    lex[j]='\0';
+                    if(transition_table[state][ch].u.func.func_flag==0){
+                        return return_str_token(lex, transition_table[state][ch].u.func.tkname, line_count, transition_table[state][ch].u.func.is_retract, &input_buffer_pointer);
+                    }else if(transition_table[state][ch].u.func.func_flag==1){ //for TK_FIELDID and TK_FUNID
+                        hash_elem *k = lookup(lex);
+                        if(k->tkname>0){
+                            return return_str_token(k->str, k->tkname, line_count, 1, &input_buffer_pointer);
+                        }
+                        else{
+                            return return_str_token(lex, transition_table[state][ch].u.func.tkname, line_count, transition_table[state][ch].u.func.is_retract, &input_buffer_pointer);
+                        }
+                    }else if(transition_table[state][ch].u.func.func_flag==2){
+                        return return_no_token(lex, transition_table[state][ch].u.func.tkname, line_count, transition_table[state][ch].u.func.is_retract, &input_buffer_pointer);
+                    }else if(transition_table[state][ch].u.func.func_flag==3){
+                        state=0;
+                    }
+                    else{
+                        printf("Error in transition table");
+                    }
+                }
+                else{
+                    lex[j]='\0';
+                    unknown_pattern(lex, line_count);
+                }
+                return return_str_token("EOS", EOS, line_count, 0, &input_buffer_pointer);
+            }
         }
         ch = input_buffer[input_buffer_pointer];
         if(ch=='\n') line_count++;

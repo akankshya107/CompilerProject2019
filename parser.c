@@ -46,7 +46,7 @@ FirstAndFollow *ComputeFirstAndFollowSets(g_node **grammar){
 void createParseTable(FirstAndFollow *f, parse_table T){
 	T = (parse_table_elem**)malloc(sizeof(parse_table_elem*)*NO_OF_RULES);
 	for(int i=0; i<NO_OF_RULES; i++){
-		T[i]=(parse_table_elem*)malloc(sizeof(parse_table_elem)*(eps+1));
+		T[i]=(parse_table_elem*)malloc(sizeof(parse_table_elem)*(EOS+1));
 	}
 }
 
@@ -78,7 +78,7 @@ g_node_head** populateGrammar(){
 	grammar[0]=create_g_node_head(program);
 	pnext=first_gnode(grammar[0],otherFunctions,0);
 	pnext=dl_nodes(pnext,mainFunction,0);
-	print_gnode(pnext);
+	// print_gnode(pnext);
 	//Rule 1
 	grammar[1]=create_g_node_head(mainFunction);
 	pnext=first_gnode(grammar[1],TK_MAIN,1);

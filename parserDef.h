@@ -3,8 +3,6 @@
 #include "lexerDef.h"
 #endif
 
-
-#define NO_OF_RULES 49
 #define NO_OF_GRAMMAR_RULES 86
 
 typedef struct node{

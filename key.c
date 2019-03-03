@@ -3,17 +3,32 @@
 #include <string.h>
 int hash(char *str){
 	long unsigned int sum = 0;
-	long unsigned int a = 32;
+	long unsigned int a = 8;
 	for (int i=0; i<strlen(str); i++){
-		sum=(sum*a+str[i])%43;
+		sum=(sum*a+str[i])%41;
 	}
 	return sum;
 }
 
-hash_elem *create_hash_elem(){
+hash_elem *create_hash_elem(int tkname, char *str){
     hash_elem *h = (hash_elem*)malloc(sizeof(hash_elem));
-    h->str = (char*)malloc(sizeof(char)*11);
-    h->tkname = -1;
+    h->str = str;
+    h->tkname = tkname;
+    h->next=NULL;
+}
+
+void insertIntoHT(hash_elem *elem){
+    int index = hash(elem->str);
+    if(KeyWordTable[index]->next==NULL){
+        KeyWordTable[index]->next=elem;
+    }
+    else{
+        hash_elem *ptr = KeyWordTable[index]->next;
+        while(ptr->next!=NULL){
+            ptr=ptr->next;
+        }
+        ptr->next=elem;
+    }
 }
 
 hashTable populateKeyWordTable(){
@@ -21,21 +36,90 @@ hashTable populateKeyWordTable(){
 
     int index;
     //populate this
-    index = hash("with");
-    KeyWordTable[index]=create_hash_elem();
-    KeyWordTable[index]->tkname = TK_WITH;
-    KeyWordTable[index]->str = "with";
+    //with
+    insertIntoHT(create_hash_elem(TK_WITH, "with"));
 
-    //see if any collisions
+    //parameters
+    insertIntoHT(create_hash_elem(TK_PARAMETERS, "parameters"));
+
+    //end
+    insertIntoHT(create_hash_elem(TK_END, "end"));
+
+    //while
+    insertIntoHT(create_hash_elem(TK_WHILE, "while"));
+
+    //type
+    insertIntoHT(create_hash_elem(TK_TYPE, "type"));
+
+    //main
+    insertIntoHT(create_hash_elem(TK_MAIN, "_main"));
+
+    //global
+    insertIntoHT(create_hash_elem(TK_GLOBAL, "global"));
+
+    //parameter
+    insertIntoHT(create_hash_elem(TK_PARAMETER, "parameter"));
+
+    //list
+    insertIntoHT(create_hash_elem(TK_LIST, "list"));
+
+    //input
+    insertIntoHT(create_hash_elem(TK_INPUT, "input"));
+
+    //output
+    insertIntoHT(create_hash_elem(TK_OUTPUT, "output"));
+
+    //int 
+    insertIntoHT(create_hash_elem(TK_INT, "int"));
+
+    //real
+    insertIntoHT(create_hash_elem(TK_REAL, "real"));
+
+    //endwhile
+    insertIntoHT(create_hash_elem(TK_ENDWHILE, "endwhile"));
+
+    //if
+    insertIntoHT(create_hash_elem(TK_IF, "if"));
+
+    //then
+    insertIntoHT(create_hash_elem(TK_THEN, "then"));
+
+    //endif
+    insertIntoHT(create_hash_elem(TK_ENDIF, "endif"));
+
+    //read
+    insertIntoHT(create_hash_elem(TK_READ, "read"));
+
+    //write 
+    insertIntoHT(create_hash_elem(TK_WRITE, "write"));
+
+    //return
+    insertIntoHT(create_hash_elem(TK_RETURN, "return"));
+
+    //call
+    insertIntoHT(create_hash_elem(TK_CALL, "call"));
+
+    //record
+    insertIntoHT(create_hash_elem(TK_RECORD, "record"));
+
+    //endrecord
+    insertIntoHT(create_hash_elem(TK_ENDRECORD, "endrecord"));
+
+    //else
+    insertIntoHT(create_hash_elem(TK_ELSE, "else"));
+
     return KeyWordTable;
 }
 
 hash_elem* lookup(char *str){
-    if(strcmp(str, KeyWordTable[hash(str)]->str)){
-        return KeyWordTable[hash(str)];
+    int index = hash(str);
+    hash_elem *temp =KeyWordTable[index]->next;
+    while(temp!=NULL){
+        if(strcmp(str, temp->str)==0){
+            return temp;
+        }
+        temp=temp->next;
     }
-    else {
-        hash_elem *ret = create_hash_elem();
-        return ret;
-    }
+    hash_elem *ret = create_hash_elem(-1, "none");
+    return ret;
 }
