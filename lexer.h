@@ -4,7 +4,7 @@ FILE *getStream(FILE *fp);
 tokenInfo* getNextToken();
 void removeComments(char *testcaseFile, char *cleanFile); //char* refers to filename which is opened within the function
 void populate_transition_table();
-void unknown_symbol(int char* c);
+void unknown_symbol(char* c);
 void unknown_pattern(char* c);
 tokenInfo* return_token(char* c);
 float get_rnum(char*c);

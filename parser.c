@@ -3,6 +3,7 @@
 #define LEX_DEF_INCLUDED
 #include "parserDef.h"
 
+
 g_node_head* create_g_node_head(NON_TERMINAL nt){
 	g_node_head *head = (g_node_head*)malloc(sizeof(g_node_head));
 	head->non_terminal = nt;
@@ -43,40 +44,6 @@ node* create_node(TOKEN tkname, int rule_no){
 	n->rule_no_index = rule_no;
 	n->next = NULL;
 	return n;
-}
-
-FirstAndFollow *ComputeFirstAndFollowSets(g_node **grammar){
-	FirstAndFollow *f = (FirstAndFollow*)malloc(sizeof(FirstAndFollow));
-	// f->first = (node_head**)malloc(sizeof(node*)*NO_OF_RULES);
-	f->first = (node_head_first**)malloc(sizeof(node_head_first*)*NO_OF_RULES);
-
-	f->follow = (node_head_follow**)malloc(sizeof(node_head_follow*)*NO_OF_RULES);
-//Do not merge these forloops into one
-	for(int i=0; i<NO_OF_RULES; i++){
-		f->first[i] = create_head_first(i);
-	}
-	for(int i=0; i<NO_OF_RULES; i++){
-		f->first[i]->head = first(i);
-	}
-//Do not merge these for loops into one
-	for(int i=0; i<NO_OF_RULES; i++){
-		f->follow[i] = create_head_follow(i);
-		
-	}
-	for(int i=0; i<NO_OF_RULES; i++){
-		// f->first[i]->
-		f->follow[i]->head = follow(i);
-	}
-
-
-	//First: recursive search til encounter a terminal
-	// for(int i=0; i<NO_OF_RULES; i++){
-	// 	f->first[i]->next = first(i);
-	// }
-	// for(int i=0; i<NO_OF_RULES; i++){
-	// 	f->follow[i]->next = follow(i);
-	// }
-	return f;
 }
 
 void createParseTable(FirstAndFollow *f, parse_table T){
@@ -143,24 +110,105 @@ g_node_head** populateGrammar(){
 
 	return grammar;
 }
-
-node* follow(NON_TERMINAL nt_index)
+node* first(NON_TERMINAL nt_index)
 {
-	clear_flags_follow();
+	node* head=NULL;
+	return head;
+}
+void add_nodetof(node_head_follow* head,TOKEN tk)
+{
+	if(tk==eps)
+		return;
+	
+	node* temp=head->head;
+	int flag=0;
+	node* temp_node;
+	while(temp!=NULL)
+	{
+		if(temp->tokenName==tk)
+		{
+			flag=1;
+			break;
+		}
+		else
+		{
+			temp=temp->next;
+		}
+		
+	}
+	if(flag==0)
+	{
+		temp_node=create_node(tk,0);
+		temp_node->next=head->head;
+		head->head=temp_node;
+	}
+}
+void add_ftof(node_head_follow* head,node* firstorfollow)
+{
+	node* temp=firstorfollow;
+	while(temp!=NULL)
+	{
+		add_nodetof(head,temp->tokenName);
+		temp=temp->next;
+	}
+}
+
+
+void first_eps(node_head_follow* node_head,g_node* temp,g_node_head* g)
+{
+	if(temp==NULL)
+	{
+		// if(f->follow[g->non_terminal].is_visited)
+		// return NULL;
+		// else
+		add_ftof(node_head,f->follow[g->non_terminal]->head);
+		
+	}
+
+	else
+	{
+		if(!f->first[temp->elem.nonterminal]->has_eps)
+		add_ftof(node_head,f->first[temp->elem.nonterminal]->head);
+		 
+
+		else
+		{
+			//add firsts - eps
+			add_ftof(node_head,f->first[temp->elem.nonterminal]->head);
+			first_eps(node_head,temp->next,g);	
+			// return first(temp);first
+		}
+		
+	}
+	
+}
+
+void clear_flags_follow()
+{
+	for(int i=0; i<NO_OF_RULES; i++)
+	{
+		f->follow[i]->is_visited=false;
+	}
+}
+void follow(NON_TERMINAL nt_index)
+{
+	
 	if(f->follow[nt_index]->head!=NULL)
 	{
 		f->follow[nt_index]->is_visited=true;
-		return f->follow[nt_index]->head;
+		// return f->follow[nt_index]->head;
+		return;
 	}
 	else
 	{
 		if(f->follow[nt_index]->is_visited)
-		return f->follow[nt_index]->head;
+		// return f->follow[nt_index]->head;
+		return;
 		else
 		{
 			f->follow[nt_index]->is_visited=true;
 			g_node* temp;
-			f->follow[nt_index]->nt=nt_index;
+			// f->follow[nt_index]->nt=nt_index;
 			for(int i=0; i<NO_OF_GRAMMAR_RULES; i++)
 			{
 				temp=grammar[i]->next;
@@ -174,7 +222,7 @@ node* follow(NON_TERMINAL nt_index)
 							{
 								// add follow of grammar[i]->non_terminal to 
 								//current follow
-								add_ftof(f->follow[nt_index],follow(grammar[i]->non_terminal));
+								add_ftof(f->follow[nt_index],f->follow[grammar[i]->non_terminal]->head);
 							}
 							else
 							{
@@ -195,7 +243,7 @@ node* follow(NON_TERMINAL nt_index)
 
 									else
 									{
-										first_eps(f->follow[nt_index]->head,temp->next,grammar[i]);
+										first_eps(f->follow[nt_index],temp->next,grammar[i]);
 									}
 									
 								}
@@ -210,73 +258,30 @@ node* follow(NON_TERMINAL nt_index)
 	}
 }
 
-void first_eps(node_head_follow* node_head,g_node* temp,g_node_head* g)
-{
-	if(temp==NULL)
-	{
-		// if(f->follow[g->non_terminal].is_visited)
-		// return NULL;
-		// else
-		add_ftof(node_head,follow(g->non_terminal))
+FirstAndFollow *ComputeFirstAndFollowSets(g_node **grammar){
+	FirstAndFollow *f = (FirstAndFollow*)malloc(sizeof(FirstAndFollow));
+	// f->first = (node_head**)malloc(sizeof(node*)*NO_OF_RULES);
+	f->first = (node_head_first**)malloc(sizeof(node_head_first*)*NO_OF_RULES);
+
+	f->follow = (node_head_follow**)malloc(sizeof(node_head_follow*)*NO_OF_RULES);
+//Do not merge these forloops into one
+	for(int i=0; i<NO_OF_RULES; i++){
+		f->first[i] = create_head_first(i);
+	}
+	for(int i=0; i<NO_OF_RULES; i++){
+		first(i);
+	}
+//Do not merge these for loops into one
+	for(int i=0; i<NO_OF_RULES; i++){
+		f->follow[i] = create_head_follow(i);
 		
 	}
-
-	else
-	{
-		if(!f->first[temp->elem.nonterminal]->has_eps)
-		add_ftof(node_head,first(temp->elem.nonterminal));
-		 
-
-		else
-		{
-			first_eps(node_head,temp->next,g);	
-			// return first(temp);first
-		}
-		
+	for(int i=0; i<NO_OF_RULES; i++){
+		// f->first[i]->
+		clear_flags_follow();
+		follow(i);
 	}
-	
-}
-void add_nodetof(node_head_follow* head,TOKEN tk)
-{
-	node* temp=head->head;
-	int flag=0;
-	node* temp_node;
-	while(temp!=NULL)
-	{
-		if(temp->tokenName==tk)
-		{
-			flag=1;
-			break;
-		}
-		else
-		{
-			temp=temp->next;
-		}
-		
-	}
-	if(flag==0)
-	{
-		temp_node=create_node(temp->next->elem.terminal,i);
-		temp_node->next=head->head;
-		head->head=temp_node;
-	}
-}
-void add_ftof(node_head_follow* head,node* firstorfollow)
-{
-	node* temp=firstorfollow;
-	while(temp!=NULL)
-	{
-		add_nodetof(head,temp->tokenName);
-		temp=temp->next;
-	}
-}
-
-void clear_flags_follow()
-{
-	for(int i=0; i<NO_OF_RULES; i++)
-	{
-		f->follow[i]->is_visited=false;
-	}
+	return f;
 }
 
 // node* first(NON_TERMINAL nt_index){
