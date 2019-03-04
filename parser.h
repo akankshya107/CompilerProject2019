@@ -23,6 +23,7 @@ void clear_flags_follow();
 void recurse_first(node_head_first* node_head,g_node* temp, int rule_no);
 void add_list_to_first(node_head_first* head, node* list);
 void add_node_to_first(node_head_first* head,TOKEN tk, int rule);
+void print_follow(NON_TERMINAL nt);
 
 void populateStrTable();
 nonterminal_str* create_nt_str();

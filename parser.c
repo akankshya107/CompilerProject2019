@@ -768,7 +768,7 @@ void ComputeFirstAndFollowSets(){
 	// f->first = (node_head**)malloc(sizeof(node*)*NO_OF_RULES);
 	f->first = (node_head_first**)malloc(sizeof(node_head_first*)*NO_OF_RULES);
 
-	// f->follow = (node_head_follow**)malloc(sizeof(node_head_follow*)*NO_OF_RULES);
+	f->follow = (node_head_follow**)malloc(sizeof(node_head_follow*)*NO_OF_RULES);
 //Do not merge these forloops into one
 	for(int i=0; i<NO_OF_RULES; i++){
 		f->first[i] = create_head_first(i);
@@ -844,6 +844,16 @@ void print_strTable()
 void print_first(NON_TERMINAL nt)
 {
 	node* temp=f->first[nt]->head;
+	while(temp!=NULL)
+	{
+		printf("token: %d, rule no:%d \n",temp->tokenName,temp->rule_no_index);
+		temp=temp->next;
+	}
+}
+
+void print_follow(NON_TERMINAL nt)
+{
+	node* temp=f->follow[nt]->head;
 	while(temp!=NULL)
 	{
 		printf("token: %d, rule no:%d \n",temp->tokenName,temp->rule_no_index);

@@ -26,7 +26,8 @@ typedef enum {
 	otherStmts, stmt, assignmentStmt, singleOrRecId, new_24, funCallStmt,
 	outputParameters, inputParameters, iterativeStmt, conditionalStmt,
 	elsePart, ioStmt, allVar, arithmeticExpression, expPrime, term,
-	termPrime, factor, highPrecedenceOperators, lowPrecedenceOperators, 
+	termPrime, factor, highPrecedenceOperators, lowPrecedenceOperators
+	, 
 	all, temp, booleanExpression, var, logicalOp, relationalOp, returnStmt, 
 	optionalReturn, idList, more_ids
 } NON_TERMINAL;

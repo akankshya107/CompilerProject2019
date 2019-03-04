@@ -19,6 +19,13 @@ int main(void){
 		printf("----------------Non terminal: %d-------------------\n",i);
 		print_first(i);
 	}
+	printf("==================================================================================\n");
+	for(i=0;i<NO_OF_RULES;i++)
+	{
+		printf("----------------Non terminal: %d-------------------\n",i);
+		print_follow(i);
+	}
+
 	// createParseTable(f, T);
 	return 0;
 }
