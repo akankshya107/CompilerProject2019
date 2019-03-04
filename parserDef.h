@@ -5,9 +5,10 @@
 #endif
 #ifndef GRAM_INCLUDED
 #include "grammarDef.h"
+#define GRAM_INCLUDED
 #endif
 typedef struct f_node{
-	bool is_error;
+	int is_error;
 	union{
 		int rule_no_index;
 		void (*error) (void);

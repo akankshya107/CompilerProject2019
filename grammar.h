@@ -1,4 +1,7 @@
+#ifndef GRAM_INCLUDED
 #include "grammarDef.h"
+#endif
+
 void populateGrammar();
 g_node_head* create_g_node_head(NON_TERMINAL nt);
 g_node* create_g_node();

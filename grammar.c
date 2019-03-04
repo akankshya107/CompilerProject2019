@@ -42,18 +42,6 @@ node* create_node(TOKEN tkname, int rule_no){
 	return n;
 }
 
-// void createParseTable(FirstAndFollow *f, parse_table T){
-// 	T = (parse_table_elem**)malloc(sizeof(parse_table_elem*)*NO_OF_RULES);
-// 	for(int i=0; i<NO_OF_RULES; i++){
-// 		T[i]=(parse_table_elem*)malloc(sizeof(parse_table_elem)*(eps+1));
-// 	}
-// }
-
-// void parseInputSourceCode(char *testcaseFile, parse_table T){
-	
-// }
-
-
 g_node* first_gnode(g_node_head* h,int no,bool is_term)
 {
 	g_node* pnext;

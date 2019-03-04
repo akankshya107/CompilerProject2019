@@ -4,6 +4,7 @@
 #include "lexer.h"
 #include "key.h"
 #include "parser.h"
+#include "grammar.h"
 extern parse_table T;
 int main(int argc, char *argv[]){
 	int option;
@@ -38,7 +39,13 @@ int main(int argc, char *argv[]){
 			fclose(fp);
 			
 		}else if(option==3){
-
+			populate_transition_table();
+			populateKeyWordTable();
+			populateGrammar();
+			populateStrTable();
+			ComputeFirstAndFollowSets();
+			createParseTable();
+			parseInputSourceCode("testcase1.txt");
 		}else if(option==4){
 
 			clock_t start_time, end_time;
@@ -51,9 +58,6 @@ int main(int argc, char *argv[]){
 			tokenInfo *ti;
 			do{
 				ti = getNextToken(fp);
-				// if(ti->tokenName==TK_NUM) printf("Line %d: Token %s, Lexeme %d\n", ti->line_no, TerminalString(ti->tokenName), ti->u.value_of_int);
-				// else if(ti->tokenName==TK_RNUM) printf("Line %d: Token %s, Lexeme %.2f\n", ti->line_no, TerminalString(ti->tokenName), ti->u.value_of_real);
-				// else printf("Line %d: Token %s, Lexeme %s\n", ti->line_no, TerminalString(ti->tokenName), ti->u.lexeme);
 			}while(ti->tokenName!=EOS);
 
 			fclose(fp);
