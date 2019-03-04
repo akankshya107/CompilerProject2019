@@ -5,24 +5,25 @@ int main(void){
 	//menu outline
 	//must call parser
 	populateGrammar();
+	populateStrTable();
 	// printf("%d",grammar[0]->next);
 	int i;
 	for(i=0;i<NO_OF_GRAMMAR_RULES;i++)
 	print_grule(grammar[i]);
 
-	populateStrTable();
+	
 	print_strTable();
 
 	ComputeFirstAndFollowSets(grammar);
 	for(i=0;i<NO_OF_RULES;i++)
 	{
-		printf("----------------Non terminal: %d-------------------\n",i);
+		printf("----------------Non terminal: %s-------------------\n",nonTerminalStringTable[i]->nonterminal);
 		print_first(i);
 	}
 	printf("==================================================================================\n");
 	for(i=0;i<NO_OF_RULES;i++)
 	{
-		printf("----------------Non terminal: %d-------------------\n",i);
+		printf("----------------Non terminal: %s-------------------\n",nonTerminalStringTable[i]->nonterminal);
 		print_follow(i);
 	}
 

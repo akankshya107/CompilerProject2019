@@ -73,20 +73,23 @@ g_node* dl_nodes(g_node* pnext,int no,bool is_term)
 
 	return ptr;
 }
-
+char *TerminalString(int index){
+    static char *terminalStringTable[EOS+1] =  { "TK_ASSIGNOP", "TK_COMMENT", "TK_FIELDID", "TK_ID", "TK_NUM", "TK_RNUM", "TK_FUNID", "TK_RECORDID", "TK_WITH", "TK_PARAMETERS", "TK_END", "TK_WHILE", "TK_TYPE", "TK_MAIN", "TK_GLOBAL", "TK_PARAMETER", "TK_LIST", "TK_SQL", "TK_SQR", "TK_INPUT", "TK_OUTPUT", "TK_INT", "TK_REAL", "TK_COMMA", "TK_SEM", "TK_COLON", "TK_DOT", "TK_ENDWHILE", "TK_OP", "TK_CL", "TK_IF", "TK_THEN", "TK_ENDIF", "TK_READ", "TK_WRITE", "TK_RETURN", "TK_PLUS", "TK_MINUS", "TK_MUL", "TK_DIV", "TK_CALL", "TK_RECORD", "TK_ENDRECORD", "TK_ELSE", "TK_AND", "TK_OR", "TK_NOT", "TK_LT", "TK_LE", "TK_EQ", "TK_GT", "TK_GE", "TK_NE", "eps", "EOS" };
+    return terminalStringTable[index];
+}
 void print_gnode(g_node* ptr)
 {
 	if(ptr->is_term)
 	{
-		printf("%d ", ptr->elem.terminal);
+		printf( " %s ",TerminalString( ptr->elem.terminal));
 	}
 	else
-	printf("%d ", ptr->elem.terminal);
+	printf("%s ", nonTerminalStringTable[ ptr->elem.nonterminal]->nonterminal);
 }
 
 void print_grule(g_node_head* head)
 {
-	printf("Rule %d:  %d -->",head->rule_no,head->non_terminal);
+	printf("Rule %d:  %s -->",head->rule_no,nonTerminalStringTable [head->non_terminal]->nonterminal);
 	g_node* temp=head->next;
 	while(temp!=NULL){
 		print_gnode(temp);
@@ -507,6 +510,23 @@ void add_list_to_first(node_head_first* head, node* list)
 		curr=curr->next;
     }
 }
+void add_list_to_first_eps(node_head_first* head, node* list)
+{
+	node* curr;
+    curr=list;
+	node* temp;
+    while(curr!=NULL)
+    {
+		if(curr->tokenName==eps)
+		{
+			curr=curr->next;
+			continue;}
+		temp=create_node(curr->tokenName,curr->rule_no_index);
+        temp->next=head->head;
+        head->head=temp;
+		curr=curr->next;
+    }
+}
 void first (NON_TERMINAL nt);
 void recurse_first(node_head_first* node_head,g_node* temp, int rule_no)
 {
@@ -527,7 +547,7 @@ void recurse_first(node_head_first* node_head,g_node* temp, int rule_no)
                 }
                 else
                 {
-					add_list_to_first(node_head,f->first[temp->elem.nonterminal]->head);
+					add_list_to_first_eps(node_head,f->first[temp->elem.nonterminal]->head);
                     recurse_first(node_head,temp->next, rule_no);
                 }
             
@@ -541,7 +561,7 @@ void recurse_first(node_head_first* node_head,g_node* temp, int rule_no)
                 }
                 else
                 {
-					add_list_to_first(node_head,f->first[temp->elem.nonterminal]->head);
+					add_list_to_first_eps(node_head,f->first[temp->elem.nonterminal]->head);
                     recurse_first(node_head,temp->next,rule_no);
                 }
                         
@@ -594,7 +614,7 @@ void first (NON_TERMINAL nt)
                         }
                         else
                         {
-							add_list_to_first(f->first[nt],f->first[iterator->elem.nonterminal]->head);
+							add_list_to_first_eps(f->first[nt],f->first[iterator->elem.nonterminal]->head);
                             recurse_first(f->first[nt],iterator->next, rule[i]);
                         }
                     }
@@ -609,6 +629,7 @@ void first (NON_TERMINAL nt)
                         }
                         else
                         {
+							add_list_to_first_eps(f->first[nt],f->first[iterator->elem.nonterminal]->head);
                             recurse_first(f->first[nt],iterator->next,rule[i]);
                         }
                     }
@@ -795,7 +816,7 @@ nonterminal_str* create_nt_str()
 {
 	nonterminal_str* temp=(nonterminal_str*) malloc(sizeof(nonterminal_str));
 	temp->rules=(int*) malloc(sizeof(int)*MAX_DIFF_RULES);
-	temp->nonterminal=NULL;
+	temp->nonterminal=(char*) malloc(sizeof(char)*MAX_NONTERMINAL);
 	temp->length=0;
 	return temp;
 }
@@ -819,13 +840,47 @@ void populateStrTable()
 
 	}
 
+	FILE *f;
+    char c;
+    f=fopen("nt_string.txt","r");
+	int j=0;
+	i=0;
+	int flag=0;
+    while((c=fgetc(f))!=EOF){
+
+        
+        if((c>='a'&&c<='z')||(c>='A'&&c<='Z')||c=='_'||(c>='0'&&c<='9'))
+		{
+			if(flag==1)
+			{
+				i++;
+				j=0;
+				flag=0;
+			}
+
+			nonTerminalStringTable[i]->nonterminal[j++]=c;
+            printf("%c",c);
+		}
+		else
+		{
+			flag=1;
+			nonTerminalStringTable[i]->nonterminal[j++]='\0';
+			// i++;
+            printf(" ");
+            continue;
+		}
+    }  
+
+    fclose(f);
+    
+
 	
 }
 
 void print_strTable_row(NON_TERMINAL nt)
 {
 	int temp=nonTerminalStringTable[nt]->length;
-	printf("nt:%d--->len:%d--> ",nt,temp);
+	printf("nt:%d--->len:%d  %s  ",nt,temp,nonTerminalStringTable[nt]->nonterminal);
 	for(int i=0;i<temp;i++)
 	{
 		printf("%d ",nonTerminalStringTable[nt]->rules[i]);
@@ -843,10 +898,11 @@ void print_strTable()
 
 void print_first(NON_TERMINAL nt)
 {
+	// printf("hello\n");
 	node* temp=f->first[nt]->head;
 	while(temp!=NULL)
 	{
-		printf("token: %d, rule no:%d \n",temp->tokenName,temp->rule_no_index);
+		printf("token: %s , rule no:%d \n", TerminalString(temp->tokenName),temp->rule_no_index);
 		temp=temp->next;
 	}
 }
@@ -856,7 +912,7 @@ void print_follow(NON_TERMINAL nt)
 	node* temp=f->follow[nt]->head;
 	while(temp!=NULL)
 	{
-		printf("token: %d, rule no:%d \n",temp->tokenName,temp->rule_no_index);
+		printf("token: %s , rule no:%d \n",TerminalString(temp->tokenName),temp->rule_no_index);
 		temp=temp->next;
 	}
 }

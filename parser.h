@@ -6,7 +6,7 @@ void parseInputSourceCode(char *testcaseFile, parse_table T);
 
 //Aux functions
 void populateGrammar();
-g_node* create_g_node_head(char *nonterminal);
+g_node_head* create_g_node_head(NON_TERMINAL nt);
 g_node* create_g_node();
 node* create_node();
 g_node* first_gnode(g_node_head* h,int no,bool is_term);
@@ -23,7 +23,9 @@ void clear_flags_follow();
 void recurse_first(node_head_first* node_head,g_node* temp, int rule_no);
 void add_list_to_first(node_head_first* head, node* list);
 void add_node_to_first(node_head_first* head,TOKEN tk, int rule);
+void add_list_to_first_eps(node_head_first* head, node* list);
 void print_follow(NON_TERMINAL nt);
+char *TerminalString(int index);
 
 void populateStrTable();
 nonterminal_str* create_nt_str();
