@@ -778,16 +778,16 @@ void ComputeFirstAndFollowSets(){
 		first(i);
 	}
 //Do not merge these for loops into one
-	// for(int i=0; i<NO_OF_RULES; i++){
+	for(int i=0; i<NO_OF_RULES; i++){
 		
-	// 	f->follow[i] = create_head_follow(i);
+		f->follow[i] = create_head_follow(i);
 		
-	// }
-	// for(int i=0; i<NO_OF_RULES; i++){
-	// 	// f->first[i]->
-	// 	clear_flags_follow();
-	// 	follow(i);
-	// }
+	}
+	for(int i=0; i<NO_OF_RULES; i++){
+		// f->first[i]->
+		clear_flags_follow();
+		follow(i);
+	}
 	return ;
 }
 
