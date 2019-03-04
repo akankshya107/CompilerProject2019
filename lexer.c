@@ -56,13 +56,13 @@ tokenInfo *return_no_token(char *lexeme, TOKEN tkname, int lineno, bool is_retra
 
 void length_error(int choice, char *lex, int *state, int *input_buffer_pointer, int *j, bool *exceed_flag, int line_count){
     if(choice==0) {
-       printf("Line %d: Identifier is longer than the prescribed length of 20 characters", line_count);
+       printf("Line %d: Identifier is longer than the prescribed length of 20 characters\n", line_count);
     }
     else if(choice==1) {
-        printf("Line %d: Function identifier is longer than the prescribed length of 30 characters", line_count);
+        printf("Line %d: Function identifier is longer than the prescribed length of 30 characters\n", line_count);
     }
     else {
-        printf("Line %d: Variable is longer than the maximum length of 30 characters", line_count);
+        printf("Line %d: Variable is longer than the maximum length of 30 characters\n", line_count);
     }
     memset(lex, 0, sizeof(char)*MAX_LENGTH);
     *j=0;
@@ -304,6 +304,7 @@ tokenInfo* getNextToken(FILE *fp){
         if(transition_table[state][ch].flag==0){
             state = transition_table[state][ch].u.state;
             lex[j++]=ch;
+            if(j==MAX_LENGTH+1) exceed_length=1;
             input_buffer_pointer++;
             if(ch=='\n') line_count++;
         }else if(transition_table[state][ch].flag==1){
@@ -313,6 +314,10 @@ tokenInfo* getNextToken(FILE *fp){
             }
             else lex[j]='\0';
             if(transition_table[state][ch].u.func.func_flag==0){
+                if(exceed_length && transition_table[state][ch].u.func.tkname==TK_ID) {
+                        length_error(0, lex, &state, &input_buffer_pointer, &j, &exceed_length, line_count);
+                        continue;
+                }
                 return return_str_token(lex, transition_table[state][ch].u.func.tkname, line_count, transition_table[state][ch].u.func.is_retract, &input_buffer_pointer);
             }else if(transition_table[state][ch].u.func.func_flag==1){ //for TK_FIELDID and TK_FUNID
                 hash_elem *k = lookup(lex);
@@ -320,6 +325,10 @@ tokenInfo* getNextToken(FILE *fp){
                     return return_str_token(k->str, k->tkname, line_count, 1, &input_buffer_pointer);
                 }
                 else{
+                    if(exceed_length && transition_table[state][ch].u.func.tkname==TK_ID) {
+                            length_error(0, lex, &state, &input_buffer_pointer, &j, &exceed_length, line_count);
+                            continue;
+                       }
                     return return_str_token(lex, transition_table[state][ch].u.func.tkname, line_count, transition_table[state][ch].u.func.is_retract, &input_buffer_pointer);
                 }
             }else if(transition_table[state][ch].u.func.func_flag==2){

@@ -14,7 +14,7 @@ int main(int argc, char *argv[]){
 		}else if(option==2){
 			// //Invoke only lexer
 			// printf("lyf");
-			FILE *fp = fopen("testcase4.txt", "r");
+			FILE *fp = fopen("testcase1.txt", "r");
 			populate_transition_table();
 			// printTT();
 			populateKeyWordTable();
