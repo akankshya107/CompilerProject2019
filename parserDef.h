@@ -2,8 +2,9 @@
 #ifndef LEX_DEF_INCLUDED
 #include "lexerDef.h"
 #endif
-#define NO_OF_RULES 45
-#define NO_OF_GRAMMAR_RULES 100
+#define NO_OF_RULES 50
+#define NO_OF_GRAMMAR_RULES 87
+#define MAX_DIFF_RULES 10
 
 typedef struct node{
 	TOKEN tokenName;
@@ -52,9 +53,10 @@ g_node_head **grammar;
 typedef struct nonterminal_str{
 	char *nonterminal;
 	int *rules;
+	int length;
 }nonterminal_str;
 
-nonterminal_str **nonTerminalStringTable;
+nonterminal_str** nonTerminalStringTable;
 
 typedef struct f_node{
 	bool is_error;
