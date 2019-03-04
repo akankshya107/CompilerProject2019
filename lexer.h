@@ -11,4 +11,6 @@ void removeComments(char *testcaseFile, char *cleanFile); //char* refers to file
 void populate_transition_table();
 void populateNonTerminalStringTable();
 char *TerminalString();
-void printTT();
+void length_error(int choice, char *lex, int *state, int *input_buffer_pointer, int *j, bool *exceed_flag, int line_count);
+void unknown_pattern(char *arr, int line_num, char ch, int *j, int *input_buffer_pointer);
+void unknown_symbol(char *arr, int line_num, char ch, int *j, int *input_buffer_pointer);

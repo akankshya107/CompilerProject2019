@@ -2,7 +2,7 @@
 #define NO_OF_STATES 55
 #define NO_OF_RULES 49
 #define BUF_LENGTH 512
-#define MAX_LENGTH 30
+#define MAX_LENGTH 32
 
 // bool global_flag;
 // int line_count; //Still a doubt
@@ -67,9 +67,11 @@ typedef struct{
 			int func_flag;
 			bool is_retract;
 		}func;
-		void (*error_function)(char*, int);
+		void (*error_function)(char*, int, char, int*, int*);
 	}u;
 }TRANSITION_TABLE_ELEM;
+
+TRANSITION_TABLE_ELEM **transition_table;
 
 typedef struct nonterminal_str{
 	char *nonterminal;

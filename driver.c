@@ -7,8 +7,6 @@ int main(int argc, char *argv[]){
 	int option;
 	while(1){
 		scanf("%d", &option);
-		printf("Entered: %d\n", option);
-		// printf("%d", (option==1));
 		if(option==0){
 			break;
 		}else if(option==1){
@@ -16,7 +14,7 @@ int main(int argc, char *argv[]){
 		}else if(option==2){
 			// //Invoke only lexer
 			// printf("lyf");
-			FILE *fp = fopen("testcase1.txt", "r");
+			FILE *fp = fopen("testcase4.txt", "r");
 			populate_transition_table();
 			// printTT();
 			populateKeyWordTable();
