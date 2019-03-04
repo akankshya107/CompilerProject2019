@@ -10,14 +10,6 @@ char *TerminalString(int index){
     return terminalStringTable[index];
 }
 
-void populateNonTerminalStringTable(){
-    nonTerminalStringTable = (nonterminal_str**)malloc(sizeof(nonterminal_str*)*NO_OF_RULES);
-    for(int i=0; i<NO_OF_RULES; i++){
-        nonTerminalStringTable[i]=(nonterminal_str*)malloc(sizeof(nonterminal_str));
-    }
-    //populate
-}
-
 //Normal return token function with retracting and without 
 tokenInfo *return_str_token(char *lexeme, TOKEN tkname, int lineno, bool is_retract, int *input_buffer_pointer){
     tokenInfo *ti = (tokenInfo*)malloc(sizeof(tokenInfo));
@@ -109,155 +101,6 @@ tokenInfo* getNextToken(FILE *fp){
     int j=0, state=0;   
     int ch;
     char* lex = (char*)malloc(sizeof(char)*MAX_LENGTH);
-    // while(1){
-    //     //When input buffer gets full
-    //     if(input_buffer_pointer==no_of_bytes) {
-    //         if(no_of_bytes==BUF_LENGTH){
-    //             no_of_bytes=getStream(fp);
-    //             input_buffer_pointer=0;
-    //         }else{
-    //             //When EOF has been encountered: series of actions that can be taken
-    //             if(state==0 || state==27 || state==28 || state==53 || state==54){
-    //                 // printf("EOF\n");
-    //             }
-    //             else if(transition_table[state][0].flag==1){
-    //                 lex[j]='\0';
-    //                 if(transition_table[state][ch].u.func.func_flag==0){
-    //                     // if(transition_table[state][ch].u.func.tkname==TK_ID){
-    //                     //     if(!exceed_length){
-    //                     //         return return_str_token(lex, TK_ID, line_count, transition_table[state][ch].u.func.is_retract, &input_buffer_pointer);
-    //                     //     }
-    //                     //     else{
-    //                     //         length_error(0, lex, &state, &input_buffer_pointer, &j, &exceed_length, line_count);
-    //                     //         continue;
-    //                     //     }
-    //                     // }
-    //                     // if(exceed_length) {
-    //                     //     length_error(2, lex, &state, &input_buffer_pointer, &j, &exceed_length, line_count);
-    //                     //     continue;
-    //                     // }
-    //                     return return_str_token(lex, transition_table[state][ch].u.func.tkname, line_count, transition_table[state][ch].u.func.is_retract, &input_buffer_pointer);
-    //                 }else if(transition_table[state][ch].u.func.func_flag==1){ //for TK_FIELDID and TK_FUNID
-    //                     hash_elem *k = lookup(lex);
-    //                     if(k->tkname>0){
-    //                         return return_str_token(k->str, k->tkname, line_count, 1, &input_buffer_pointer);
-    //                     }
-    //                     else{
-    //                         if(transition_table[state][ch].u.func.tkname==TK_FUNID){
-    //                         //     if(!exceed_length){
-    //                         //         return return_str_token(lex, TK_FUNID, line_count, transition_table[state][ch].u.func.is_retract, &input_buffer_pointer);
-    //                         //     }else{
-    //                         //         length_error(1, lex, &state, &input_buffer_pointer, &j, &exceed_length, line_count);
-    //                         //         continue;
-    //                         //     }
-    //                         }
-    //                     }
-    //                     return return_str_token(lex, transition_table[state][ch].u.func.tkname, line_count, transition_table[state][ch].u.func.is_retract, &input_buffer_pointer);
-    //                 }else if(transition_table[state][ch].u.func.func_flag==2){
-    //                     // if(exceed_length) {
-    //                     //     length_error(2, lex, &state, &input_buffer_pointer, &j, &exceed_length, line_count);
-    //                     //     continue;
-    //                     // }
-    //                     return return_no_token(lex, transition_table[state][ch].u.func.tkname, line_count, transition_table[state][ch].u.func.is_retract, &input_buffer_pointer);
-    //                 }else if(transition_table[state][ch].u.func.func_flag==3){
-    //                     state=0;
-    //                 }
-    //                 else{
-    //                     printf("Error in transition table");
-    //                 }
-    //             }
-    //             else{
-    //                 lex[j]='\0';
-    //                 unknown_pattern(lex, line_count);
-    //             }
-    //             //Prints EOS token: signals to the parser that EOF has been reached
-    //             return return_str_token("EOS", EOS, line_count, 0, &input_buffer_pointer);
-            
-    //         }
-    //     }
-
-    //     //getNextToken accesses transition table and enters the DFA for getting next token
-    //     ch = input_buffer[input_buffer_pointer];
-    //     printf("%c ", ch);
-    //     //Valid transition
-    //     if(transition_table[state][ch].flag==0){
-    //         state = transition_table[state][ch].u.state;
-    //         // if(exceed_length true) {
-    //             lex[j++]=ch;
-    //         // }
-    //         // if(j==MAX_LENGTH) {
-    //         //     exceed_length=1;
-    //         // }
-    //         input_buffer_pointer++;
-    //         if(ch=='\n') line_count++;
-    //     }
-    //     //Retracting/Non-retracting final state: deal with different return functions and length errors
-    //     else if(transition_table[state][ch].flag==1){
-    //         if(transition_table[state][ch].u.func.is_retract) {
-    //             if(lex[j-1]=='\n') line_count--;
-    //             lex[j-1]='\0';
-    //         }
-    //         else lex[j]='\0';
-    //         if(transition_table[state][ch].u.func.func_flag==0){
-    //             // if(transition_table[state][ch].u.func.tkname==TK_ID){
-    //                 // if(!exceed_length){
-    //                     // return return_str_token(lex, TK_ID, line_count, transition_table[state][ch].u.func.is_retract, &input_buffer_pointer);
-    //                 // }
-    //                 // else{
-    //                 //     length_error(0, lex, &state, &input_buffer_pointer, &j, &exceed_length, line_count);
-    //                 //     continue;
-    //                 // }
-    //             // }
-    //             // if(exceed_length) {
-    //             //     length_error(2, lex, &state, &input_buffer_pointer, &j, &exceed_length, line_count);
-    //             //     continue;
-    //             // }
-    //             return return_str_token(lex, transition_table[state][ch].u.func.tkname, line_count, transition_table[state][ch].u.func.is_retract, &input_buffer_pointer);
-    //         }else if(transition_table[state][ch].u.func.func_flag==1){ //for TK_FIELDID and TK_FUNID
-    //             hash_elem *k = lookup(lex);
-    //             if(k->tkname!=0){
-    //                 return return_str_token(k->str, k->tkname, line_count, 1, &input_buffer_pointer);
-    //             }
-    //             // else{
-    //                 // if(transition_table[state][ch].u.func.tkname==TK_FUNID){
-    //                     // if(!exceed_length){
-    //                         // return return_str_token(lex, TK_FUNID, line_count, transition_table[state][ch].u.func.is_retract, &input_buffer_pointer);
-    //                     // }else{
-    //                     //     length_error(1, lex, &state, &input_buffer_pointer, &j, &exceed_length, line_count);
-    //                     //     continue;
-    //                     // }
-    //                 // }
-    //                 // if(exceed_length) {
-    //                 //     length_error(2, lex, &state, &input_buffer_pointer, &j, &exceed_length, line_count);
-    //                 //     continue;
-    //                 // }
-    //                 return_str_token(lex, transition_table[state][ch].u.func.tkname, line_count, transition_table[state][ch].u.func.is_retract, &input_buffer_pointer);
-    //             // }
-    //         }else if(transition_table[state][ch].u.func.func_flag==2){
-    //             // if(exceed_length) {
-    //             //     length_error(2, lex, &state, &input_buffer_pointer, &j, &exceed_length, line_count);
-    //             //     continue;
-    //             // }
-    //             return return_no_token(lex, transition_table[state][ch].u.func.tkname, line_count, transition_table[state][ch].u.func.is_retract, &input_buffer_pointer);
-    //         }else if(transition_table[state][ch].u.func.func_flag==3){
-    //             state=0;
-    //             memset(lex, 0, sizeof(char)*MAX_LENGTH);
-    //             j=0;
-    //             input_buffer_pointer--;
-    //         }
-    //         else{
-    //             printf("Error in transition table");
-    //         }
-    //     }
-    //     //Error state has been encountered: set the correct parameters for re-entering the DFA
-    //     else{
-    //         lex[j-1]='\0';
-    //         transition_table[state][ch].u.error_function(lex, line_count);
-    //         memset(lex, 0, sizeof(char)*MAX_LENGTH);
-    //         j=0;
-    //         state = 0;
-    //     }
-    // }
     while(1){
         if(input_buffer_pointer==no_of_bytes) {
             if(no_of_bytes==BUF_LENGTH){
@@ -274,6 +117,14 @@ tokenInfo* getNextToken(FILE *fp){
                         lex[j-1]='\0';
                     }
                     if(transition_table[state][ch].u.func.func_flag==0){
+                        if(strlen(lex)>20 && transition_table[state][ch].u.func.tkname==TK_ID) {
+                            length_error(0, lex, &state, &input_buffer_pointer, &j, &exceed_length, line_count);
+                            continue;
+                        }
+                        if(exceed_length){
+                            length_error(2, lex, &state, &input_buffer_pointer, &j, &exceed_length, line_count);
+                            continue;
+                        }
                         return return_str_token(lex, transition_table[state][ch].u.func.tkname, line_count, transition_table[state][ch].u.func.is_retract, &input_buffer_pointer);
                     }else if(transition_table[state][ch].u.func.func_flag==1){ //for TK_FIELDID and TK_FUNID
                         hash_elem *k = lookup(lex);
@@ -281,9 +132,21 @@ tokenInfo* getNextToken(FILE *fp){
                             return return_str_token(k->str, k->tkname, line_count, 1, &input_buffer_pointer);
                         }
                         else{
+                            if(exceed_length && transition_table[state][ch].u.func.tkname==TK_FUNID) {
+                                length_error(1, lex, &state, &input_buffer_pointer, &j, &exceed_length, line_count);
+                                continue;
+                            }
+                            if(exceed_length){
+                                length_error(2, lex, &state, &input_buffer_pointer, &j, &exceed_length, line_count);
+                                continue;
+                            }
                             return return_str_token(lex, transition_table[state][ch].u.func.tkname, line_count, transition_table[state][ch].u.func.is_retract, &input_buffer_pointer);
                         }
                     }else if(transition_table[state][ch].u.func.func_flag==2){
+                        if(exceed_length){
+                            length_error(2, lex, &state, &input_buffer_pointer, &j, &exceed_length, line_count);
+                            continue;
+                        }
                         return return_no_token(lex, transition_table[state][ch].u.func.tkname, line_count, transition_table[state][ch].u.func.is_retract, &input_buffer_pointer);
                     }else if(transition_table[state][ch].u.func.func_flag==3){
                         state=0;
@@ -330,8 +193,8 @@ tokenInfo* getNextToken(FILE *fp){
                 }
                 else{
                     if(exceed_length && transition_table[state][ch].u.func.tkname==TK_FUNID) {
-                            length_error(1, lex, &state, &input_buffer_pointer, &j, &exceed_length, line_count);
-                            continue;
+                        length_error(1, lex, &state, &input_buffer_pointer, &j, &exceed_length, line_count);
+                        continue;
                     }
                     if(exceed_length){
                         length_error(2, lex, &state, &input_buffer_pointer, &j, &exceed_length, line_count);
