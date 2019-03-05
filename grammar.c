@@ -884,7 +884,7 @@ void populateStrTable()
 			flag=1;
 			nonTerminalStringTable[i]->nonterminal[j++]='\0';
 			// i++;
-            printf(" ");
+            // printf(" ");
             continue;
 		}
     }  
@@ -945,7 +945,7 @@ void free_first_follow(){
 		while(it->next!=NULL){
 			ptr=it->next;
 			free(it);
-			
+
 		}
 		free(ft->head);
 	}

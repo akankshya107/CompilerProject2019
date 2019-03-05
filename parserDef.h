@@ -9,10 +9,7 @@
 #endif
 typedef struct f_node{
 	int is_error;
-	union{
-		int rule_no_index;
-		void (*error) (void);
-	}table_Entry;
+	int rule_no_index;
 }parse_table_elem;
 
 typedef parse_table_elem **parse_table;
@@ -25,7 +22,7 @@ typedef struct{
 typedef struct{
 	NON_TERMINAL nonterminal;
 	int rule_no;
-	g_node_head *children;
+	treeNodeIt *children;
 }nonLeafNode;
 
 typedef struct{
@@ -34,4 +31,10 @@ typedef struct{
 		leafNode *l;
 		nonLeafNode *n;
 	}treeNode_type;
+	treeNodeIt *parent;
 }treeNode;
+
+typedef struct{
+	treeNode *t;
+	treeNodeIt *next;
+}treeNodeIt;

@@ -1,8 +1,8 @@
 # CompilerProject2019
 
-* Parse table, parse input, parse tree
-* Debugging: comment free code printing
+* Error function: syntax
 * Twin buffer BS
+* Parse tree
 
 #Completed
 * getNextToken()

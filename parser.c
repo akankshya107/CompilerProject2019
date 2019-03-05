@@ -37,22 +37,75 @@ void ComputeFirstAndFollowSets(){
 	return ;
 }
 
-void parseInputSourceCode(char *testcaseFile){
+treeNodeIt* returnIt(treeNode *t, treeNode *next){
+	treeNodeIt *ti = (treeNodeIt*)malloc(sizeof(treeNodeIt));
+	ti->next=next;
+	ti->t=t;
+	return ti;
+}
+
+treeNode* returnTreeNode(bool is_leaf){
+	treeNode *tn = (treeNode*)malloc(sizeof(treeNode));
+	tn->is_leaf=is_leaf;
+	tn->parent=NULL;
+	return tn;
+}
+
+nonLeafNode* returnNonLeafNode(NON_TERMINAL nt, int rule_no, treeNodeIt *children){
+	nonLeafNode* nln = (nonLeafNode*)malloc(sizeof(nonLeafNode));
+	nln->nonterminal=nt;
+	nln->rule_no=rule_no;
+	nln->children=children;
+	return nln;
+}
+
+leafNode* returnLeafNode(tokenInfo *ti){
+	leafNode* ln = (leafNode*)malloc(sizeof(leafNode));
+	ln->leaf_symbol=ti;
+	return ti;
+}
+
+treeNodeIt* makeTreeNodes(g_node_head *h, treeNodeIt *par){
+	g_node *it=h->next;
+	treeNodeIt *ch = (treeNodeIt*)malloc(sizeof(treeNodeIt));
+	treeNodeIt *st = ch;
+	while(it!=NULL){
+		ch->next=returnIt(returnTreeNode(it->is_term), NULL);
+		if(it->is_term){
+			tokenInfo *temp = (tokenInfo*)malloc(sizeof(tokenInfo));
+			ch->next->t->treeNode_type.l=returnLeafNode(temp);
+		}
+		else{
+			ch->next->t->treeNode_type.n=returnNonLeafNode(it->elem.nonterminal, 0, NULL);
+		}
+		it=it->next;
+		ch=ch->next;
+	}
+	return st;
+}
+
+treeNodeIt* parseInputSourceCode(char *testcaseFile){
 	FILE *fp = fopen(testcaseFile, "r");
 	Stack *stack = newStack();
 	push(stack, returnEle(1, EOS));
 	push(stack, returnEle(0, program));
+	treeNodeIt *root = returnIt(returnTreeNode(0), NULL);
+	root->t->treeNode_type.n = returnNonLeafNode(program, 0, NULL);
+	treeNodeIt *store = root, *par;
 	tokenInfo *ti = getNextToken(fp);
 	int e_flag=0;
 	while(!isEmpty(stack)){
 		gram_elem *e = top(stack);
-		print_gram(e);
+		// print_gram(e);
 		if(e->is_term && e->elem.terminal==ti->tokenName){
 			if(ti->tokenName==EOS){
 				printf("Successfully parsed\n");
 				break;
 			}
-			printf("Popped: %s\n", TerminalString(ti->tokenName));
+			// printf("Popped: %s\n", TerminalString(ti->tokenName));
+			treeNodeIt *t = returnIt(returnTreeNode(1), NULL);
+			t->t->treeNode_type.l=returnLeafNode(ti);
+			t->t->parent=root;
 			free(pop(stack));
 			ti = getNextToken(fp);
 		}
@@ -76,38 +129,51 @@ void parseInputSourceCode(char *testcaseFile){
 			free(pop(stack));
 		}
 		else if(T[e->elem.nonterminal][ti->tokenName].is_error==1){
-			e_flag=1;
-			break;
+			
 			if(ti->tokenName==EOS){
 				e_flag=1;
 				break;
 			}
+			if(ti->flag==0)
+			{
+				printf("Line %d: The token %s for lexeme %s does not match with expected token %s\n", ti->line_no, TerminalString(ti->tokenName), ti->u.lexeme, nonTerminalStringTable[e->elem.nonterminal]->nonterminal);
+			}
+			else if(ti->flag==1)
+			{
+				printf("Line %d: The token %s for lexeme %d does not match with expected token %s\n", ti->line_no, TerminalString(ti->tokenName), ti->u.value_of_int , nonTerminalStringTable[e->elem.nonterminal]->nonterminal);
+			}
+			else
+			{
+				printf("Line %d: The token %s for lexeme %f does not match with expected token %s\n", ti->line_no, TerminalString(ti->tokenName), ti->u.value_of_real, nonTerminalStringTable[e->elem.nonterminal]->nonterminal);
+			}
+			free(pop(stack));
 			do{
 				ti = getNextToken(fp);
 				if((T[e->elem.nonterminal][ti->tokenName].is_error==0)){
 					break;
 				}
 				if((T[e->elem.nonterminal][ti->tokenName].is_error==-1)){
-					pop(stack);
+					free(pop(stack));
 					break;
 				}
 			}while(1);
 		}
 		else if(T[e->elem.nonterminal][ti->tokenName].is_error==-1){
-			e_flag=1;
-			break;
 			free(pop(stack));
 			break;
 		}
 		else if((T[e->elem.nonterminal][ti->tokenName].is_error)==0){
 			free(pop(stack));
-			printf("%d\n", T[e->elem.nonterminal][ti->tokenName].table_Entry.rule_no_index);
-			if(T[e->elem.nonterminal][ti->tokenName].table_Entry.rule_no_index==-1){
+			// printf("%d\n", T[e->elem.nonterminal][ti->tokenName].rule_no_index);
+			if(T[e->elem.nonterminal][ti->tokenName].rule_no_index==-1){
 				// printf("Top of stack: %s\n", TerminalString(top(stack)->elem.terminal));
 				continue;
 			}
-			pushAll(stack, T[e->elem.nonterminal][ti->tokenName].table_Entry.rule_no_index);
-			print_grule(grammar[T[e->elem.nonterminal][ti->tokenName].table_Entry.rule_no_index]);
+			pushAll(stack, T[e->elem.nonterminal][ti->tokenName].rule_no_index);
+			par = root;
+			root->t->treeNode_type.n->children=makeTreeNodes(grammar[T[e->elem.nonterminal][ti->tokenName].rule_no_index]);
+			root = root->t->treeNode_type.n->children->next;
+			// print_grule(grammar[T[e->elem.nonterminal][ti->tokenName].rule_no_index]);
 		}else { printf("Error in parse code\n"); }
 	}
 	if(e_flag==1){
@@ -121,15 +187,6 @@ void parseInputSourceCode(char *testcaseFile){
 		}while(ti->tokenName!=EOS);
 	}
 	printf("%d\n", e_flag);
-}
-
-void error_function()
-{
-	return;
-}
-void syn_error()
-{
-	return;
 }
 
 void createParseTable(){
@@ -147,14 +204,13 @@ void createParseTable(){
 		for(j=0;j<EOS+1;j++)
 		{
 			T[i][j].is_error=1;
-			T[i][j].table_Entry.error=&error_function;
 		}
 		if(!f->first[i]->has_eps)
 		{
 			temp=f->first[i]->head;
 			while(temp!=NULL)
 			{
-				T[i][temp->tokenName].table_Entry.rule_no_index =temp->rule_no_index;
+				T[i][temp->tokenName].rule_no_index =temp->rule_no_index;
 				T[i][temp->tokenName].is_error=0;
 				temp=temp->next;
 			}
@@ -182,16 +238,15 @@ void createParseTable(){
 				{
 					temp2=f->follow[i]->head;
 					while(temp2!=NULL){
-						T[i][temp2->tokenName].table_Entry.rule_no_index=-1;
+						T[i][temp2->tokenName].rule_no_index=-1;
 						T[i][temp2->tokenName].is_error=0;
 						temp2=temp2->next;
-						
 					}
 					temp=temp->next;
 				}
 				else
 				{
-					T[i][temp->tokenName].table_Entry.rule_no_index =temp->rule_no_index;
+					T[i][temp->tokenName].rule_no_index =temp->rule_no_index;
 					T[i][temp->tokenName].is_error=0;
 					temp=temp->next;
 				}
@@ -202,7 +257,7 @@ void createParseTable(){
 		}
 	
 	}
-	free_first_follow();
+	// free_first_follow();
 }
 
 void print_parse_table()
@@ -220,7 +275,7 @@ void print_parse_table()
 		{
 			if(T[i][j].is_error==0)
 			{
-				fprintf(fp,"%d,",T[i][j].table_Entry.rule_no_index);
+				fprintf(fp,"%d,",T[i][j].rule_no_index);
 			}
 			else
 			{
@@ -240,5 +295,9 @@ void print_parse_table()
 		fprintf(fp,"\n");
 	}
 	fclose(fp);
+
+}
+
+void printParseTree(treeNode *root, char *outfile){
 
 }

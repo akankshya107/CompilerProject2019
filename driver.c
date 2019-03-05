@@ -25,7 +25,7 @@ int main(int argc, char *argv[]){
 			printf("\n");
 		}else if(option==2){
 			// //Invoke only lexer
-			FILE *fp = fopen("testcase4.txt", "r");
+			FILE *fp = fopen(argv[1], "r");
 			populate_transition_table();
 			populateKeyWordTable();
 			tokenInfo *ti;
@@ -45,7 +45,7 @@ int main(int argc, char *argv[]){
 			populateStrTable();
 			ComputeFirstAndFollowSets();
 			createParseTable();
-			parseInputSourceCode("testcase1.txt");
+			parseInputSourceCode(argv[1]);
 		}else if(option==4){
 
 			clock_t start_time, end_time;
