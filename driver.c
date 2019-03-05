@@ -12,22 +12,28 @@ int main(void){
 	print_grule(grammar[i]);
 
 	
-	print_strTable();
+	// print_strTable();
 
 	ComputeFirstAndFollowSets(grammar);
 	createParseTable();
-	print_parse_table();
+	// print_parse_table();
 	for(i=0;i<NO_OF_RULES;i++)
 	{
 		printf("----------------Non terminal: %s-------------------\n",nonTerminalStringTable[i]->nonterminal);
+		printf("FIRST:\n");
+		// printf("-------------\n");
 		print_first(i);
-	}
-	printf("==================================================================================\n");
-	for(i=0;i<NO_OF_RULES;i++)
-	{
-		printf("----------------Non terminal: %s-------------------\n",nonTerminalStringTable[i]->nonterminal);
+		printf("FOLLOW\n");
+		// printf("-------------\n");
 		print_follow(i);
+
 	}
+	// printf("==================================================================================\n");
+	// for(i=0;i<NO_OF_RULES;i++)
+	// {
+	// 	printf("----------------Non terminal: %s-------------------\n",nonTerminalStringTable[i]->nonterminal);
+	// 	print_follow(i);
+	// }
 
 	// createParseTable(f, T);
 	return 0;

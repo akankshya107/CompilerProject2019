@@ -26,7 +26,7 @@ void add_node_to_first(node_head_first* head,TOKEN tk, int rule);
 void add_list_to_first_eps(node_head_first* head, node* list);
 void print_follow(NON_TERMINAL nt);
 char *TerminalString(int index);
-
+void first_eps_stmt(node_head_follow* node_head,g_node* temp,g_node_head* g);
 void populateStrTable();
 nonterminal_str* create_nt_str();
 void print_strTable_row(NON_TERMINAL nt);
