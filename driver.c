@@ -15,6 +15,8 @@ int main(void){
 	print_strTable();
 
 	ComputeFirstAndFollowSets(grammar);
+	createParseTable();
+	print_parse_table();
 	for(i=0;i<NO_OF_RULES;i++)
 	{
 		printf("----------------Non terminal: %s-------------------\n",nonTerminalStringTable[i]->nonterminal);

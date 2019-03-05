@@ -44,18 +44,6 @@ node* create_node(TOKEN tkname, int rule_no){
 	return n;
 }
 
-// void createParseTable(FirstAndFollow *f, parse_table T){
-// 	T = (parse_table_elem**)malloc(sizeof(parse_table_elem*)*NO_OF_RULES);
-// 	for(int i=0; i<NO_OF_RULES; i++){
-// 		T[i]=(parse_table_elem*)malloc(sizeof(parse_table_elem)*(eps+1));
-// 	}
-// }
-
-// void parseInputSourceCode(char *testcaseFile, parse_table T){
-	
-// }
-
-
 g_node* first_gnode(g_node_head* h,int no,bool is_term)
 {
 	g_node* pnext;
@@ -497,20 +485,20 @@ void add_node_to_first(node_head_first* head,TOKEN tk, int rule)
 	
 }
 
-void add_list_to_first(node_head_first* head, node* list)
+void add_list_to_first(node_head_first* head, node* list,int rule)
 {
     node* curr;
     curr=list;
 	node* temp;
     while(curr!=NULL)
     {
-		temp=create_node(curr->tokenName,curr->rule_no_index);
+		temp=create_node(curr->tokenName,rule);
         temp->next=head->head;
         head->head=temp;
 		curr=curr->next;
     }
 }
-void add_list_to_first_eps(node_head_first* head, node* list)
+void add_list_to_first_eps(node_head_first* head, node* list,int rule)
 {
 	node* curr;
     curr=list;
@@ -521,7 +509,7 @@ void add_list_to_first_eps(node_head_first* head, node* list)
 		{
 			curr=curr->next;
 			continue;}
-		temp=create_node(curr->tokenName,curr->rule_no_index);
+		temp=create_node(curr->tokenName,rule);
         temp->next=head->head;
         head->head=temp;
 		curr=curr->next;
@@ -543,11 +531,11 @@ void recurse_first(node_head_first* node_head,g_node* temp, int rule_no)
             {
                 if(!(f->first[temp->elem.nonterminal]->has_eps))
 		        {
-                    add_list_to_first(node_head,f->first[temp->elem.nonterminal]->head);
+                    add_list_to_first(node_head,f->first[temp->elem.nonterminal]->head,rule_no);
                 }
                 else
                 {
-					add_list_to_first_eps(node_head,f->first[temp->elem.nonterminal]->head);
+					add_list_to_first_eps(node_head,f->first[temp->elem.nonterminal]->head,rule_no);
                     recurse_first(node_head,temp->next, rule_no);
                 }
             
@@ -557,11 +545,11 @@ void recurse_first(node_head_first* node_head,g_node* temp, int rule_no)
                 first(temp->elem.nonterminal);
                 if(!f->first[temp->elem.nonterminal]->has_eps)
                 {
-                    add_list_to_first(node_head,f->first[temp->elem.nonterminal]->head);
+                    add_list_to_first(node_head,f->first[temp->elem.nonterminal]->head,rule_no);
                 }
                 else
                 {
-					add_list_to_first_eps(node_head,f->first[temp->elem.nonterminal]->head);
+					add_list_to_first_eps(node_head,f->first[temp->elem.nonterminal]->head,rule_no);
                     recurse_first(node_head,temp->next,rule_no);
                 }
                         
@@ -610,11 +598,11 @@ void first (NON_TERMINAL nt)
                     {
                         if(!(f->first[iterator->elem.nonterminal]->has_eps))
 		                {
-                            add_list_to_first(f->first[nt],f->first[iterator->elem.nonterminal]->head);
+                            add_list_to_first(f->first[nt],f->first[iterator->elem.nonterminal]->head,rule[i]);
                         }
                         else
                         {
-							add_list_to_first_eps(f->first[nt],f->first[iterator->elem.nonterminal]->head);
+							add_list_to_first_eps(f->first[nt],f->first[iterator->elem.nonterminal]->head,rule[i]);
                             recurse_first(f->first[nt],iterator->next, rule[i]);
                         }
                     }
@@ -625,11 +613,11 @@ void first (NON_TERMINAL nt)
                         first(iterator->elem.nonterminal);
                         if(!f->first[iterator->elem.nonterminal]->has_eps)
                         {
-                            add_list_to_first(f->first[nt],f->first[iterator->elem.nonterminal]->head);
+                            add_list_to_first(f->first[nt],f->first[iterator->elem.nonterminal]->head,rule[i]);
                         }
                         else
                         {
-							add_list_to_first_eps(f->first[nt],f->first[iterator->elem.nonterminal]->head);
+							add_list_to_first_eps(f->first[nt],f->first[iterator->elem.nonterminal]->head,rule[i]);
                             recurse_first(f->first[nt],iterator->next,rule[i]);
                         }
                     }
@@ -804,7 +792,9 @@ void ComputeFirstAndFollowSets(){
 		f->follow[i] = create_head_follow(i);
 		
 	}
-	for(int i=0; i<NO_OF_RULES; i++){
+	f->follow[0]->head=create_node(EOS,0);
+	
+	for(int i=1; i<NO_OF_RULES; i++){
 		// f->first[i]->
 		clear_flags_follow();
 		follow(i);
@@ -859,7 +849,7 @@ void populateStrTable()
 			}
 
 			nonTerminalStringTable[i]->nonterminal[j++]=c;
-            printf("%c",c);
+            // printf("%c",c);
 		}
 		else
 		{
@@ -915,6 +905,153 @@ void print_follow(NON_TERMINAL nt)
 		printf("token: %s , rule no:%d \n",TerminalString(temp->tokenName),temp->rule_no_index);
 		temp=temp->next;
 	}
+}
+
+void error_function()
+{
+	return;
+}
+void syn_error()
+{
+	return;
+}
+
+void createParseTable(){
+	T = (parse_table_elem**)malloc(sizeof(parse_table_elem*)*NO_OF_RULES);
+	for(int i=0; i<NO_OF_RULES; i++){
+		T[i]=(parse_table_elem*)malloc(sizeof(parse_table_elem)*(EOS+1));
+	}
+	int i,j;
+	node* temp,*temp2;
+	int length;
+	g_node* gtemp;
+
+	for(i=0;i<NO_OF_RULES;i++)
+	{
+		for(j=0;j<EOS+1;j++)
+		{
+			T[i][j].is_error=1;
+			T[i][j].table_Entry.error=&error_function;
+		}
+		if(!f->first[i]->has_eps)
+		{
+			temp=f->first[i]->head;
+			while(temp!=NULL)
+			{
+				T[i][temp->tokenName].table_Entry.rule_no_index =temp->rule_no_index;
+				T[i][temp->tokenName].is_error=0;
+				temp=temp->next;
+			}
+
+			temp=f->follow[i]->head;
+			while(temp!=NULL){
+				// T[i][temp->tokenName].table_Entry.error=&syn_error;
+				T[i][temp->tokenName].is_error=-1;
+				temp=temp->next;
+			}
+		}
+		else
+		{
+			temp=f->first[i]->head;
+			while(temp!=NULL)
+			{
+				if(temp->tokenName==eps)
+				{
+					temp2=f->follow[i]->head;
+					while(temp2!=NULL){
+						T[i][temp2->tokenName].table_Entry.rule_no_index=-1;
+						T[i][temp2->tokenName].is_error=0;
+						temp2=temp2->next;
+						
+					}
+					temp=temp->next;
+				}
+				else
+				{
+					T[i][temp->tokenName].table_Entry.rule_no_index =temp->rule_no_index;
+					T[i][temp->tokenName].is_error=0;
+					temp=temp->next;
+				}
+				
+				
+			}
+
+
+			// length=nonTerminalStringTable[i]->length;
+			// for(r=0;r<length;r++)
+			// {
+			// 	gtemp=grammar[nonTerminalStringTable[i]->rules[r]]->next;
+			// 	if(gtemp->is_term)
+			// 	{
+			// 		if(gtemp->elem.terminal==eps)
+			// 		{
+			// 			add_rule_to_Ttable()
+			// 			//add current grammar rule to all the follows
+			// 			break;
+			// 		}
+			// 	}
+			// 	else
+			// 	{
+			// 		if(f->first[gtemp->elem.nonterminal]->has_eps)
+			// 		{
+			// 			//recurse to find if it derives eps or not;
+			// 		}
+			// 		else
+			// 		{
+			// 			continue;
+			// 		}
+					
+			// 	}
+				
+				
+			// }
+		// }	
+			
+		}
+	
+	}
+}
+
+void print_parse_table()
+{
+	int i,j;
+	FILE* fp=fopen("table.csv","w");
+	for(j=0;j<EOS+1;j++)
+	fprintf(fp,"%d ",j+1);
+	fprintf(fp,"\n");
+	for(i=0;i<NO_OF_RULES;i++)
+	{
+		// fprintf(fp,"%s: ",nonTerminalStringTable[i]->nonterminal);
+		fprintf(fp,"%d: ",i+3);
+		for(j=0;j<EOS+1;j++)
+		{
+			if(T[i][j].is_error==0)
+			{
+				fprintf(fp,"%d  ",T[i][j].table_Entry.rule_no_index);
+			}
+			else
+			{
+				if(T[i][j].is_error==-1)
+				{
+					fprintf(fp,"%c  ",'S');
+				}
+				else
+				{
+					fprintf(fp,"%c  ",'_');
+				}
+				
+
+			}
+				
+		}
+		fprintf(fp,"\n");
+	}
+	fclose(fp);
+
+}
+
+void parseInputSourceCode(char *testcaseFile, parse_table T){
+	
 }
 
 // node* first(NON_TERMINAL nt_index){

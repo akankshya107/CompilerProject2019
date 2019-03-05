@@ -59,14 +59,14 @@ typedef struct nonterminal_str{
 nonterminal_str** nonTerminalStringTable;
 
 typedef struct f_node{
-	bool is_error;
+	int is_error;
 	union{
 		int rule_no_index;
 		void (*error) (void);
 	}table_Entry;
 }parse_table_elem;
 
-typedef parse_table_elem **parse_table;
+typedef parse_table_elem** parse_table;
 parse_table T;
 
 // typedef struct{

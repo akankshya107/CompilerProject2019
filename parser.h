@@ -1,6 +1,6 @@
 #include "parserDef.h"
 void ComputeFirstAndFollowSets();
-void createParseTable(FirstAndFollow *f, parse_table T);
+
 void parseInputSourceCode(char *testcaseFile, parse_table T);
 // void printParseTree(treeNode *t, char *outfile);
 
@@ -32,5 +32,14 @@ nonterminal_str* create_nt_str();
 void print_strTable_row(NON_TERMINAL nt);
 void print_strTable();
 void print_first(NON_TERMINAL nt);
+
+//Transition Table
+void createParseTable( );
+void error_function();
+void syn_error();
+void print_parse_table();
+
+
+
 //Error recovery functions
 //Function pointer functions
