@@ -19,6 +19,9 @@ typedef struct{
 	tokenInfo *leaf_symbol;
 }leafNode;
 
+struct treeNodeIt;
+typedef struct treeNodeIt treeNodeIt;
+
 typedef struct{
 	NON_TERMINAL nonterminal;
 	int rule_no;
@@ -32,9 +35,10 @@ typedef struct{
 		nonLeafNode *n;
 	}treeNode_type;
 	treeNodeIt *parent;
+	int line_no;
 }treeNode;
 
-typedef struct{
+typedef struct treeNodeIt{
 	treeNode *t;
 	treeNodeIt *next;
 }treeNodeIt;

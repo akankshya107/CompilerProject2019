@@ -46,7 +46,7 @@ tokenInfo *return_no_token(char *lexeme, TOKEN tkname, int lineno, bool is_retra
     return ti;
 }
 
-void length_error(int choice, char *lex, int *state, int *input_buffer_pointer, int *j, bool *exceed_flag, int line_count){
+void length_error(int choice, int line_count){
     if(choice==0) {
        printf("Line %d: Identifier is longer than the prescribed length of 20 characters\n", line_count);
     }
@@ -56,11 +56,6 @@ void length_error(int choice, char *lex, int *state, int *input_buffer_pointer, 
     else {
         printf("Line %d: Variable is longer than the maximum length of 30 characters\n", line_count);
     }
-    memset(lex, 0, sizeof(char)*MAX_LENGTH);
-    *j=0;
-    *state = 0;
-    *input_buffer_pointer=*input_buffer_pointer-1;
-    *exceed_flag=0;
 }
 
 void unknown_pattern(char *arr, int line_num, char ch, int *j, int *input_buffer_pointer){
@@ -118,12 +113,10 @@ tokenInfo* getNextToken(FILE *fp){
                     }
                     if(transition_table[state][ch].u.func.func_flag==0){
                         if(strlen(lex)>20 && transition_table[state][ch].u.func.tkname==TK_ID) {
-                            length_error(0, lex, &state, &input_buffer_pointer, &j, &exceed_length, line_count);
-                            continue;
+                            length_error(0, line_count);
                         }
                         if(exceed_length){
-                            length_error(2, lex, &state, &input_buffer_pointer, &j, &exceed_length, line_count);
-                            continue;
+                            length_error(2, line_count);
                         }
                         return return_str_token(lex, transition_table[state][ch].u.func.tkname, line_count, transition_table[state][ch].u.func.is_retract, &input_buffer_pointer);
                     }else if(transition_table[state][ch].u.func.func_flag==1){ //for TK_FIELDID and TK_FUNID
@@ -133,19 +126,16 @@ tokenInfo* getNextToken(FILE *fp){
                         }
                         else{
                             if(exceed_length && transition_table[state][ch].u.func.tkname==TK_FUNID) {
-                                length_error(1, lex, &state, &input_buffer_pointer, &j, &exceed_length, line_count);
-                                continue;
+                                length_error(1, line_count);
                             }
                             if(exceed_length){
-                                length_error(2, lex, &state, &input_buffer_pointer, &j, &exceed_length, line_count);
-                                continue;
+                                length_error(2, line_count);
                             }
                             return return_str_token(lex, transition_table[state][ch].u.func.tkname, line_count, transition_table[state][ch].u.func.is_retract, &input_buffer_pointer);
                         }
                     }else if(transition_table[state][ch].u.func.func_flag==2){
                         if(exceed_length){
-                            length_error(2, lex, &state, &input_buffer_pointer, &j, &exceed_length, line_count);
-                            continue;
+                            length_error(2, line_count);
                         }
                         return return_no_token(lex, transition_table[state][ch].u.func.tkname, line_count, transition_table[state][ch].u.func.is_retract, &input_buffer_pointer);
                     }else if(transition_table[state][ch].u.func.func_flag==3){
@@ -159,14 +149,20 @@ tokenInfo* getNextToken(FILE *fp){
                     lex[j]='\0';
                     unknown_pattern(lex, line_count, ch, &j, &input_buffer_pointer);
                 }
-                return return_str_token("EOS", EOS, line_count, 0, &input_buffer_pointer);
+                free(input_buffer);
+                int to_pass = line_count;
+                // global_flag = 0;
+                // line_count = 1;
+                return return_str_token("EOS", EOS, to_pass, 0, &input_buffer_pointer);
             
             }
         }
         ch = input_buffer[input_buffer_pointer];
         if(transition_table[state][ch].flag==0){
             state = transition_table[state][ch].u.state;
-            lex[j++]=ch;
+            if(exceed_length==0){
+                lex[j++]=ch;
+            }
             if(j==MAX_LENGTH+1) exceed_length=1;
             input_buffer_pointer++;
             if(ch=='\n') line_count++;
@@ -178,12 +174,12 @@ tokenInfo* getNextToken(FILE *fp){
             else lex[j]='\0';
             if(transition_table[state][ch].u.func.func_flag==0){
                 if(strlen(lex)>20 && transition_table[state][ch].u.func.tkname==TK_ID) {
-                    length_error(0, lex, &state, &input_buffer_pointer, &j, &exceed_length, line_count);
-                    continue;
+                    tokenInfo *t = return_str_token(lex, transition_table[state][ch].u.func.tkname, line_count, transition_table[state][ch].u.func.is_retract, &input_buffer_pointer);
+                    length_error(0, line_count);
+                    return t;
                 }
                 if(exceed_length){
-                    length_error(2, lex, &state, &input_buffer_pointer, &j, &exceed_length, line_count);
-                    continue;
+                    length_error(2, line_count);
                 }
                 return return_str_token(lex, transition_table[state][ch].u.func.tkname, line_count, transition_table[state][ch].u.func.is_retract, &input_buffer_pointer);
             }else if(transition_table[state][ch].u.func.func_flag==1){ //for TK_FIELDID and TK_FUNID
@@ -193,18 +189,18 @@ tokenInfo* getNextToken(FILE *fp){
                 }
                 else{
                     if(exceed_length && transition_table[state][ch].u.func.tkname==TK_FUNID) {
-                        length_error(1, lex, &state, &input_buffer_pointer, &j, &exceed_length, line_count);
-                        continue;
+                        tokenInfo *t = return_str_token(lex, transition_table[state][ch].u.func.tkname, line_count, transition_table[state][ch].u.func.is_retract, &input_buffer_pointer);
+                        length_error(1, line_count);
+                        return t;
                     }
                     if(exceed_length){
-                        length_error(2, lex, &state, &input_buffer_pointer, &j, &exceed_length, line_count);
-                        continue;
+                        length_error(2, line_count);
                     }
                     return return_str_token(lex, transition_table[state][ch].u.func.tkname, line_count, transition_table[state][ch].u.func.is_retract, &input_buffer_pointer);
                 }
             }else if(transition_table[state][ch].u.func.func_flag==2){
                 if(exceed_length){
-                    length_error(2, lex, &state, &input_buffer_pointer, &j, &exceed_length, line_count);
+                    length_error(2, line_count);
                     continue;
                 }
                 return return_no_token(lex, transition_table[state][ch].u.func.tkname, line_count, transition_table[state][ch].u.func.is_retract, &input_buffer_pointer);

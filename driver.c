@@ -8,44 +8,48 @@
 extern parse_table T;
 int main(int argc, char *argv[]){
 	int option;
+	populate_transition_table();
+	populateKeyWordTable();
 	while(1){
 		scanf("%d", &option);
 		if(option==0){
 			break;
 		}else if(option==1){
-			removeComments(argv[1], "clean.txt");
-			FILE *pr = fopen("clean.txt", "w");
+			removeComments("testcase4.txt", "clean.txt");
+			FILE *pr = fopen("clean.txt", "r");
 			char * buf = (char*)malloc(sizeof(char)*513);
-			int s = 512;
-			while(s==512){
+			int s;
+			do{
 				s = fread(buf, sizeof(char), 512, pr);
-				buf[512]='\0';
-				printf("%s", buf);
-			}
+				for(int i=0; i<s; i++){
+					printf("%c", buf[i]);
+				}
+			}while(s==512);
+			fclose(pr);
 			printf("\n");
 		}else if(option==2){
-			// //Invoke only lexer
-			FILE *fp = fopen(argv[1], "r");
-			populate_transition_table();
-			populateKeyWordTable();
+			//Invoke only lexer
+			FILE *fp = fopen("testcase1.txt", "r");
 			tokenInfo *ti;
 			do{
 				ti = getNextToken(fp);
 				if(ti->tokenName==TK_NUM) printf("Line %d: Token %s, Lexeme %d\n", ti->line_no, TerminalString(ti->tokenName), ti->u.value_of_int);
 				else if(ti->tokenName==TK_RNUM) printf("Line %d: Token %s, Lexeme %.2f\n", ti->line_no, TerminalString(ti->tokenName), ti->u.value_of_real);
 				else printf("Line %d: Token %s, Lexeme %s\n", ti->line_no, TerminalString(ti->tokenName), ti->u.lexeme);
+				// free(ti);
 			}while(ti->tokenName!=EOS);
-
 			fclose(fp);
-			
+			printf("\n");
+
 		}else if(option==3){
-			populate_transition_table();
-			populateKeyWordTable();
 			populateGrammar();
 			populateStrTable();
 			ComputeFirstAndFollowSets();
 			createParseTable();
-			parseInputSourceCode(argv[1]);
+			// free_first_follow();
+			treeNodeIt* t = parseInputSourceCode("testcase1.txt");
+			printParseTree(t, "parse.txt");
+			printf("\n");
 		}else if(option==4){
 
 			clock_t start_time, end_time;
@@ -54,13 +58,19 @@ int main(int argc, char *argv[]){
 
 			start_time = clock();
 
-			FILE *fp = fopen("testcase4.txt", "r");
-			tokenInfo *ti;
-			do{
-				ti = getNextToken(fp);
-			}while(ti->tokenName!=EOS);
+			// FILE *fp = fopen("testcase1.txt", "r");
+			// tokenInfo *ti;
+			// do{
+			// 	ti = getNextToken(fp);
+			// }while(ti->tokenName!=EOS);
 
-			fclose(fp);
+			// fclose(fp);
+
+			populateGrammar();
+			populateStrTable();
+			ComputeFirstAndFollowSets();
+			createParseTable();
+			parseInputSourceCode("testcase1.txt");
 
 			end_time = clock();
 
