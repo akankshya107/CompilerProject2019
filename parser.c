@@ -112,7 +112,7 @@ void parseInputSourceCode(char *testcaseFile){
 	}
 	if(e_flag==1){
 		while(!isEmpty(stack)){
-			print_gram(pop(stack));
+			free(pop(stack));
 		}
 	}
 	else if(e_flag==2){
@@ -202,6 +202,7 @@ void createParseTable(){
 		}
 	
 	}
+	free_first_follow();
 }
 
 void print_parse_table()

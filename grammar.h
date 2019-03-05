@@ -29,3 +29,4 @@ void print_strTable();
 void print_first(NON_TERMINAL nt);
 node_head_first* create_head_first(NON_TERMINAL nt_index);
 node_head_follow* create_head_follow(NON_TERMINAL nt_index);
+void free_first_follow();

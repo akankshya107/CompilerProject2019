@@ -937,7 +937,26 @@ void print_follow(NON_TERMINAL nt)
 
 
 void free_first_follow(){
-	for(int i=0; i<NO_OF_RULES){
-		
+	node *it, *ptr;
+	node_head_first *ft;
+	for(int i=0; i<NO_OF_RULES; i++){
+		ft = f->first[i];
+		it = ft->head;
+		while(it->next!=NULL){
+			ptr=it->next;
+			free(it);
+			
+		}
+		free(ft->head);
+	}
+	node_head_follow *fot=create_head_follow(0);
+	for(int i=0; i<NO_OF_RULES; i++){
+		fot = f->follow[i];
+		it = fot->head;
+		while(it->next!=NULL){
+			free(it);
+			it=it->next;
+		}
+		free(fot->head);
 	}
 }
