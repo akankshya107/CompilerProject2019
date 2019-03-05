@@ -46,12 +46,14 @@ void parseInputSourceCode(char *testcaseFile){
 	int e_flag=0;
 	while(!isEmpty(stack)){
 		gram_elem *e = top(stack);
+		print_gram(e);
 		if(e->is_term && e->elem.terminal==ti->tokenName){
 			if(ti->tokenName==EOS){
 				printf("Successfully parsed\n");
 				break;
 			}
-			pop(stack);
+			printf("Popped: %s\n", TerminalString(ti->tokenName));
+			free(pop(stack));
 			ti = getNextToken(fp);
 		}
 		else if(e->is_term){
@@ -71,9 +73,11 @@ void parseInputSourceCode(char *testcaseFile){
 			{
 				printf("Line %d: The token %s for lexeme %f does not match with expected token %s\n", ti->line_no, TerminalString(ti->tokenName), ti->u.value_of_real, TerminalString(e->elem.terminal));
 			}
-			pop(stack);
+			free(pop(stack));
 		}
 		else if(T[e->elem.nonterminal][ti->tokenName].is_error==1){
+			e_flag=1;
+			break;
 			if(ti->tokenName==EOS){
 				e_flag=1;
 				break;
@@ -90,21 +94,25 @@ void parseInputSourceCode(char *testcaseFile){
 			}while(1);
 		}
 		else if(T[e->elem.nonterminal][ti->tokenName].is_error==-1){
-			pop(stack);
+			e_flag=1;
+			break;
+			free(pop(stack));
 			break;
 		}
 		else if((T[e->elem.nonterminal][ti->tokenName].is_error)==0){
-			pop(stack);
+			free(pop(stack));
+			printf("%d\n", T[e->elem.nonterminal][ti->tokenName].table_Entry.rule_no_index);
 			if(T[e->elem.nonterminal][ti->tokenName].table_Entry.rule_no_index==-1){
+				// printf("Top of stack: %s\n", TerminalString(top(stack)->elem.terminal));
 				continue;
 			}
 			pushAll(stack, T[e->elem.nonterminal][ti->tokenName].table_Entry.rule_no_index);
-			(print_grule(grammar[T[e->elem.nonterminal][ti->tokenName].table_Entry.rule_no_index]));
+			print_grule(grammar[T[e->elem.nonterminal][ti->tokenName].table_Entry.rule_no_index]);
 		}else { printf("Error in parse code\n"); }
 	}
 	if(e_flag==1){
 		while(!isEmpty(stack)){
-			pop(stack);
+			print_gram(pop(stack));
 		}
 	}
 	else if(e_flag==2){
@@ -186,9 +194,13 @@ void createParseTable(){
 					T[i][temp->tokenName].table_Entry.rule_no_index =temp->rule_no_index;
 					T[i][temp->tokenName].is_error=0;
 					temp=temp->next;
-				}							
-			}			
-		}	
+				}
+				
+				
+			}
+
+		}
+	
 	}
 }
 

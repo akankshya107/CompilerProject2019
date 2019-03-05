@@ -1,7 +1,17 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "lexer.h"
 #include "stackDef.h"
+
+void print_gram(gram_elem* e){
+	if(e->is_term){
+		printf("%s\n", TerminalString(e->elem.terminal));
+	}else{
+		printf("%s\n", nonTerminalStringTable[e->elem.nonterminal]->nonterminal);
+	}
+}
+
 gram_elem* top(Stack *s){
 	Ele *ptr=s->tail;
 	return ptr->el;
@@ -12,15 +22,15 @@ bool isEmpty(Stack *s){
 	return false;
 }
 
-gram_elem* pop(Stack *s){
+Ele* pop(Stack *s){
 	if(isEmpty(s)) return NULL;
-	if(s->size==1) {Ele *ptr= s->head; s->head=NULL; s->tail=NULL; s->size--; return ptr->el;}
+	if(s->size==1) {Ele *ptr= s->head; s->head=NULL; s->tail=NULL; s->size--; return ptr;}
 	Ele *ptr = s->head;
 	while(ptr->next!=s->tail){ ptr=ptr->next; }
 	Ele *ret = s->tail;
 	s->tail=ptr;
 	s->size--;
-	return ret->el;
+	return ret;
 }
 
 Ele* returnEle(bool is_term, int t){
@@ -48,6 +58,7 @@ void push(Stack *s, Ele *e){
 }
 
 void pushAll(Stack *s, int rule_no){
+	// if(rule_no==-1) return;
 	g_node *g = grammar[rule_no]->next;
 	while(g->next!=NULL){
 		g=g->next;

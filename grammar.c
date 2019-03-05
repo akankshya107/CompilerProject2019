@@ -60,7 +60,6 @@ g_node* dl_nodes(g_node* pnext,int no,bool is_term)
 
 	return ptr;
 }
-
 void print_gnode(g_node* ptr)
 {
 	if(ptr->is_term)
@@ -653,9 +652,9 @@ void add_nodetof(node_head_follow* head,TOKEN tk)
 		head->head=temp_node;
 	}
 }
-void add_ftof(node_head_follow* head,node* firstorfollow)
+void add_ftof(node_head_follow* head,node* follow)
 {
-	node* temp=firstorfollow;
+	node* temp=follow;
 	while(temp!=NULL)
 	{
 		add_nodetof(head,temp->tokenName);
@@ -663,7 +662,7 @@ void add_ftof(node_head_follow* head,node* firstorfollow)
 	}
 }
 
-
+void follow(NON_TERMINAL nt_index);
 void first_eps(node_head_follow* node_head,g_node* temp,g_node_head* g)
 {
 	if(temp==NULL)
@@ -671,21 +670,74 @@ void first_eps(node_head_follow* node_head,g_node* temp,g_node_head* g)
 		// if(f->follow[g->non_terminal].is_visited)
 		// return NULL;
 		// else
+		if(f->follow[g->non_terminal]->head==NULL)
+		follow(g->non_terminal);
 		add_ftof(node_head,f->follow[g->non_terminal]->head);
 		
 	}
 
 	else
 	{
+		if(!temp->is_term)
+		{
+			if(!f->first[temp->elem.nonterminal]->has_eps)
+			add_ftof(node_head,f->first[temp->elem.nonterminal]->head);
+			
+
+			else
+			{
+
+				//add firsts - eps
+				add_ftof(node_head,f->first[temp->elem.nonterminal]->head);
+				first_eps(node_head,temp->next,g);	
+				// return first(temp);first
+			}
+		}
+		else
+		{
+			add_nodetof(node_head,temp->elem.terminal);
+		}
+		
+
+		
+	}
+	
+}
+
+void print_follow(NON_TERMINAL nt);
+void first_eps_stmt(node_head_follow* node_head,g_node* temp,g_node_head* g)
+{
+	if(temp==NULL)
+	{
+		// if(f->follow[g->non_terminal].is_visited)
+		// return NULL;
+		// else
+		printf("in first_eps_stmt 1: rule-%d \n",g->rule_no);
+		
+		add_ftof(node_head,f->follow[g->non_terminal]->head);
+		print_follow(stmt);
+	}
+
+	else
+	{
 		if(!f->first[temp->elem.nonterminal]->has_eps)
-		add_ftof(node_head,f->first[temp->elem.nonterminal]->head);
+		{
+			printf("in first_eps_stmt 2: rule-%d nonterm-%s\n",g->rule_no,nonTerminalStringTable[temp->elem.nonterminal]->nonterminal);
+			add_ftof(node_head,f->first[temp->elem.nonterminal]->head);
+			print_follow(stmt);
+		}
 		 
 
 		else
 		{
 			//add firsts - eps
+			printf("in first_eps_stmt 3: rule-%d nonterm-%s\n",g->rule_no,nonTerminalStringTable[temp->elem.nonterminal]->nonterminal);
 			add_ftof(node_head,f->first[temp->elem.nonterminal]->head);
-			first_eps(node_head,temp->next,g);	
+			print_follow(stmt);
+			if(temp->next!=NULL&&
+			!temp->next->is_term)
+			printf("%s",nonTerminalStringTable[ temp->next->elem.nonterminal]->nonterminal);
+			first_eps_stmt(node_head,temp->next,g);	
 			// return first(temp);first
 		}
 		
@@ -700,9 +752,9 @@ void clear_flags_follow()
 		f->follow[i]->is_visited=false;
 	}
 }
+
 void follow(NON_TERMINAL nt_index)
 {
-	
 	if(f->follow[nt_index]->head!=NULL)
 	{
 		f->follow[nt_index]->is_visited=true;
@@ -728,17 +780,24 @@ void follow(NON_TERMINAL nt_index)
 					{
 						if(temp->elem.nonterminal==nt_index)
 						{
+							
 							if(temp->next==NULL)
 							{
 								// add follow of grammar[i]->non_terminal to 
 								//current follow
+								if(f->follow[grammar[i]->non_terminal]->head==NULL)
+								{
+									follow(grammar[i]->non_terminal);
+								}
 								add_ftof(f->follow[nt_index],f->follow[grammar[i]->non_terminal]->head);
+								
 							}
 							else
 							{
 								if(temp->next->is_term)
 								{
 									add_nodetof(f->follow[nt_index],temp->next->elem.terminal);
+									
 								}
 
 								else
@@ -749,11 +808,14 @@ void follow(NON_TERMINAL nt_index)
 										//add first of temp->next->elem.nonterminal to the 
 										//current follow
 										add_ftof(f->follow[nt_index],f->first[temp->next->elem.nonterminal]->head);
+										
 									}
 
 									else
 									{
+										
 										first_eps(f->follow[nt_index],temp->next,grammar[i]);
+										
 									}
 									
 								}
@@ -870,5 +932,12 @@ void print_follow(NON_TERMINAL nt)
 	{
 		printf("token: %s(%d) , rule no:%d \n",TerminalString(temp->tokenName),temp->tokenName+1,temp->rule_no_index);
 		temp=temp->next;
+	}
+}
+
+
+void free_first_follow(){
+	for(int i=0; i<NO_OF_RULES){
+		
 	}
 }
