@@ -892,7 +892,7 @@ void print_first(NON_TERMINAL nt)
 	node* temp=f->first[nt]->head;
 	while(temp!=NULL)
 	{
-		printf("token: %s , rule no:%d \n", TerminalString(temp->tokenName),temp->rule_no_index);
+		printf("token: %s(%d) , rule no:%d \n", TerminalString(temp->tokenName),temp->tokenName+1,temp->rule_no_index);
 		temp=temp->next;
 	}
 }
@@ -902,7 +902,7 @@ void print_follow(NON_TERMINAL nt)
 	node* temp=f->follow[nt]->head;
 	while(temp!=NULL)
 	{
-		printf("token: %s , rule no:%d \n",TerminalString(temp->tokenName),temp->rule_no_index);
+		printf("token: %s(%d) , rule no:%d \n",TerminalString(temp->tokenName),temp->tokenName+1,temp->rule_no_index);
 		temp=temp->next;
 	}
 }
@@ -946,8 +946,15 @@ void createParseTable(){
 			temp=f->follow[i]->head;
 			while(temp!=NULL){
 				// T[i][temp->tokenName].table_Entry.error=&syn_error;
-				T[i][temp->tokenName].is_error=-1;
-				temp=temp->next;
+				if(T[i][temp->tokenName].is_error==0){
+					temp=temp->next;
+
+				}
+				else{
+					T[i][temp->tokenName].is_error=-1;
+					temp=temp->next;
+				}
+				// temp = temp->next;
 			}
 		}
 		else
@@ -959,7 +966,7 @@ void createParseTable(){
 				{
 					temp2=f->follow[i]->head;
 					while(temp2!=NULL){
-						T[i][temp2->tokenName].table_Entry.rule_no_index=-1;
+						T[i][temp2->tokenName].table_Entry.rule_no_index=-2;
 						T[i][temp2->tokenName].is_error=0;
 						temp2=temp2->next;
 						
@@ -1016,28 +1023,28 @@ void print_parse_table()
 {
 	int i,j;
 	FILE* fp=fopen("table.csv","w");
-	for(j=0;j<EOS+1;j++)
-	fprintf(fp,"%d ",j+1);
-	fprintf(fp,"\n");
+	// for(j=0;j<EOS+1;j++)
+	// fprintf(fp,"%d ",j+1);
+	// fprintf(fp,"\n");
 	for(i=0;i<NO_OF_RULES;i++)
 	{
 		// fprintf(fp,"%s: ",nonTerminalStringTable[i]->nonterminal);
-		fprintf(fp,"%d: ",i+3);
+		// fprintf(fp,"%d: ",i);
 		for(j=0;j<EOS+1;j++)
 		{
 			if(T[i][j].is_error==0)
 			{
-				fprintf(fp,"%d  ",T[i][j].table_Entry.rule_no_index);
+				fprintf(fp,"%d,",T[i][j].table_Entry.rule_no_index);
 			}
 			else
 			{
 				if(T[i][j].is_error==-1)
 				{
-					fprintf(fp,"%c  ",'S');
+					fprintf(fp,"%c,",'S');
 				}
 				else
 				{
-					fprintf(fp,"%c  ",'_');
+					fprintf(fp,"%c,",'_');
 				}
 				
 
