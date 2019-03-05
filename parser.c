@@ -693,17 +693,27 @@ void first_eps(node_head_follow* node_head,g_node* temp,g_node_head* g)
 
 	else
 	{
-		if(!f->first[temp->elem.nonterminal]->has_eps)
-		add_ftof(node_head,f->first[temp->elem.nonterminal]->head);
-		 
+		if(!temp->is_term)
+		{
+			if(!f->first[temp->elem.nonterminal]->has_eps)
+			add_ftof(node_head,f->first[temp->elem.nonterminal]->head);
+			
 
+			else
+			{
+
+				//add firsts - eps
+				add_ftof(node_head,f->first[temp->elem.nonterminal]->head);
+				first_eps(node_head,temp->next,g);	
+				// return first(temp);first
+			}
+		}
 		else
 		{
-			//add firsts - eps
-			add_ftof(node_head,f->first[temp->elem.nonterminal]->head);
-			first_eps(node_head,temp->next,g);	
-			// return first(temp);first
+			add_nodetof(node_head,temp->elem.terminal);
 		}
+		
+
 		
 	}
 	
@@ -717,33 +727,42 @@ void first_eps_stmt(node_head_follow* node_head,g_node* temp,g_node_head* g)
 		// return NULL;
 		// else
 		printf("in first_eps_stmt 1: rule-%d \n",g->rule_no);
-		
+		if(f->follow[g->non_terminal]->head==NULL)
+			follow(g->non_terminal);
 		add_ftof(node_head,f->follow[g->non_terminal]->head);
 		print_follow(stmt);
 	}
 
 	else
 	{
-		if(!f->first[temp->elem.nonterminal]->has_eps)
+		if(!temp->is_term )
 		{
-			printf("in first_eps_stmt 2: rule-%d nonterm-%s\n",g->rule_no,nonTerminalStringTable[temp->elem.nonterminal]->nonterminal);
-			add_ftof(node_head,f->first[temp->elem.nonterminal]->head);
-			print_follow(stmt);
-		}
-		 
+			if(!f->first[temp->elem.nonterminal]->has_eps)
+			{
+				printf("in first_eps_stmt 2: rule-%d nonterm-%s\n",g->rule_no,nonTerminalStringTable[temp->elem.nonterminal]->nonterminal);
+				add_ftof(node_head,f->first[temp->elem.nonterminal]->head);
+				print_follow(stmt);
+			}
+			
 
+			else
+			{
+				//add firsts - eps
+				printf("in first_eps_stmt 3: rule-%d nonterm-%s\n",g->rule_no,nonTerminalStringTable[temp->elem.nonterminal]->nonterminal);
+				add_ftof(node_head,f->first[temp->elem.nonterminal]->head);
+				print_follow(stmt);
+				if(temp->next!=NULL&&
+				!temp->next->is_term)
+				printf("%s",nonTerminalStringTable[ temp->next->elem.nonterminal]->nonterminal);
+				first_eps_stmt(node_head,temp->next,g);	
+				// return first(temp);first
+			}
+		}
 		else
 		{
-			//add firsts - eps
-			printf("in first_eps_stmt 3: rule-%d nonterm-%s\n",g->rule_no,nonTerminalStringTable[temp->elem.nonterminal]->nonterminal);
-			add_ftof(node_head,f->first[temp->elem.nonterminal]->head);
-			print_follow(stmt);
-			if(temp->next!=NULL&&
-			!temp->next->is_term)
-			printf("%s",nonTerminalStringTable[ temp->next->elem.nonterminal]->nonterminal);
-			first_eps_stmt(node_head,temp->next,g);	
-			// return first(temp);first
+			add_nodetof(node_head,temp->elem.terminal);
 		}
+		
 		
 	}
 	
