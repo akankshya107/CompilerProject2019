@@ -27,7 +27,9 @@ void ComputeFirstAndFollowSets(){
 		f->follow[i] = create_head_follow(i);
 		
 	}
-	for(int i=0; i<NO_OF_RULES; i++){
+	f->follow[0]->head=create_node(EOS,0);
+	
+	for(int i=1; i<NO_OF_RULES; i++){
 		// f->first[i]->
 		clear_flags_follow();
 		follow(i);
@@ -59,15 +61,15 @@ void parseInputSourceCode(char *testcaseFile){
 			}
 			if(ti->flag==0)
 			{
-				printf("Line %d: The token %s for lexeme %s does not match with expected token %s", ti->line_no, TerminalString(ti->tokenName), ti->u.lexeme, TerminalString(e->elem.terminal));
+				printf("Line %d: The token %s for lexeme %s does not match with expected token %s\n", ti->line_no, TerminalString(ti->tokenName), ti->u.lexeme, TerminalString(e->elem.terminal));
 			}
 			else if(ti->flag==1)
 			{
-				printf("Line %d: The token %s for lexeme %d does not match with expected token %s", ti->line_no, TerminalString(ti->tokenName), ti->u.value_of_int , TerminalString(e->elem.terminal));
+				printf("Line %d: The token %s for lexeme %d does not match with expected token %s\n", ti->line_no, TerminalString(ti->tokenName), ti->u.value_of_int , TerminalString(e->elem.terminal));
 			}
 			else
 			{
-				printf("Line %d: The token %s for lexeme %f does not match with expected token %s", ti->line_no, TerminalString(ti->tokenName), ti->u.value_of_real, TerminalString(e->elem.terminal));
+				printf("Line %d: The token %s for lexeme %f does not match with expected token %s\n", ti->line_no, TerminalString(ti->tokenName), ti->u.value_of_real, TerminalString(e->elem.terminal));
 			}
 			pop(stack);
 		}
@@ -97,6 +99,7 @@ void parseInputSourceCode(char *testcaseFile){
 				continue;
 			}
 			pushAll(stack, T[e->elem.nonterminal][ti->tokenName].table_Entry.rule_no_index);
+			(print_grule(grammar[T[e->elem.nonterminal][ti->tokenName].table_Entry.rule_no_index]));
 		}else { printf("Error in parse code\n"); }
 	}
 	if(e_flag==1){
@@ -109,6 +112,7 @@ void parseInputSourceCode(char *testcaseFile){
 			ti = getNextToken(fp);
 		}while(ti->tokenName!=EOS);
 	}
+	printf("%d\n", e_flag);
 }
 
 void error_function()
@@ -150,8 +154,15 @@ void createParseTable(){
 			temp=f->follow[i]->head;
 			while(temp!=NULL){
 				// T[i][temp->tokenName].table_Entry.error=&syn_error;
-				T[i][temp->tokenName].is_error=-1;
-				temp=temp->next;
+				if(T[i][temp->tokenName].is_error==0){
+					temp=temp->next;
+
+				}
+				else{
+					T[i][temp->tokenName].is_error=-1;
+					temp=temp->next;
+				}
+				// temp = temp->next;
 			}
 		}
 		else
@@ -175,44 +186,9 @@ void createParseTable(){
 					T[i][temp->tokenName].table_Entry.rule_no_index =temp->rule_no_index;
 					T[i][temp->tokenName].is_error=0;
 					temp=temp->next;
-				}
-				
-				
-			}
-
-
-			// length=nonTerminalStringTable[i]->length;
-			// for(r=0;r<length;r++)
-			// {
-			// 	gtemp=grammar[nonTerminalStringTable[i]->rules[r]]->next;
-			// 	if(gtemp->is_term)
-			// 	{
-			// 		if(gtemp->elem.terminal==eps)
-			// 		{
-			// 			add_rule_to_Ttable()
-			// 			//add current grammar rule to all the follows
-			// 			break;
-			// 		}
-			// 	}
-			// 	else
-			// 	{
-			// 		if(f->first[gtemp->elem.nonterminal]->has_eps)
-			// 		{
-			// 			//recurse to find if it derives eps or not;
-			// 		}
-			// 		else
-			// 		{
-			// 			continue;
-			// 		}
-					
-			// 	}
-				
-				
-			// }
-		// }	
-			
-		}
-	
+				}							
+			}			
+		}	
 	}
 }
 
@@ -220,28 +196,28 @@ void print_parse_table()
 {
 	int i,j;
 	FILE* fp=fopen("table.csv","w");
-	for(j=0;j<EOS+1;j++)
-	fprintf(fp,"%d ",j+1);
-	fprintf(fp,"\n");
+	// for(j=0;j<EOS+1;j++)
+	// fprintf(fp,"%d ",j+1);
+	// fprintf(fp,"\n");
 	for(i=0;i<NO_OF_RULES;i++)
 	{
 		// fprintf(fp,"%s: ",nonTerminalStringTable[i]->nonterminal);
-		fprintf(fp,"%d: ",i+3);
+		// fprintf(fp,"%d: ",i);
 		for(j=0;j<EOS+1;j++)
 		{
 			if(T[i][j].is_error==0)
 			{
-				fprintf(fp,"%d  ",T[i][j].table_Entry.rule_no_index);
+				fprintf(fp,"%d,",T[i][j].table_Entry.rule_no_index);
 			}
 			else
 			{
 				if(T[i][j].is_error==-1)
 				{
-					fprintf(fp,"%c  ",'S');
+					fprintf(fp,"%c,",'S');
 				}
 				else
 				{
-					fprintf(fp,"%c  ",'_');
+					fprintf(fp,"%c,",'_');
 				}
 				
 

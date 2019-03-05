@@ -1,6 +1,6 @@
 #include <stdbool.h>
 #define NO_OF_STATES 55
-#define NO_OF_RULES 49
+#define NO_OF_RULES 50
 #define BUF_LENGTH 512
 #define MAX_LENGTH 32
 

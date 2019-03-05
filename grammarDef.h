@@ -2,7 +2,7 @@
 #include "lexerDef.h"
 #endif
 
-#define NO_OF_NON_TERMS 50
+#define MAX_NONTERMINAL 30
 #define NO_OF_GRAMMAR_RULES 87
 #define MAX_DIFF_RULES 10
 

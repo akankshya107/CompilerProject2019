@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include "lexer.h"
 #include "grammarDef.h"
 
 g_node_head* create_g_node_head(NON_TERMINAL nt){
@@ -64,15 +65,15 @@ void print_gnode(g_node* ptr)
 {
 	if(ptr->is_term)
 	{
-		printf("%d ", ptr->elem.terminal);
+		printf( " %s ",TerminalString( ptr->elem.terminal));
 	}
 	else
-	printf("%d ", ptr->elem.terminal);
+	printf("%s ", nonTerminalStringTable[ ptr->elem.nonterminal]->nonterminal);
 }
 
 void print_grule(g_node_head* head)
 {
-	printf("Rule %d:  %d -->",head->rule_no,head->non_terminal);
+	printf("Rule %d:  %s -->",head->rule_no,nonTerminalStringTable [head->non_terminal]->nonterminal);
 	g_node* temp=head->next;
 	while(temp!=NULL){
 		print_gnode(temp);
@@ -82,359 +83,12 @@ void print_grule(g_node_head* head)
 	
 }
 
-void add_node_to_first(node_head_first* head,TOKEN tk, int rule)
-{
-	node* temp=create_node(tk,rule);
-    temp->next=head->head;
-    head->head=temp;
-	
-}
-
-void add_list_to_first(node_head_first* head, node* list)
-{
-    node* curr;
-    curr=list;
-	node* temp;
-    while(curr!=NULL)
-    {
-		temp=create_node(curr->tokenName,curr->rule_no_index);
-        temp->next=head->head;
-        head->head=temp;
-		curr=curr->next;
-    }
-}
-void first (NON_TERMINAL nt);
-void recurse_first(node_head_first* node_head,g_node* temp, int rule_no)
-{
-    if(temp==NULL)
-	{
-		add_node_to_first(node_head,eps,rule_no);		
-	}
-
-	else
-	{
-        if(!temp->is_term)
-        {
-            if(f->first[temp->elem.nonterminal]->head!=NULL)
-            {
-                if(!(f->first[temp->elem.nonterminal]->has_eps))
-		        {
-                    add_list_to_first(node_head,f->first[temp->elem.nonterminal]->head);
-                }
-                else
-                {
-					add_list_to_first(node_head,f->first[temp->elem.nonterminal]->head);
-                    recurse_first(node_head,temp->next, rule_no);
-                }
-            
-            }
-            else
-            {
-                first(temp->elem.nonterminal);
-                if(!f->first[temp->elem.nonterminal]->has_eps)
-                {
-                    add_list_to_first(node_head,f->first[temp->elem.nonterminal]->head);
-                }
-                else
-                {
-					add_list_to_first(node_head,f->first[temp->elem.nonterminal]->head);
-                    recurse_first(node_head,temp->next,rule_no);
-                }
-                        
-            }
-        }
-        else
-        {
-            add_node_to_first(node_head, temp->elem.terminal, rule_no);
-        }
-        	
-	}
-}
-
-void first (NON_TERMINAL nt)
-{
-	// printf("%d\n ",nt);
-    if(f->first[nt]->head!=NULL)
-    {
-        return;
-    }
-    else
-    {
-        int* rule= nonTerminalStringTable[nt]->rules;
-        int length= nonTerminalStringTable[nt]->length;
-        int i;
-        g_node* iterator=NULL;
-        node* temp=NULL;
-        for(i=0;i<length;i++)
-        {
-            iterator =grammar[rule[i]]->next;
-            // while(iterator!=NULL)
-            {
-                if(iterator->is_term)
-                {
-					// printf("hello\n");
-                    if(iterator->elem.terminal==eps)
-                    {
-                        f->first[nt]->has_eps=true;
-                    }
-                    add_node_to_first(f->first[nt],iterator->elem.terminal,rule[i]);
-                }
-                else
-                {
-					// printf("hello bitch\n");
-                    if(f->first[iterator->elem.nonterminal]->head!=NULL)
-                    {
-                        if(!(f->first[iterator->elem.nonterminal]->has_eps))
-		                {
-                            add_list_to_first(f->first[nt],f->first[iterator->elem.nonterminal]->head);
-                        }
-                        else
-                        {
-							add_list_to_first(f->first[nt],f->first[iterator->elem.nonterminal]->head);
-                            recurse_first(f->first[nt],iterator->next, rule[i]);
-                        }
-                    }
-
-                    else
-                    {
-                        
-                        first(iterator->elem.nonterminal);
-                        if(!f->first[iterator->elem.nonterminal]->has_eps)
-                        {
-                            add_list_to_first(f->first[nt],f->first[iterator->elem.nonterminal]->head);
-                        }
-                        else
-                        {
-                            recurse_first(f->first[nt],iterator->next,rule[i]);
-                        }
-                    }
-                    
-                }
-                // iterator=iterator->next;
-            }           
-        }
-    }   
-}
-
-void add_nodetof(node_head_follow* head,TOKEN tk)
-{
-	if(tk==eps)
-		return;
-	
-	node* temp=head->head;
-	int flag=0;
-	node* temp_node;
-	while(temp!=NULL)
-	{
-		if(temp->tokenName==tk)
-		{
-			flag=1;
-			break;
-		}
-		else
-		{
-			temp=temp->next;
-		}
-		
-	}
-	if(flag==0)
-	{
-		temp_node=create_node(tk,0);
-		temp_node->next=head->head;
-		head->head=temp_node;
-	}
-}
-void add_ftof(node_head_follow* head,node* firstorfollow)
-{
-	node* temp=firstorfollow;
-	while(temp!=NULL)
-	{
-		add_nodetof(head,temp->tokenName);
-		temp=temp->next;
-	}
-}
-
-
-void first_eps(node_head_follow* node_head,g_node* temp,g_node_head* g)
-{
-	if(temp==NULL)
-	{
-		// if(f->follow[g->non_terminal].is_visited)
-		// return NULL;
-		// else
-		add_ftof(node_head,f->follow[g->non_terminal]->head);
-		
-	}
-
-	else
-	{
-		if(!f->first[temp->elem.nonterminal]->has_eps)
-		add_ftof(node_head,f->first[temp->elem.nonterminal]->head);
-		 
-
-		else
-		{
-			//add firsts - eps
-			add_ftof(node_head,f->first[temp->elem.nonterminal]->head);
-			first_eps(node_head,temp->next,g);	
-			// return first(temp);first
-		}
-		
-	}
-	
-}
-
-void clear_flags_follow()
-{
-	for(int i=0; i<NO_OF_RULES; i++)
-	{
-		f->follow[i]->is_visited=false;
-	}
-}
-void follow(NON_TERMINAL nt_index)
-{
-	
-	if(f->follow[nt_index]->head!=NULL)
-	{
-		f->follow[nt_index]->is_visited=true;
-		// return f->follow[nt_index]->head;
-		return;
-	}
-	else
-	{
-		if(f->follow[nt_index]->is_visited)
-		// return f->follow[nt_index]->head;
-		return;
-		else
-		{
-			f->follow[nt_index]->is_visited=true;
-			g_node* temp;
-			// f->follow[nt_index]->nt=nt_index;
-			for(int i=0; i<NO_OF_GRAMMAR_RULES; i++)
-			{
-				temp=grammar[i]->next;
-				while(temp!=NULL)
-				{
-					if(!temp->is_term)
-					{
-						if(temp->elem.nonterminal==nt_index)
-						{
-							if(temp->next==NULL)
-							{
-								// add follow of grammar[i]->non_terminal to 
-								//current follow
-								add_ftof(f->follow[nt_index],f->follow[grammar[i]->non_terminal]->head);
-							}
-							else
-							{
-								if(temp->next->is_term)
-								{
-									add_nodetof(f->follow[nt_index],temp->next->elem.terminal);
-								}
-
-								else
-								{
-									
-									if(!f->first[temp->next->elem.nonterminal]->has_eps)
-									{
-										//add first of temp->next->elem.nonterminal to the 
-										//current follow
-										add_ftof(f->follow[nt_index],f->first[temp->next->elem.nonterminal]->head);
-									}
-
-									else
-									{
-										first_eps(f->follow[nt_index],temp->next,grammar[i]);
-									}
-									
-								}
-							}
-						}
-						
-					}
-					temp=temp->next;
-				}
-			}
-		}
-	}
-}
-
-
-nonterminal_str* create_nt_str()
-{
-	nonterminal_str* temp=(nonterminal_str*) malloc(sizeof(nonterminal_str));
-	temp->rules=(int*) malloc(sizeof(int)*MAX_DIFF_RULES);
-	temp->nonterminal=NULL;
-	temp->length=0;
-	return temp;
-}
-
-
-void populateStrTable()
-{
-	int i;
-	nonTerminalStringTable=(nonterminal_str**) malloc(sizeof(nonterminal_str*)*NO_OF_RULES);
-	for(i=0;i<NO_OF_RULES;i++)
-	{
-		nonTerminalStringTable[i]=create_nt_str();
-		
-	}
-
-	for(i=0;i<NO_OF_GRAMMAR_RULES;i++)
-	{
-		int temp=grammar[i]->non_terminal;
-		nonTerminalStringTable[temp]->rules[nonTerminalStringTable[temp]->length]=i;
-		nonTerminalStringTable[temp]->length++;
-
-	}
-
-	
-}
-
-void print_strTable_row(NON_TERMINAL nt)
-{
-	int temp=nonTerminalStringTable[nt]->length;
-	printf("nt:%d--->len:%d--> ",nt,temp);
-	for(int i=0;i<temp;i++)
-	{
-		printf("%d ",nonTerminalStringTable[nt]->rules[i]);
-	}
-}
-
-void print_strTable()
-{
-	for(int i=0;i<NO_OF_RULES;i++)
-	{
-		print_strTable_row(i);
-		printf("\n");
-	}
-}
-
-void print_first(NON_TERMINAL nt)
-{
-	node* temp=f->first[nt]->head;
-	while(temp!=NULL)
-	{
-		printf("token: %d, rule no:%d \n",temp->tokenName,temp->rule_no_index);
-		temp=temp->next;
-	}
-}
-
-void print_follow(NON_TERMINAL nt)
-{
-	node* temp=f->follow[nt]->head;
-	while(temp!=NULL)
-	{
-		printf("token: %d, rule no:%d \n",temp->tokenName,temp->rule_no_index);
-		temp=temp->next;
-	}
-}
-
 void populateGrammar(){
 	grammar = (g_node_head**)malloc(sizeof(g_node_head*)*NO_OF_GRAMMAR_RULES); //array of g_node_head pointers
 	
-	g_node *ptr = NULL, *pnext;
+	g_node *ptr, *pnext;
 	//Rule 0
+	ptr = NULL;
 	grammar[0]=create_g_node_head(program);
 	pnext=first_gnode(grammar[0],otherFunctions,0);
 	pnext=dl_nodes(pnext,mainFunction,0);
@@ -818,4 +472,403 @@ void populateGrammar(){
 	//so on
 
 	return ;
+}
+void add_node_to_first(node_head_first* head,TOKEN tk, int rule)
+{
+	node* temp=create_node(tk,rule);
+    temp->next=head->head;
+    head->head=temp;
+	
+}
+
+void add_list_to_first(node_head_first* head, node* list,int rule)
+{
+    node* curr;
+    curr=list;
+	node* temp;
+    while(curr!=NULL)
+    {
+		temp=create_node(curr->tokenName,rule);
+        temp->next=head->head;
+        head->head=temp;
+		curr=curr->next;
+    }
+}
+void add_list_to_first_eps(node_head_first* head, node* list,int rule)
+{
+	node* curr;
+    curr=list;
+	node* temp;
+    while(curr!=NULL)
+    {
+		if(curr->tokenName==eps)
+		{
+			curr=curr->next;
+			continue;}
+		temp=create_node(curr->tokenName,rule);
+        temp->next=head->head;
+        head->head=temp;
+		curr=curr->next;
+    }
+}
+void first (NON_TERMINAL nt);
+void recurse_first(node_head_first* node_head,g_node* temp, int rule_no)
+{
+    if(temp==NULL)
+	{
+		add_node_to_first(node_head,eps,rule_no);		
+	}
+
+	else
+	{
+        if(!temp->is_term)
+        {
+            if(f->first[temp->elem.nonterminal]->head!=NULL)
+            {
+                if(!(f->first[temp->elem.nonterminal]->has_eps))
+		        {
+                    add_list_to_first(node_head,f->first[temp->elem.nonterminal]->head,rule_no);
+                }
+                else
+                {
+					add_list_to_first_eps(node_head,f->first[temp->elem.nonterminal]->head,rule_no);
+                    recurse_first(node_head,temp->next, rule_no);
+                }
+            
+            }
+            else
+            {
+                first(temp->elem.nonterminal);
+                if(!f->first[temp->elem.nonterminal]->has_eps)
+                {
+                    add_list_to_first(node_head,f->first[temp->elem.nonterminal]->head,rule_no);
+                }
+                else
+                {
+					add_list_to_first_eps(node_head,f->first[temp->elem.nonterminal]->head,rule_no);
+                    recurse_first(node_head,temp->next,rule_no);
+                }
+                        
+            }
+        }
+        else
+        {
+            add_node_to_first(node_head, temp->elem.terminal, rule_no);
+        }
+        	
+	}
+}
+
+void first (NON_TERMINAL nt)
+{
+	// printf("%d\n ",nt);
+    if(f->first[nt]->head!=NULL)
+    {
+        return;
+    }
+    else
+    {
+        int* rule= nonTerminalStringTable[nt]->rules;
+        int length= nonTerminalStringTable[nt]->length;
+        int i;
+        g_node* iterator=NULL;
+        node* temp=NULL;
+        for(i=0;i<length;i++)
+        {
+            iterator =grammar[rule[i]]->next;
+            // while(iterator!=NULL)
+            {
+                if(iterator->is_term)
+                {
+					// printf("hello\n");
+                    if(iterator->elem.terminal==eps)
+                    {
+                        f->first[nt]->has_eps=true;
+                    }
+                    add_node_to_first(f->first[nt],iterator->elem.terminal,rule[i]);
+                }
+                else
+                {
+					// printf("hello bitch\n");
+                    if(f->first[iterator->elem.nonterminal]->head!=NULL)
+                    {
+                        if(!(f->first[iterator->elem.nonterminal]->has_eps))
+		                {
+                            add_list_to_first(f->first[nt],f->first[iterator->elem.nonterminal]->head,rule[i]);
+                        }
+                        else
+                        {
+							add_list_to_first_eps(f->first[nt],f->first[iterator->elem.nonterminal]->head,rule[i]);
+                            recurse_first(f->first[nt],iterator->next, rule[i]);
+                        }
+                    }
+
+                    else
+                    {
+                        
+                        first(iterator->elem.nonterminal);
+                        if(!f->first[iterator->elem.nonterminal]->has_eps)
+                        {
+                            add_list_to_first(f->first[nt],f->first[iterator->elem.nonterminal]->head,rule[i]);
+                        }
+                        else
+                        {
+							add_list_to_first_eps(f->first[nt],f->first[iterator->elem.nonterminal]->head,rule[i]);
+                            recurse_first(f->first[nt],iterator->next,rule[i]);
+                        }
+                    }
+                    
+                }
+                // iterator=iterator->next;
+            }           
+        }
+    }   
+}
+
+void add_nodetof(node_head_follow* head,TOKEN tk)
+{
+	if(tk==eps)
+		return;
+	
+	node* temp=head->head;
+	int flag=0;
+	node* temp_node;
+	while(temp!=NULL)
+	{
+		if(temp->tokenName==tk)
+		{
+			flag=1;
+			break;
+		}
+		else
+		{
+			temp=temp->next;
+		}
+		
+	}
+	if(flag==0)
+	{
+		temp_node=create_node(tk,0);
+		temp_node->next=head->head;
+		head->head=temp_node;
+	}
+}
+void add_ftof(node_head_follow* head,node* firstorfollow)
+{
+	node* temp=firstorfollow;
+	while(temp!=NULL)
+	{
+		add_nodetof(head,temp->tokenName);
+		temp=temp->next;
+	}
+}
+
+
+void first_eps(node_head_follow* node_head,g_node* temp,g_node_head* g)
+{
+	if(temp==NULL)
+	{
+		// if(f->follow[g->non_terminal].is_visited)
+		// return NULL;
+		// else
+		add_ftof(node_head,f->follow[g->non_terminal]->head);
+		
+	}
+
+	else
+	{
+		if(!f->first[temp->elem.nonterminal]->has_eps)
+		add_ftof(node_head,f->first[temp->elem.nonterminal]->head);
+		 
+
+		else
+		{
+			//add firsts - eps
+			add_ftof(node_head,f->first[temp->elem.nonterminal]->head);
+			first_eps(node_head,temp->next,g);	
+			// return first(temp);first
+		}
+		
+	}
+	
+}
+
+void clear_flags_follow()
+{
+	for(int i=0; i<NO_OF_RULES; i++)
+	{
+		f->follow[i]->is_visited=false;
+	}
+}
+void follow(NON_TERMINAL nt_index)
+{
+	
+	if(f->follow[nt_index]->head!=NULL)
+	{
+		f->follow[nt_index]->is_visited=true;
+		// return f->follow[nt_index]->head;
+		return;
+	}
+	else
+	{
+		if(f->follow[nt_index]->is_visited)
+		// return f->follow[nt_index]->head;
+		return;
+		else
+		{
+			f->follow[nt_index]->is_visited=true;
+			g_node* temp;
+			// f->follow[nt_index]->nt=nt_index;
+			for(int i=0; i<NO_OF_GRAMMAR_RULES; i++)
+			{
+				temp=grammar[i]->next;
+				while(temp!=NULL)
+				{
+					if(!temp->is_term)
+					{
+						if(temp->elem.nonterminal==nt_index)
+						{
+							if(temp->next==NULL)
+							{
+								// add follow of grammar[i]->non_terminal to 
+								//current follow
+								add_ftof(f->follow[nt_index],f->follow[grammar[i]->non_terminal]->head);
+							}
+							else
+							{
+								if(temp->next->is_term)
+								{
+									add_nodetof(f->follow[nt_index],temp->next->elem.terminal);
+								}
+
+								else
+								{
+									
+									if(!f->first[temp->next->elem.nonterminal]->has_eps)
+									{
+										//add first of temp->next->elem.nonterminal to the 
+										//current follow
+										add_ftof(f->follow[nt_index],f->first[temp->next->elem.nonterminal]->head);
+									}
+
+									else
+									{
+										first_eps(f->follow[nt_index],temp->next,grammar[i]);
+									}
+									
+								}
+							}
+						}
+						
+					}
+					temp=temp->next;
+				}
+			}
+		}
+	}
+}
+
+nonterminal_str* create_nt_str()
+{
+	nonterminal_str* temp=(nonterminal_str*) malloc(sizeof(nonterminal_str));
+	temp->rules=(int*) malloc(sizeof(int)*MAX_DIFF_RULES);
+	temp->nonterminal=(char*) malloc(sizeof(char)*MAX_NONTERMINAL);
+	temp->length=0;
+	return temp;
+}
+
+
+void populateStrTable()
+{
+	int i;
+	nonTerminalStringTable=(nonterminal_str**) malloc(sizeof(nonterminal_str*)*NO_OF_RULES);
+	for(i=0;i<NO_OF_RULES;i++)
+	{
+		nonTerminalStringTable[i]=create_nt_str();
+		
+	}
+
+	for(i=0;i<NO_OF_GRAMMAR_RULES;i++)
+	{
+		int temp=grammar[i]->non_terminal;
+		nonTerminalStringTable[temp]->rules[nonTerminalStringTable[temp]->length]=i;
+		nonTerminalStringTable[temp]->length++;
+
+	}
+
+	FILE *f;
+    char c;
+    f=fopen("nt_string.txt","r");
+	int j=0;
+	i=0;
+	int flag=0;
+    while((c=fgetc(f))!=EOF){
+
+        
+        if((c>='a'&&c<='z')||(c>='A'&&c<='Z')||c=='_'||(c>='0'&&c<='9'))
+		{
+			if(flag==1)
+			{
+				i++;
+				j=0;
+				flag=0;
+			}
+
+			nonTerminalStringTable[i]->nonterminal[j++]=c;
+            // printf("%c",c);
+		}
+		else
+		{
+			flag=1;
+			nonTerminalStringTable[i]->nonterminal[j++]='\0';
+			// i++;
+            printf(" ");
+            continue;
+		}
+    }  
+
+    fclose(f);
+    
+
+	
+}
+
+void print_strTable_row(NON_TERMINAL nt)
+{
+	int temp=nonTerminalStringTable[nt]->length;
+	printf("nt:%d--->len:%d  %s  ",nt,temp,nonTerminalStringTable[nt]->nonterminal);
+	for(int i=0;i<temp;i++)
+	{
+		printf("%d ",nonTerminalStringTable[nt]->rules[i]);
+	}
+}
+
+void print_strTable()
+{
+	for(int i=0;i<NO_OF_RULES;i++)
+	{
+		print_strTable_row(i);
+		printf("\n");
+	}
+}
+
+void print_first(NON_TERMINAL nt)
+{
+	// printf("hello\n");
+	node* temp=f->first[nt]->head;
+	while(temp!=NULL)
+	{
+		printf("token: %s(%d) , rule no:%d \n", TerminalString(temp->tokenName),temp->tokenName+1,temp->rule_no_index);
+		temp=temp->next;
+	}
+}
+
+void print_follow(NON_TERMINAL nt)
+{
+	node* temp=f->follow[nt]->head;
+	while(temp!=NULL)
+	{
+		printf("token: %s(%d) , rule no:%d \n",TerminalString(temp->tokenName),temp->tokenName+1,temp->rule_no_index);
+		temp=temp->next;
+	}
 }
