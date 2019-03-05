@@ -816,24 +816,14 @@ void follow(NON_TERMINAL nt_index)
 									follow(grammar[i]->non_terminal);
 								}
 								add_ftof(f->follow[nt_index],f->follow[grammar[i]->non_terminal]->head);
-								if(nt_index==stmt)
-								{
-									printf("1\n - Ruleno: %d\n",grammar[i]->rule_no);
-									print_follow(nt_index);
-									printf("\n");
-								}
+								
 							}
 							else
 							{
 								if(temp->next->is_term)
 								{
 									add_nodetof(f->follow[nt_index],temp->next->elem.terminal);
-									if(nt_index==stmt)
-									{
-										printf("2 - Ruleno: %d\n",grammar[i]->rule_no);
-										print_follow(nt_index);
-										printf("\n");
-									}
+									
 								}
 
 								else
@@ -844,27 +834,14 @@ void follow(NON_TERMINAL nt_index)
 										//add first of temp->next->elem.nonterminal to the 
 										//current follow
 										add_ftof(f->follow[nt_index],f->first[temp->next->elem.nonterminal]->head);
-										if(nt_index==stmt)
-										{
-											printf("3 - Ruleno: %d\n",grammar[i]->rule_no);
-											print_follow(nt_index);
-											printf("\n");
-										}
+										
 									}
 
 									else
 									{
-										if(nt_index==stmt)
-										{
-											first_eps_stmt(f->follow[nt_index],temp->next,grammar[i]);
-										}
+										
 										first_eps(f->follow[nt_index],temp->next,grammar[i]);
-										if(nt_index==stmt)
-										{
-											printf("4 - Ruleno: %d \n",grammar[i]->rule_no);
-											print_follow(nt_index);
-											printf("\n");
-										}
+										
 									}
 									
 								}
@@ -1168,6 +1145,49 @@ void print_parse_table()
 
 void parseInputSourceCode(char *testcaseFile, parse_table T){
 	
+}
+void free_first_follow()
+{
+	node* tmp;
+	node* head;
+	int i;
+	for(i=0;i<NO_OF_RULES;i++)
+	{
+		
+		head=f->first[i]->head;
+
+		while (head != NULL)
+		{
+		tmp = head;
+		head = head->next;
+		free(tmp);
+		}
+	}
+
+	for(i=0;i<NO_OF_RULES;i++)
+	{
+		free(f->first[i]);
+	}
+
+	for(i=0;i<NO_OF_RULES;i++)
+	{
+		
+		head=f->follow[i]->head;
+
+		while (head != NULL)
+		{
+		tmp = head;
+		head = head->next;
+		free(tmp);
+		}
+	}
+
+	for(i=0;i<NO_OF_RULES;i++)
+	{
+		free(f->follow[i]);
+	}
+
+
 }
 
 // node* first(NON_TERMINAL nt_index){

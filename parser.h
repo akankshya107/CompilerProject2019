@@ -38,6 +38,7 @@ void createParseTable( );
 void error_function();
 void syn_error();
 void print_parse_table();
+void free_first_follow();
 
 
 
