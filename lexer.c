@@ -151,8 +151,9 @@ tokenInfo* getNextToken(FILE *fp){
                 }
                 free(input_buffer);
                 int to_pass = line_count;
-                // global_flag = 0;
-                // line_count = 1;
+                global_flag = 0;
+                line_count = 1;
+                input_buffer_pointer=0;
                 return return_str_token("EOS", EOS, to_pass, 0, &input_buffer_pointer);
             
             }
@@ -205,10 +206,11 @@ tokenInfo* getNextToken(FILE *fp){
                 }
                 return return_no_token(lex, transition_table[state][ch].u.func.tkname, line_count, transition_table[state][ch].u.func.is_retract, &input_buffer_pointer);
             }else if(transition_table[state][ch].u.func.func_flag==3){
-                state=0;
+                // if(ch=='\n') line_count--;
                 memset(lex, 0, sizeof(char)*MAX_LENGTH);
                 j=0;
-                input_buffer_pointer--;
+                if(transition_table[state][ch].u.func.is_retract==1) input_buffer_pointer--;
+                state=0;
                 exceed_length=0;
             }
             else{

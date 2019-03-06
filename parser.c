@@ -6,6 +6,7 @@
 #include "parserDef.h"
 #define PARSE_INCLUDED
 #include "stack.h"
+#include "string.h"
 
 void ComputeFirstAndFollowSets(){
 	f = (FirstAndFollow*)malloc(sizeof(FirstAndFollow));
@@ -94,12 +95,13 @@ treeNodeIt* makeTreeNodes(g_node_head *h, treeNodeIt *par, int line_no){
 	return head;
 }
 
-void iterate(treeNodeIt *root){
+treeNodeIt* iterate(treeNodeIt *root){
 	while(root->next==NULL){
 		root = root->t->parent;
-		if(root->t->parent==NULL) return;
+		if(root->t->parent==NULL) return root;
 	}
 	root = root->next;
+	return root;
 }
 
 treeNodeIt* parseInputSourceCode(char *testcaseFile){
@@ -125,7 +127,7 @@ treeNodeIt* parseInputSourceCode(char *testcaseFile){
 			}
 			// printf("Popped: %s\n", TerminalString(ti->tokenName));
 			root->t->treeNode_type.l->leaf_symbol = ti;
-			iterate(root);
+			root = iterate(root);
 
 			free(pop(stack));
 			ti = getNextToken(fp);
@@ -154,7 +156,7 @@ treeNodeIt* parseInputSourceCode(char *testcaseFile){
 				printf("Line %d: The token %s for lexeme %f does not match with expected token %s\n", ti->line_no, TerminalString(ti->tokenName), ti->u.value_of_real, TerminalString(e->elem.terminal));
 			}
 			free(pop(stack));
-			iterate(root);
+			root = iterate(root);
 		}
 		else if(T[e->elem.nonterminal][ti->tokenName].is_error==1){
 			panic_mode=1;
@@ -182,26 +184,30 @@ treeNodeIt* parseInputSourceCode(char *testcaseFile){
 				}
 				if((T[e->elem.nonterminal][ti->tokenName].is_error==-1)){
 					free(pop(stack));
-					iterate(root);
+					root = iterate(root);
 					break;
 				}
 			}while(1);
 		}
 		else if(T[e->elem.nonterminal][ti->tokenName].is_error==-1){
 			free(pop(stack));
-			tokenInfo *ti_eps = (tokenInfo*)malloc(sizeof(tokenInfo));
-			ti_eps->flag=0;
-			ti_eps->line_no=ti->line_no;
-			ti_eps->tokenName=eps;
-			ti->u.lexeme=TerminalString(eps);
-			root->t->treeNode_type.n->children = returnIt(returnLeafNode(returnTreeNode(1, ti->line_no), ti_eps));
-			iterate(root);
+			root = iterate(root);
+			
 		}
 		else if((T[e->elem.nonterminal][ti->tokenName].is_error)==0){
 			free(pop(stack));
 			// printf("%d\n", T[e->elem.nonterminal][ti->tokenName].rule_no_index);
 			if(T[e->elem.nonterminal][ti->tokenName].rule_no_index==-1){
 				// printf("Top of stack: %s\n", TerminalString(top(stack)->elem.terminal));
+				tokenInfo *ti_eps = (tokenInfo*)malloc(sizeof(tokenInfo));
+				ti_eps->flag=0;
+				ti_eps->line_no=ti->line_no;
+				ti_eps->tokenName=eps;
+				ti_eps->u.lexeme="eps";
+				// ti->u.lexeme="eps";
+				root->t->treeNode_type.n->children = returnIt(returnLeafNode(returnTreeNode(1, ti->line_no), ti_eps));
+				root->t->treeNode_type.n->children->t->parent=root;	
+				root = iterate(root);
 				continue;
 			}
 			pushAll(stack, T[e->elem.nonterminal][ti->tokenName].rule_no_index);
@@ -338,27 +344,37 @@ void print_parse_table()
 
 void print_leaf(leafNode *l, NON_TERMINAL nt){
 	if(l->leaf_symbol->flag==0){
-		printf("%s\t", l->leaf_symbol->u.lexeme);
+		if(strlen(l->leaf_symbol->u.lexeme)>6) printf("%s\t", l->leaf_symbol->u.lexeme);
+		else printf("%s\t\t", l->leaf_symbol->u.lexeme);
 	}else{
 		printf("---------\t");
 	}
 
-	printf("%d\t", l->leaf_symbol->line_no);
+	printf("%d\t\t", l->leaf_symbol->line_no);
 
-	printf("%s\t", TerminalString(l->leaf_symbol->tokenName));
+	if(strlen(TerminalString(l->leaf_symbol->tokenName))>=8){
+		printf("%s\t", TerminalString(l->leaf_symbol->tokenName));
+	}else{
+		printf("%s\t\t", TerminalString(l->leaf_symbol->tokenName));
+	}
 
 	if(l->leaf_symbol->flag==1){
-		printf("%d\t", l->leaf_symbol->u.value_of_int);
+		printf("%d\t\t", l->leaf_symbol->u.value_of_int);
 	}else if(l->leaf_symbol->flag==1){
-		printf("%.2f\t", l->leaf_symbol->u.value_of_real);
+		printf("%.2f\t\t", l->leaf_symbol->u.value_of_real);
 	}
 	else{
 		printf("---------\t");
 	}
 
-	printf("%s\t", nonTerminalStringTable[nt]->nonterminal);
+	if(strlen(nonTerminalStringTable[nt]->nonterminal)<=7){
+		printf("%s\t\t\t", nonTerminalStringTable[nt]->nonterminal);
+	}
+	else if(strlen(nonTerminalStringTable[nt]->nonterminal)<=15) {
+		printf("%s\t\t", nonTerminalStringTable[nt]->nonterminal);
+	}else printf("%s\t", nonTerminalStringTable[nt]->nonterminal);
 
-	printf("Yes\t");
+	printf("Yes\t\t");
 
 	printf("---------\n");
 }
@@ -366,19 +382,24 @@ void print_leaf(leafNode *l, NON_TERMINAL nt){
 void print_nonleaf(nonLeafNode *n, int line_no, NON_TERMINAL nt, bool flag){
 	printf("---------\t");
 
-	printf("%d\t", line_no);
+	printf("%d\t\t", line_no);
 
 	printf("---------\t");
 
 	printf("---------\t");
 
 	if(!flag){
-		printf("%s\t", nonTerminalStringTable[nt]->nonterminal);
+		if(strlen(nonTerminalStringTable[nt]->nonterminal)<=7){
+			printf("%s\t\t\t", nonTerminalStringTable[nt]->nonterminal);
+		}
+		else if(strlen(nonTerminalStringTable[nt]->nonterminal)<=15) {
+			printf("%s\t\t", nonTerminalStringTable[nt]->nonterminal);
+		}else printf("%s\t", nonTerminalStringTable[nt]->nonterminal);
 	}else{
-		printf("Root node\t");
+		printf("Root node\t\t");
 	}
 
-	printf("No\t");
+	printf("No\t\t");
 
 	printf("%s\n", nonTerminalStringTable[n->nonterminal]->nonterminal);
 }
@@ -394,7 +415,8 @@ void printParseTree(treeNodeIt *root, char *outfile){
 		while(temp->next==NULL){
 			temp = temp->t->parent;
 			if(temp->t->parent==NULL){
-				print_nonleaf(temp->t->treeNode_type.n, temp->t->line_no , 0, 1);	
+				print_nonleaf(temp->t->treeNode_type.n, temp->t->line_no , 0, 1);
+				return;	
 			}
 			print_nonleaf(temp->t->treeNode_type.n, temp->t->line_no , temp->t->parent->t->treeNode_type.n->nonterminal, 0);
 		}

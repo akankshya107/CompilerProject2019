@@ -701,7 +701,7 @@ void populate_transition_table(){
     // // {
         transition_table[54][j].flag=1;
         transition_table[54][j].u.func.func_flag=3;
-        transition_table[54][j].u.func.is_retract=1;
+        transition_table[54][j].u.func.is_retract=0;
         transition_table[54][j].u.func.tkname=eps;
     }
 }

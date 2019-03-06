@@ -29,7 +29,7 @@ int main(int argc, char *argv[]){
 			printf("\n");
 		}else if(option==2){
 			//Invoke only lexer
-			FILE *fp = fopen("testcase1.txt", "r");
+			FILE *fp = fopen("testcase2.txt", "r");
 			tokenInfo *ti;
 			do{
 				ti = getNextToken(fp);
@@ -70,7 +70,10 @@ int main(int argc, char *argv[]){
 			populateStrTable();
 			ComputeFirstAndFollowSets();
 			createParseTable();
-			parseInputSourceCode("testcase1.txt");
+			// free_first_follow();
+			treeNodeIt* t = parseInputSourceCode("testcase1.txt");
+			printParseTree(t, "parse.txt");
+			printf("\n");
 
 			end_time = clock();
 

@@ -1,6 +1,6 @@
 # run: compile
 # 	./exe
-compile: keyhead lexhead parshead key.o DFA.o grammar.o stack.o lexer.o parser.o driver.o
+compile: keyhead lexhead parshead stackhead grammarhead key.o DFA.o grammar.o stack.o lexer.o parser.o driver.o
 	gcc driver.o DFA.o grammar.o stack.o lexer.o parser.o key.o -o exe
 driver.o: driver.c 
 	gcc -c -g driver.c
@@ -25,5 +25,11 @@ lexhead:
 parshead:
 	gcc parserDef.h
 	gcc parser.h
+stackhead: 
+	gcc stackDef.h
+	gcc stack.h
+grammarhead: 
+	gcc grammarDef.h
+	gcc grammar.h
 # clearall: key.o lexer.o parser.o driver.o
 # 	rm key.o lexer.o parser.o driver.o
