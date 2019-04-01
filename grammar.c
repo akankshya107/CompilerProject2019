@@ -1,3 +1,8 @@
+// GROUP 39
+// AKANKSHYA MISHRA 2016A7PS0026P
+// NARAPAREDDY BHAVANA 2016A7PS0034P
+// KARABEE BATTA 2016A7PS0052P
+// AASTHA KATARIA 2016A7PS0062P
 #include <stdlib.h>
 #include <stdio.h>
 #include "lexer.h"
@@ -932,34 +937,5 @@ void print_follow(NON_TERMINAL nt)
 	{
 		printf("token: %s(%d) , rule no:%d \n",TerminalString(temp->tokenName),temp->tokenName+1,temp->rule_no_index);
 		temp=temp->next;
-	}
-}
-
-
-void free_first_follow(){
-	node* tmp;
-	node* head;
-	int i;
-	for(i=0;i<NO_OF_RULES;i++){
-		head=f->first[i]->head;
-		while (head != NULL){
-		tmp = head;
-		head = head->next;
-		free(tmp);
-		}
-	}
-	for(i=0;i<NO_OF_RULES;i++){
-		free(f->first[i]);
-	}
-	for(i=0;i<NO_OF_RULES;i++){
-		head=f->follow[i]->head;
-		while (head != NULL){
-		tmp = head;
-		head = head->next;
-		free(tmp);
-		}
-	}
-	for(i=0;i<NO_OF_RULES;i++){
-		free(f->follow[i]);
 	}
 }

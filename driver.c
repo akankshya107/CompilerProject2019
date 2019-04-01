@@ -1,3 +1,9 @@
+// GROUP 39
+// AKANKSHYA MISHRA 2016A7PS0026P
+// NARAPAREDDY BHAVANA 2016A7PS0034P
+// KARABEE BATTA 2016A7PS0052P
+// AASTHA KATARIA 2016A7PS0062P
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -8,6 +14,7 @@
 extern parse_table T;
 int main(int argc, char *argv[]){
 	int option;
+	printf("(a) FIRST and FOLLOW set automated: YES\n(c) Both lexical and syntax analysis modules implemented: YES\n(f) Parse tree constructed: YES\n");
 	populate_transition_table();
 	populateKeyWordTable();
 	while(1){
@@ -15,7 +22,7 @@ int main(int argc, char *argv[]){
 		if(option==0){
 			break;
 		}else if(option==1){
-			removeComments("testcase4.txt", "clean.txt");
+			removeComments(argv[1], "clean.txt");
 			FILE *pr = fopen("clean.txt", "r");
 			char * buf = (char*)malloc(sizeof(char)*513);
 			int s;
@@ -29,7 +36,7 @@ int main(int argc, char *argv[]){
 			printf("\n");
 		}else if(option==2){
 			//Invoke only lexer
-			FILE *fp = fopen("testcase2.txt", "r");
+			FILE *fp = fopen(argv[1], "r");
 			tokenInfo *ti;
 			do{
 				ti = getNextToken(fp);
@@ -46,9 +53,8 @@ int main(int argc, char *argv[]){
 			populateStrTable();
 			ComputeFirstAndFollowSets();
 			createParseTable();
-			// free_first_follow();
-			treeNodeIt* t = parseInputSourceCode("testcase1.txt");
-			printParseTree(t, "parse.txt");
+			treeNodeIt* t = parseInputSourceCode(argv[1]);
+			printParseTree(t, argv[2]);
 			printf("\n");
 		}else if(option==4){
 
@@ -71,8 +77,8 @@ int main(int argc, char *argv[]){
 			ComputeFirstAndFollowSets();
 			createParseTable();
 			// free_first_follow();
-			treeNodeIt* t = parseInputSourceCode("testcase1.txt");
-			printParseTree(t, "parse.txt");
+			treeNodeIt* t = parseInputSourceCode(argv[1]);
+			printParseTree(t, argv[2]);
 			printf("\n");
 
 			end_time = clock();

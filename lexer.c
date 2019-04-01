@@ -1,3 +1,8 @@
+// GROUP 39
+// AKANKSHYA MISHRA 2016A7PS0026P
+// NARAPAREDDY BHAVANA 2016A7PS0034P
+// KARABEE BATTA 2016A7PS0052P
+// AASTHA KATARIA 2016A7PS0062P
 #include "lexerDef.h"
 #define LEX_DEF_INCLUDED
 #include "key.h"
@@ -84,6 +89,7 @@ tokenInfo* getNextToken(FILE *fp){
     static int line_count = 1;
     static int input_buffer_pointer=0;
     static bool global_flag = 0;
+    static int flag = 0;
     static size_t no_of_bytes;
 
     if(!global_flag){
@@ -95,6 +101,7 @@ tokenInfo* getNextToken(FILE *fp){
     bool exceed_length=0;
     int j=0, state=0;   
     int ch;
+    char temp;
     char* lex = (char*)malloc(sizeof(char)*MAX_LENGTH);
     while(1){
         if(input_buffer_pointer==no_of_bytes) {
@@ -161,14 +168,25 @@ tokenInfo* getNextToken(FILE *fp){
         ch = input_buffer[input_buffer_pointer];
         if(transition_table[state][ch].flag==0){
             state = transition_table[state][ch].u.state;
-            if(exceed_length==0){
-                lex[j++]=ch;
+            if(flag){
+                lex[j++]=temp;
+                flag=0;
+            }
+            else{
+                if(exceed_length==0){
+                    lex[j++]=ch;
+                }
+                input_buffer_pointer++;
             }
             if(j==MAX_LENGTH+1) exceed_length=1;
-            input_buffer_pointer++;
+            
             if(ch=='\n') line_count++;
         }else if(transition_table[state][ch].flag==1){
             if(transition_table[state][ch].u.func.is_retract) {
+                if(input_buffer_pointer==no_of_bytes){
+                    flag=1;
+                    temp=lex[j-1];
+                }
                 if(lex[j-1]=='\n') line_count--;
                 lex[j-1]='\0';
             }

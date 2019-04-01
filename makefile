@@ -1,7 +1,10 @@
-# run: compile
-# 	./exe
+# // GROUP 39
+# // AKANKSHYA MISHRA 2016A7PS0026P
+# // NARAPAREDDY BHAVANA 2016A7PS0034P
+# // KARABEE BATTA 2016A7PS0052P
+# // AASTHA KATARIA 2016A7PS0062P
 compile: keyhead lexhead parshead stackhead grammarhead key.o DFA.o grammar.o stack.o lexer.o parser.o driver.o
-	gcc driver.o DFA.o grammar.o stack.o lexer.o parser.o key.o -o exe
+	gcc driver.o DFA.o grammar.o stack.o lexer.o parser.o key.o -o stage1exe
 driver.o: driver.c 
 	gcc -c -g driver.c
 parser.o: parser.c
