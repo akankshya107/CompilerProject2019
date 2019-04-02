@@ -11,4 +11,5 @@ ASTNodeIt* semanticAnalyzer(treeNodeIt *root);
 ASTNodeIt* newNonLeafNode (TAG taginf, tokenInfo *ti, ASTNodeIt* input1, ASTNodeIt* input2);
 ASTNodeIt* ChildrenList (ASTNodeIt* input1, ASTNodeIt* input2);
 ASTNodeIt* newLeafNode(tokenInfo *ti);
+void freeChildren(treeNodeIt *temp);
 //Nochestrell

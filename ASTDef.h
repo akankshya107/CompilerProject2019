@@ -1,6 +1,6 @@
 #include "parserDef.h"
 
-typedef enum{ X, y
+typedef enum{ TAG_PROGRAM, TAG_FUN_LIST, TAG_MAIN
 }TAG;
 
 typedef struct{

@@ -2,8 +2,9 @@
 #include <stdlib.h>
 #include "ASTDef.h"
 
-ASTNodeIt* newNonLeafNode(TAG taginf, tokenInfo *ti, ASTNodeIt* input1, ASTNodeIt* input2){
+ASTNodeIt* newNonLeafNode(TAG taginf, tokenInfo *ti, ASTNodeIt* input1, ASTNodeIt* input2, ASTNodeIt* input3){
     input1->next=input2;
+    input2->next=input3;
     ASTNodeIt* final_node=(ASTNodeIt*)malloc(sizeof(ASTNodeIt));
     final_node->node->is_leaf=0;
     final_node->node->u.n->tag_info=taginf;
@@ -29,18 +30,41 @@ ASTNodeIt* newLeafNode(tokenInfo *ti){
     return final_node;
 }
 
+void freeChildren(treeNodeIt *temp){
+    static int arr[23]= {TK_FUNID, TK_ID, TK_INT, TK_REAL, TK_RECORDID, TK_FIELDID, TK_GLOBAL, TK_ASSIGNOP, TK_NUM, TK_RNUM, TK_MUL, TK_DIV, TK_MINUS, TK_PLUS, TK_NOT, TK_AND, TK_OR, TK_LT, TK_LE, TK_GT, TK_GE,  TK_EQ,  TK_NE};
+    treeNodeIt *freetemp;
+    while(temp!=NULL){
+        if(temp->t->is_leaf==1 && (temp->t->treeNode_type.l->leaf_symbol->tokenName==SOMETHINGIWANNASAVE)){
+            temp=temp->next;
+            continue;
+        }
+        if(temp->t->is_leaf==1){
+            free(temp->t->treeNode_type.l->leaf_symbol);
+            free(temp->t->treeNode_type.l);
+        }else{
+            free(temp->t->treeNode_type.n);
+        }
+        free(temp->t);
+        freetemp=temp;
+        temp=temp->next;
+        free(freetemp);
+    }
+}
+
 ASTNodeIt* semanticRuleExecute(treeNodeIt *t, int rule_no){
     switch(rule_no){
         case 0: {
-            ASTNodeIt* n = newNode();
-            //freeing the children treeNodeIt IF NEEDED
-            //Do not free any tokenInfo: if leafnode contained in children, do not free
+            //program.node = new Node(TAG_PROGRAM, NULL, new Node(TAG_FUN_LIST, NULL, otherFunctions.node), mainFunction.node)
+            treeNodeIt *temp = t->t->treeNode_type.n->children;
+            ASTNodeIt* n = newNonLeafNode(TAG_PROGRAM, NULL, newNonLeafNode(TAG_FUN_LIST, NULL, temp->node, NULL, NULL), temp->next->node, NULL);
+            freeChildren(temp);
             return n;
         }
-        case 1: return t->t->treeNode_type.n->children->node;
-        case 2:
-        case 3:
-        default:
+        case 1:{
+            //mainFunction.node=newNonLeafNode(TAG_MAIN, NULL, stmts.node)
+            ASTNodeIt* n = newNonLeafNode(TAG_MAIN, NULL, t->t->treeNode_type.n->children->node, NULL, NULL);
+            return n;
+        }
     }
 }
 
@@ -63,7 +87,11 @@ ASTNodeIt* makeAbstractSyntaxTree(treeNodeIt *root){
 			}
 			//REACHED A NON-LEAF
             //Get ASTNode and free the subsequent nodes
-            temp->node = semanticRuleExecute(temp, temp->t->treeNode_type.n->rule_no);
+            if(temp->t->treeNode_type.n->children->t->is_leaf==0){
+                temp->node = semanticRuleExecute(temp, temp->t->treeNode_type.n->children->t->treeNode_type.n->rule_no);
+            }else{
+                temp->node = semanticRuleExecute(temp, temp->t->treeNode_type.n->children->t->treeNode_type.l->rule_no);
+            }
 		}
         //iterate 
 		temp = temp->next;
