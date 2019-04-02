@@ -3,15 +3,26 @@
 
 ASTNode* makeAbstractSyntaxTree(treeNodeIt *root);
 
-(ASTNode* ) newNode(TAG taginf,tokenInfo ti, ASTNode* input1,ASTNode* input2)
+(ASTNodeIt* ) newNode (TAG taginf,tokenInfo ti, ASTNodeIt* input1,ASTNodeIt* input2)
 {
     input1->next=input2;
-    ASTNode* final_node=(ASTNode*)malloc(sizeof(ASTNode));
+    ASTNodeIt* final_node;
+    final_node=(ASTNodeIt*)malloc(sizeof(ASTNodeIt));
     final_node->tag_info=taginf;
-    final_node->token_info=ti;
+    final_node->leaf_symbol=ti;
     final_node->children=input1;
-    input1->node->parent=final_node->parent;
-    input2->node->parent=final_node->parent;
-    return final_node;   
+    input1->node->parent=final_node;
+    input2->node->parent=final_node;
+    return final_node;  
+}
+
+(ASTNodeIt*) ChildrenList (ASTNodeIt* input1, ASTNodeIt* input2)
+{
+    input1->next=input2;
+    ASTNodeIt* final_node;
+    final_node=(ASTNodeIt*)malloc(sizeof(ASTNodeIt));
+    input1->node->parent=final_node;
+    input2->node->parent=final_node;
+    return final_node;
 
 }
