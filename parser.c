@@ -47,6 +47,8 @@ treeNodeIt* returnIt(treeNode *t){
 	treeNodeIt *ti = (treeNodeIt*)malloc(sizeof(treeNodeIt));
 	ti->next=NULL;
 	ti->t=t;
+	ti->node=NULL;
+	ti->inh=NULL;
 	return ti;
 }
 
@@ -67,9 +69,10 @@ treeNode* returnNonLeafNode(treeNode *t, NON_TERMINAL nt, int rule_no, treeNodeI
 	return t;
 }
 
-treeNode* returnLeafNode(treeNode *t, tokenInfo *ti){
+treeNode* returnLeafNode(treeNode *t, tokenInfo *ti, int rule_no){
 	leafNode* ln = (leafNode*)malloc(sizeof(leafNode));
 	ln->leaf_symbol=ti;
+	ln->rule_no=rule_no;
 	t->treeNode_type.l = ln;
 	return t;
 }
@@ -78,7 +81,7 @@ treeNodeIt* makeTreeNodes(g_node_head *h, treeNodeIt *par, int line_no){
 	g_node *it=h->next;
 	treeNodeIt *ch;
 	if(it->is_term){
-		ch= returnIt(returnLeafNode(returnTreeNode(1, line_no), NULL));
+		ch = returnIt(returnLeafNode(returnTreeNode(1, line_no), NULL, h->rule_no));
 	}else{
 		ch = returnIt(returnNonLeafNode(returnTreeNode(0, line_no), it->elem.nonterminal, h->rule_no, NULL));
 	}
@@ -87,9 +90,9 @@ treeNodeIt* makeTreeNodes(g_node_head *h, treeNodeIt *par, int line_no){
 	it = it->next;
 	while(it!=NULL){
 		if(it->is_term){
-			ch->next= returnIt(returnLeafNode(returnTreeNode(1, line_no), NULL));
+			ch->next = returnIt(returnLeafNode(returnTreeNode(1, line_no), NULL, h->rule_no));
 		}else{
-			ch->next= returnIt(returnNonLeafNode(returnTreeNode(0, line_no), it->elem.nonterminal, h->rule_no, NULL));
+			ch->next = returnIt(returnNonLeafNode(returnTreeNode(0, line_no), it->elem.nonterminal, h->rule_no, NULL));
 		}
 		ch->next->t->parent=par;
 		it = it->next;

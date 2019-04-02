@@ -22,6 +22,7 @@ parse_table T;
 
 typedef struct{
 	tokenInfo *leaf_symbol;
+	int rule_no;
 }leafNode;
 
 struct treeNodeIt;
@@ -43,7 +44,11 @@ typedef struct{
 	int line_no;
 }treeNode;
 
+typedef struct ASTNodeIt ASTNodeIt;
+
 typedef struct treeNodeIt{
 	treeNode *t;
 	treeNodeIt *next;
+	ASTNodeIt *node;
+	ASTNodeIt *inh;
 }treeNodeIt;

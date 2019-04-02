@@ -15,7 +15,7 @@ void createParseTable();
 treeNodeIt* returnIt(treeNode *t);
 treeNode* returnTreeNode(bool is_leaf, int line_no);
 treeNode* returnNonLeafNode(treeNode *t, NON_TERMINAL nt, int rule_no, treeNodeIt *children);
-treeNode* returnLeafNode(treeNode *t, tokenInfo *ti);
+treeNode* returnLeafNode(treeNode *t, tokenInfo *ti, int rule_no);
 treeNodeIt* makeTreeNodes(g_node_head *h, treeNodeIt *par, int line_no);
 treeNodeIt* iterate(treeNodeIt *root);
 void print_parse_table();
