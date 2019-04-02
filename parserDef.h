@@ -41,6 +41,9 @@ typedef struct{
 	}treeNode_type;
 	treeNodeIt *parent;
 	int line_no;
+	treeNode* inh;
+	treeNode* node; 
+
 }treeNode;
 
 typedef struct treeNodeIt{

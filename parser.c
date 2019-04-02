@@ -288,7 +288,7 @@ void createParseTable(){
 				{
 					temp2=f->follow[i]->head;
 					while(temp2!=NULL){
-						T[i][temp2->tokenName].rule_no_index=-1;
+						T[i][temp2->tokenName].rule_no_index=temp2->rule_no_index;
 						T[i][temp2->tokenName].is_error=0;
 						temp2=temp2->next;
 					}
