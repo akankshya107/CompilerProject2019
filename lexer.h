@@ -14,16 +14,6 @@ void removeComments(char *testcaseFile, char *cleanFile); //char* refers to file
 
 //Auxiliary functions
 void populate_transition_table();
-<<<<<<< HEAD
-void unknown_symbol(char* c);
-void unknown_pattern(char* c);
-tokenInfo* return_token(char* c);
-float get_rnum(char*c);
-int get_num(char* c);
-tokenInfo* generate_token_info1(TOKEN tkname,int line_no,char* c);
-tokenInfo* generate_token_info2(TOKEN tkname,int line_no,int num);
-tokenInfo* generate_token_info3(TOKEN tkname,int line_no,float num);
-=======
 void populateNonTerminalStringTable();
 char *TerminalString(int index);
 void length_error(int choice, int line_count);
@@ -31,4 +21,3 @@ void unknown_pattern(char *arr, int line_num, char ch, int *j, int *input_buffer
 void unknown_symbol(char *arr, int line_num, char ch, int *j, int *input_buffer_pointer);
 tokenInfo *return_str_token(char *lexeme, TOKEN tkname, int lineno, bool is_retract, int *input_buffer_pointer);
 tokenInfo *return_no_token(char *lexeme, TOKEN tkname, int lineno, bool is_retract, int *input_buffer_pointer);
->>>>>>> 822a511e5ac2b3b3685296573d69ef557a776d65

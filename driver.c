@@ -12,45 +12,6 @@
 #include "parser.h"
 #include "grammar.h"
 extern parse_table T;
-<<<<<<< HEAD
-int main(void){
-	//menu outline
-	//must call parser
-	populateGrammar();
-	populateStrTable();
-	// printf("%d",grammar[0]->next);
-	int i;
-	// for(i=0;i<NO_OF_GRAMMAR_RULES;i++)
-	// print_grule(grammar[i]);
-
-	
-	// print_strTable();
-
-	ComputeFirstAndFollowSets(grammar);
-	createParseTable();
-	free_first_follow();
-	printf("%d",f->first[1]->head->next->rule_no_index);
-	// print_parse_table();
-	// for(i=0;i<NO_OF_RULES;i++)
-	// {
-	// 	printf("----------------Non terminal: %s-------------------\n",nonTerminalStringTable[i]->nonterminal);
-	// 	printf("FIRST:\n");
-	// 	// printf("-------------\n");
-	// 	print_first(i);
-	// 	printf("FOLLOW\n");
-	// 	// printf("-------------\n");
-	// 	print_follow(i);
-
-	// }
-	// printf("==================================================================================\n");
-	// for(i=0;i<NO_OF_RULES;i++)
-	// {
-	// 	printf("----------------Non terminal: %s-------------------\n",nonTerminalStringTable[i]->nonterminal);
-	// 	print_follow(i);
-	// }
-
-	// createParseTable(f, T);
-=======
 int main(int argc, char *argv[]){
 	int option;
 	printf("(a) FIRST and FOLLOW set automated: YES\n(c) Both lexical and syntax analysis modules implemented: YES\n(f) Parse tree constructed: YES\n");
@@ -134,6 +95,5 @@ int main(int argc, char *argv[]){
 			printf("Enter correct option\n");
 		}
 	}
->>>>>>> 822a511e5ac2b3b3685296573d69ef557a776d65
 	return 0;
 }
