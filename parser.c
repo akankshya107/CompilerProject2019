@@ -200,12 +200,11 @@ treeNodeIt* parseInputSourceCode(char *testcaseFile){
 		else if(T[e->elem.nonterminal][ti->tokenName].is_error==-1){
 			free(pop(stack));
 			root = iterate(root);
-			
 		}
 		else if((T[e->elem.nonterminal][ti->tokenName].is_error)==0){
 			free(pop(stack));
 			// printf("%d\n", T[e->elem.nonterminal][ti->tokenName].rule_no_index);
-			if(T[e->elem.nonterminal][ti->tokenName].rule_no_index==-1){
+			if(grammar[T[e->elem.nonterminal][ti->tokenName].rule_no_index]->next->is_term==1 && grammar[T[e->elem.nonterminal][ti->tokenName].rule_no_index]->next->elem.terminal==eps){
 				// printf("Top of stack: %s\n", TerminalString(top(stack)->elem.terminal));
 				tokenInfo *ti_eps = (tokenInfo*)malloc(sizeof(tokenInfo));
 				ti_eps->flag=0;
@@ -213,7 +212,7 @@ treeNodeIt* parseInputSourceCode(char *testcaseFile){
 				ti_eps->tokenName=eps;
 				ti_eps->u.lexeme="eps";
 				// ti->u.lexeme="eps";
-				root->t->treeNode_type.n->children = returnIt(returnLeafNode(returnTreeNode(1, ti->line_no), ti_eps));
+				root->t->treeNode_type.n->children = returnIt(returnLeafNode(returnTreeNode(1, ti->line_no), ti_eps, T[e->elem.nonterminal][ti->tokenName].rule_no_index));
 				root->t->treeNode_type.n->children->t->parent=root;	
 				root = iterate(root);
 				continue;
@@ -291,7 +290,7 @@ void createParseTable(){
 				{
 					temp2=f->follow[i]->head;
 					while(temp2!=NULL){
-						T[i][temp2->tokenName].rule_no_index=-1;
+						T[i][temp2->tokenName].rule_no_index=temp->rule_no_index;
 						T[i][temp2->tokenName].is_error=0;
 						temp2=temp2->next;
 					}
