@@ -1,11 +1,25 @@
 #include "parserDef.h"
 
-typedef enum{}TAG;
-typedef struct ASTNode{
-    TAG tag;
+typedef enum{ X, y
+}TAG;
+
+typedef struct{
+    TAG tag_info;
     tokenInfo *leaf_symbol;
-    ASTNodeIt *parent;
     ASTNodeIt *children;
+}nonLeaf;
+
+typedef struct{
+    tokenInfo *leaf_symbol;
+}Leaf;
+
+typedef struct ASTNode{
+    bool is_leaf;
+    union{
+        nonLeaf *n;
+        Leaf *l;
+    }u;
+    ASTNodeIt *parent;
 }ASTNode;
 
 typedef struct ASTNodeIt{
