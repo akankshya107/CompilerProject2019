@@ -3,7 +3,7 @@
 typedef struct ASTNodeIt ASTNodeIt;
 typedef enum{}TAG;
 typedef struct ASTNode{
-    TAG tag;
+    TAG tag_info;
     tokenInfo *leaf_symbol;
     ASTNodeIt *parent;
     ASTNodeIt *children;
