@@ -3,12 +3,11 @@
 // NARAPAREDDY BHAVANA 2016A7PS0034P
 // KARABEE BATTA 2016A7PS0052P
 // AASTHA KATARIA 2016A7PS0062P
-#include <stdbool.h>
 #ifndef LEX_DEF_INCLUDED
 #include "lexerDef.h"
-<<<<<<< HEAD
 #endif
-#define NO_OF_RULES 50
+
+#define MAX_NONTERMINAL 30
 #define NO_OF_GRAMMAR_RULES 87
 #define MAX_DIFF_RULES 10
 
@@ -17,6 +16,7 @@ typedef struct node{
 	int rule_no_index;
 	struct node *next;
 }node;    //used for first and follow
+
 typedef struct node_head_follow
 {
 	bool is_visited;
@@ -28,13 +28,6 @@ typedef struct node_head_first
 	bool has_eps;
 	node* head;
 }node_head_first;
-
-typedef struct{
-	node_head_first **first;
-	node_head_follow **follow;
-}FirstAndFollow;
-
-FirstAndFollow *f;
 
 struct g_node;
 
@@ -64,52 +57,9 @@ typedef struct nonterminal_str{
 
 nonterminal_str** nonTerminalStringTable;
 
-typedef struct f_node{
-	int is_error;
-	union{
-		int rule_no_index;
-		void (*error) (void);
-	}table_Entry;
-=======
-#define LEX_DEF_INCLUDED
-#endif
-#ifndef GRAM_INCLUDED
-#include "grammarDef.h"
-#define GRAM_INCLUDED
-#endif
-typedef struct f_node{
-	int is_error;
-	int rule_no_index;
->>>>>>> 822a511e5ac2b3b3685296573d69ef557a776d65
-}parse_table_elem;
-
-typedef parse_table_elem** parse_table;
-parse_table T;
-
 typedef struct{
-	tokenInfo *leaf_symbol;
-}leafNode;
+	node_head_first **first;
+	node_head_follow **follow;
+}FirstAndFollow;
 
-struct treeNodeIt;
-typedef struct treeNodeIt treeNodeIt;
-
-typedef struct{
-	NON_TERMINAL nonterminal;
-	int rule_no;
-	treeNodeIt *children;
-}nonLeafNode;
-
-typedef struct{
-	bool is_leaf;
-	union{
-		leafNode *l;
-		nonLeafNode *n;
-	}treeNode_type;
-	treeNodeIt *parent;
-	int line_no;
-}treeNode;
-
-typedef struct treeNodeIt{
-	treeNode *t;
-	treeNodeIt *next;
-}treeNodeIt;
+FirstAndFollow *f;

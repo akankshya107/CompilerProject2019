@@ -1,14 +1,26 @@
+<<<<<<< HEAD
 #include <stdbool.h>
 #define NO_OF_STATES 55
 #define BUF_LENGTH 512
 #define MAX_LENGTH 20
 #define MAX_NONTERMINAL 23
+=======
+// GROUP 39
+// AKANKSHYA MISHRA 2016A7PS0026P
+// NARAPAREDDY BHAVANA 2016A7PS0034P
+// KARABEE BATTA 2016A7PS0052P
+// AASTHA KATARIA 2016A7PS0062P
+#include <stdbool.h>
+#define NO_OF_STATES 55
+#define NO_OF_RULES 50
+#define BUF_LENGTH 512
+#define MAX_LENGTH 32
+>>>>>>> 822a511e5ac2b3b3685296573d69ef557a776d65
 
 // bool global_flag;
 // int line_count; //Still a doubt
 
 char *input_buffer;
-char *input_buffer_twin;
 
 typedef enum {
 	TK_ASSIGNOP, TK_COMMENT, TK_FIELDID, TK_ID, TK_NUM, TK_RNUM, TK_FUNID, TK_RECORDID, TK_WITH, 
@@ -27,9 +39,14 @@ typedef enum {
 	otherStmts, stmt, assignmentStmt, singleOrRecId, new_24, funCallStmt,
 	outputParameters, inputParameters, iterativeStmt, conditionalStmt,
 	elsePart, ioStmt, allVar, arithmeticExpression, expPrime, term,
+<<<<<<< HEAD
 	termPrime, factor, highPrecedenceOperators, lowPrecedenceOperators
 	, 
 	all, temp, booleanExpression, var, logicalOp, relationalOp, returnStmt, 
+=======
+	termPrime, factor, highPrecedenceOperators, lowPrecedenceOperators, 
+	temp, booleanExpression, var, logicalOp, relationalOp, returnStmt, 
+>>>>>>> 822a511e5ac2b3b3685296573d69ef557a776d65
 	optionalReturn, idList, more_ids
 } NON_TERMINAL;
 //IMPORTANT: NO DISTINGUISHING BETWEEN ALLVAR AND ALL
@@ -51,7 +68,7 @@ typedef struct{
 	}u;
 }tokenInfo;
 
-//symbol table implementation
+//keyword table implementation
 
 typedef enum {
 	is_state,
@@ -66,6 +83,7 @@ typedef struct{
 		// tokenInfo* (*return_token_function)(char*);
 		struct{
 			TOKEN tkname;
+<<<<<<< HEAD
 			bool is_retract;
 		}func;
 		void (*error_function)(char*);
@@ -83,3 +101,13 @@ typedef struct{
 // 	  "TK_MINUS", "TK_MUL", "TK_DIV", "TK_CALL", "TK_RECORD", "TK_ENDRECORD", "TK_ELSE", "TK_AND",
 // 	   "TK_OR", "TK_NOT", "TK_LT", "TK_LE", "TK_EQ", "TK_GT", "TK_GE", "TK_NE", "eps" };
 
+=======
+			int func_flag;
+			bool is_retract;
+		}func;
+		void (*error_function)(char*, int, char, int*, int*);
+	}u;
+}TRANSITION_TABLE_ELEM;
+
+TRANSITION_TABLE_ELEM **transition_table;
+>>>>>>> 822a511e5ac2b3b3685296573d69ef557a776d65

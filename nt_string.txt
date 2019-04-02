@@ -5,7 +5,11 @@ program, mainFunction, otherFunctions, function, input_par, output_par,
 	otherStmts, stmt, assignmentStmt, singleOrRecId, new_24, funCallStmt,
 	outputParameters, inputParameters, iterativeStmt, conditionalStmt,
 	elsePart, ioStmt, allVar, arithmeticExpression, expPrime, term,
+<<<<<<< HEAD
 	termPrime, factor, highPrecedenceOperators, lowPrecedenceOperators
 	, 
 	all, temp, booleanExpression, var, logicalOp, relationalOp, returnStmt, 
+=======
+	termPrime, factor, highPrecedenceOperators, lowPrecedenceOperators, temp, booleanExpression, var, logicalOp, relationalOp, returnStmt, 
+>>>>>>> 822a511e5ac2b3b3685296573d69ef557a776d65
 	optionalReturn, idList, more_ids
