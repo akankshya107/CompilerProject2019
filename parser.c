@@ -47,6 +47,8 @@ treeNodeIt* returnIt(treeNode *t){
 	treeNodeIt *ti = (treeNodeIt*)malloc(sizeof(treeNodeIt));
 	ti->next=NULL;
 	ti->t=t;
+	ti->node=NULL;
+	ti->inh=NULL;
 	return ti;
 }
 
@@ -67,9 +69,10 @@ treeNode* returnNonLeafNode(treeNode *t, NON_TERMINAL nt, int rule_no, treeNodeI
 	return t;
 }
 
-treeNode* returnLeafNode(treeNode *t, tokenInfo *ti){
+treeNode* returnLeafNode(treeNode *t, tokenInfo *ti, int rule_no){
 	leafNode* ln = (leafNode*)malloc(sizeof(leafNode));
 	ln->leaf_symbol=ti;
+	ln->rule_no=rule_no;
 	t->treeNode_type.l = ln;
 	return t;
 }
@@ -78,7 +81,7 @@ treeNodeIt* makeTreeNodes(g_node_head *h, treeNodeIt *par, int line_no){
 	g_node *it=h->next;
 	treeNodeIt *ch;
 	if(it->is_term){
-		ch= returnIt(returnLeafNode(returnTreeNode(1, line_no), NULL));
+		ch = returnIt(returnLeafNode(returnTreeNode(1, line_no), NULL, h->rule_no));
 	}else{
 		ch = returnIt(returnNonLeafNode(returnTreeNode(0, line_no), it->elem.nonterminal, h->rule_no, NULL));
 	}
@@ -87,9 +90,9 @@ treeNodeIt* makeTreeNodes(g_node_head *h, treeNodeIt *par, int line_no){
 	it = it->next;
 	while(it!=NULL){
 		if(it->is_term){
-			ch->next= returnIt(returnLeafNode(returnTreeNode(1, line_no), NULL));
+			ch->next = returnIt(returnLeafNode(returnTreeNode(1, line_no), NULL, h->rule_no));
 		}else{
-			ch->next= returnIt(returnNonLeafNode(returnTreeNode(0, line_no), it->elem.nonterminal, h->rule_no, NULL));
+			ch->next = returnIt(returnNonLeafNode(returnTreeNode(0, line_no), it->elem.nonterminal, h->rule_no, NULL));
 		}
 		ch->next->t->parent=par;
 		it = it->next;
@@ -197,12 +200,11 @@ treeNodeIt* parseInputSourceCode(char *testcaseFile){
 		else if(T[e->elem.nonterminal][ti->tokenName].is_error==-1){
 			free(pop(stack));
 			root = iterate(root);
-			
 		}
 		else if((T[e->elem.nonterminal][ti->tokenName].is_error)==0){
 			free(pop(stack));
 			// printf("%d\n", T[e->elem.nonterminal][ti->tokenName].rule_no_index);
-			if(T[e->elem.nonterminal][ti->tokenName].rule_no_index==-1){
+			if(grammar[T[e->elem.nonterminal][ti->tokenName].rule_no_index]->next->is_term==1 && grammar[T[e->elem.nonterminal][ti->tokenName].rule_no_index]->next->elem.terminal==eps){
 				// printf("Top of stack: %s\n", TerminalString(top(stack)->elem.terminal));
 				tokenInfo *ti_eps = (tokenInfo*)malloc(sizeof(tokenInfo));
 				ti_eps->flag=0;
@@ -210,7 +212,7 @@ treeNodeIt* parseInputSourceCode(char *testcaseFile){
 				ti_eps->tokenName=eps;
 				ti_eps->u.lexeme="eps";
 				// ti->u.lexeme="eps";
-				root->t->treeNode_type.n->children = returnIt(returnLeafNode(returnTreeNode(1, ti->line_no), ti_eps));
+				root->t->treeNode_type.n->children = returnIt(returnLeafNode(returnTreeNode(1, ti->line_no), ti_eps, T[e->elem.nonterminal][ti->tokenName].rule_no_index));
 				root->t->treeNode_type.n->children->t->parent=root;	
 				root = iterate(root);
 				continue;
@@ -288,7 +290,7 @@ void createParseTable(){
 				{
 					temp2=f->follow[i]->head;
 					while(temp2!=NULL){
-						T[i][temp2->tokenName].rule_no_index=-1;
+						T[i][temp2->tokenName].rule_no_index=temp->rule_no_index;
 						T[i][temp2->tokenName].is_error=0;
 						temp2=temp2->next;
 					}
