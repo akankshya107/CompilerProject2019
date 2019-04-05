@@ -6,6 +6,7 @@
 #include <stdio.h>
 #ifndef PARSE_INCLUDED
 #include "parserDef.h"
+#define PARSE_INCLUDED
 #endif
 void ComputeFirstAndFollowSets();
 treeNodeIt* parseInputSourceCode(char *testcaseFile);
