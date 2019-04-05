@@ -4,7 +4,7 @@
 // KARABEE BATTA 2016A7PS0052P
 // AASTHA KATARIA 2016A7PS0062P
 
-#include "key.h"
+#include "semanticDef.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,21 +17,21 @@ int hash(char *str){
 	return sum;
 }
 
-hash_elem *create_hash_elem(int tkname, char *str){
+hash_elem *create_hash_elem(Element *ele, char *str){
     hash_elem *h = (hash_elem*)malloc(sizeof(hash_elem));
     h->str = str;
-    h->tkname = tkname;
+    h->ele = ele;
     h->next=NULL;
     return h;
 }
 
-void insertIntoHT(hash_elem *elem){
+void insertIntoHT(hash_elem *elem, hashTable HT){
     int index = hash(elem->str);
-    if(KeyWordTable[index]->next==NULL){
-        KeyWordTable[index]->next=elem;
+    if(HT[index]->next==NULL){
+        HT[index]->next=elem;
     }
     else{
-        hash_elem *ptr = KeyWordTable[index]->next;
+        hash_elem *ptr = HT[index]->next;
         while(ptr->next!=NULL){
             ptr=ptr->next;
         }
@@ -39,9 +39,9 @@ void insertIntoHT(hash_elem *elem){
     }
 }
 
-hash_elem* lookup(char *str){
+hash_elem* lookup(char *str, hashTable HT){
     int index = hash(str);
-    hash_elem *temp =KeyWordTable[index]->next;
+    hash_elem *temp =HT[index]->next;
     while(temp!=NULL){
         if(strcmp(str, temp->str)==0){
             // printf("%s\n", str);
@@ -49,5 +49,5 @@ hash_elem* lookup(char *str){
         }
         temp=temp->next;
     }
-    return KeyWordTable[index];
+    return HT[index];
 }

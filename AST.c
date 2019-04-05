@@ -8,14 +8,17 @@
 #include "ASTDef.h"
 
 ASTNodeIt* newNonLeafNode(TAG taginf, tokenInfo *ti, ASTNodeIt* input1, ASTNodeIt* input2, ASTNodeIt* input3){
-    input1->next=input2;
-    input2->next=input3;
+    if(input1!=NULL) input1->next=input2;
+    if(input2!=NULL) input2->next=input3;
     ASTNodeIt* final_node=(ASTNodeIt*)malloc(sizeof(ASTNodeIt));
     final_node->node = (ASTNode*)malloc(sizeof(ASTNode));
     final_node->node->is_leaf=0;
+    final_node->node->u.n = (nonLeaf*)malloc(sizeof(nonLeaf));
     final_node->node->u.n->tag_info=taginf;
     final_node->node->u.n->leaf_symbol=ti;
     final_node->node->u.n->children=input1;
+    final_node->node->parent=NULL;
+    final_node->next=NULL;
     ASTNodeIt* temp=input1;
     while(temp!=NULL){
         temp->node->parent = final_node;
@@ -25,7 +28,7 @@ ASTNodeIt* newNonLeafNode(TAG taginf, tokenInfo *ti, ASTNodeIt* input1, ASTNodeI
 }
 
 ASTNodeIt* ChildrenList(ASTNodeIt* input1, ASTNodeIt* input2){
-    input1->next=input2;
+    if(input1!=NULL) input1->next=input2;
     return input1;
 }
 
@@ -33,38 +36,41 @@ ASTNodeIt* newLeafNode(tokenInfo *ti){
     ASTNodeIt* final_node = (ASTNodeIt*)malloc(sizeof(ASTNodeIt));
     final_node->node = (ASTNode*)malloc(sizeof(ASTNode));
     final_node->node->is_leaf=1;
+    final_node->node->u.l=(Leaf*)malloc(sizeof(Leaf));
     final_node->node->u.l->leaf_symbol=ti;
+    final_node->node->parent=NULL;
+    final_node->next=NULL;
     return final_node;
 }
 
 void freeChildren(treeNodeIt *temp){
-    static int arr[23]= {TK_FUNID, TK_ID, TK_INT, TK_REAL, TK_RECORDID, TK_FIELDID, TK_GLOBAL, TK_ASSIGNOP, TK_NUM, TK_RNUM, TK_MUL, TK_DIV, TK_MINUS, TK_PLUS, TK_NOT, TK_AND, TK_OR, TK_LT, TK_LE, TK_GT, TK_GE,  TK_EQ,  TK_NE};
-    treeNodeIt *freetemp;
-    while(temp!=NULL){
-        int flag=0;
-        if(temp->t->is_leaf==1){
-            for(int i=0; i<24; i++){
-                if(temp->t->treeNode_type.l->leaf_symbol->tokenName==arr[i]){
-                    temp=temp->next;
-                    flag=1;
-                    break;
-                }
-            }
-            if(flag==1){
-                continue;
-            }
-        }
-        if(temp->t->is_leaf==1){
-            free(temp->t->treeNode_type.l->leaf_symbol);
-            free(temp->t->treeNode_type.l);
-        }else{
-            free(temp->t->treeNode_type.n);
-        }
-        free(temp->t);
-        freetemp=temp;
-        temp=temp->next;
-        free(freetemp);
-    }
+    // static int arr[23]= {TK_FUNID, TK_ID, TK_INT, TK_REAL, TK_RECORDID, TK_FIELDID, TK_GLOBAL, TK_ASSIGNOP, TK_NUM, TK_RNUM, TK_MUL, TK_DIV, TK_MINUS, TK_PLUS, TK_NOT, TK_AND, TK_OR, TK_LT, TK_LE, TK_GT, TK_GE,  TK_EQ,  TK_NE};
+    // treeNodeIt *freetemp;
+    // while(temp!=NULL){
+    //     int flag=0;
+    //     if(temp->t->is_leaf==1){
+    //         for(int i=0; i<24; i++){
+    //             if(temp->t->treeNode_type.l->leaf_symbol->tokenName==arr[i]){
+    //                 temp=temp->next;
+    //                 flag=1;
+    //                 break;
+    //             }
+    //         }
+    //         if(flag==1){
+    //             continue;
+    //         }
+    //     }
+    //     if(temp->t->is_leaf==1){
+    //         free(temp->t->treeNode_type.l->leaf_symbol);
+    //         free(temp->t->treeNode_type.l);
+    //     }else{
+    //         free(temp->t->treeNode_type.n);
+    //     }
+    //     free(temp->t);
+    //     freetemp=temp;
+    //     temp=temp->next;
+    //     free(freetemp);
+    // }
 }
 
 ASTNodeIt* semanticRuleExecute(treeNodeIt *t, int rule_no){
@@ -76,6 +82,7 @@ ASTNodeIt* semanticRuleExecute(treeNodeIt *t, int rule_no){
             treeNodeIt *temp = t->t->treeNode_type.n->children;
             ASTNodeIt* n = newNonLeafNode(TAG_PROGRAM, NULL, newNonLeafNode(TAG_FUN_LIST, NULL, temp->node, NULL, NULL), temp->next->node, NULL);
             freeChildren(temp);
+            n->node->parent=NULL;
             return n;
         }
         //mainFunction.node=newNonLeafNode(TAG_MAIN, NULL, stmts.node) 
@@ -623,6 +630,27 @@ ASTNodeIt* makeAbstractSyntaxTree(treeNodeIt *root){
             }
 		}
         //iterate 
+		temp = temp->next;
+	}
+}
+
+void printAST(ASTNodeIt *root){
+	ASTNodeIt *temp = root;
+	while(1){
+		while(temp->node->is_leaf==0){
+			temp = temp->node->u.n->children;
+			if (temp==NULL) break;
+		}
+		if (temp==NULL) break;
+		printf("%d\n", temp->node->u.l->leaf_symbol->tokenName);
+		while(temp->next==NULL){
+			temp = temp->node->parent;
+			if(temp->node->parent==NULL){
+				printf("root");
+				return;	
+			}
+			printf("nl %d\n", temp->node->u.n->tag_info);
+		}
 		temp = temp->next;
 	}
 }
