@@ -74,6 +74,157 @@ ASTNodeIt* semanticRuleExecute(treeNodeIt *t, int rule_no){
             return n;
         }
 
+        //STMT
+        //stmt -->assignmentStmt, stmt.node = assignmentStmt.node
+        case 31 :
+        {
+         treeNodeIt *temp = t->t->treeNode_type.n->children;
+         ASTNodeIt *n = temp->node;
+         return n;
+        }
+        // stmt -->iterativeStmt, stmt.node = iterativeStmt.node
+        case 32 :
+        {
+         treeNodeIt *temp = t->t->treeNode_type.n->children;
+         ASTNodeIt *n = temp->node;
+         return n;   
+        }
+        //stmt -->conditionalStmt, stmt.node= conditionalStmt.node
+        case 33 :
+        {
+         treeNodeIt *temp = t->t->treeNode_type.n->children;
+         ASTNodeIt *n = temp->node;
+         return n;
+        }
+        //stmt -->ioStmt, stmt.node= ioStmt.node
+        case 34 :
+        {
+         treeNodeIt *temp = t->t->treeNode_type.n->children;
+         ASTNodeIt *n = temp->node;
+         return n;
+        }
+        // stmt -->funCallStmt, stmt.node = funCallStmt.node
+        case 35 :
+        {
+         treeNodeIt *temp = t->t->treeNode_type.n->children;
+         ASTNodeIt *n = temp->node;
+         return n;
+        }
+        // assignmentStmt -->singleOrRecId  TK_ASSIGNOP arithmeticExpression  TK_SEM 
+        //Stmt.node = newNode( TAG_ASSIGNMENT_STMT, LeafNode(TK_ASSIGNOP), singleOrRecId.node, arithmeticExpression.node)
+        case 36 :
+        {
+            treeNodeIt *temp = t->t->treeNode_type.n->children;
+            ASTNodeIt* n = newNonLeafNode(TAG_ASSIGNMENT_STMT, temp->t->treeNode_type.l->leaf_symbol, temp->node, temp->next->next->node, NULL);
+            freeChildren(temp);
+            return n;
+        }
+        //singleOrRecId --> TK_ID new_24, singleOrRecId.node = ChildrenList( LeafNode(TK_ID), new_24.node)
+        case 37 :
+        {
+            treeNodeIt *temp = t->t->treeNode_type.n->children;
+            ASTNodeIt *n = ChildrenList(newLeafNode(temp->t->treeNode_type.l->leaf_symbol), temp->next->node);
+            freeChildren(temp);
+            return n;        
+
+        }
+        //new_24.node = NULL
+        case 38 :
+        {
+            return NULL;
+        }
+        //new_24.node = LeafNode(TK_FIELDID)
+        case 39 :
+        {
+            return newLeafNode(t->t->treeNode_type.n->children->t->treeNode_type.l->leaf_symbol);
+        }
+        //funCallStmt -->outputParameters  TK_CALL  TK_FUNID  TK_WITH TK_PARAMETERS inputParameters  TK_SEM
+        //funCallStmt.node = new Node( FUN_CALL_STMT, LeafNode(TK_FUNID), new Node(TAG_OUTPUT_ARGS, NULL, outputParameters.node), new Node( TAG_INPUT_ARGS, NULL, inputParameters.node))
+        case 40 :
+        {
+            treeNodeIt *temp = t->t->treeNode_type.n->children;
+            ASTNodeIt* n = newNonLeafNode(TAG_FUN_CALL_STMT, temp->t->treeNode_type.l->leaf_symbol, newNonLeafNode(TAG_OUTPUT_ARGS,NULL,temp->node,NULL,NULL), newNonLeafNode(TAG_INPUT_ARGS, NULL,temp->next->next->next->next->next->node,NULL,NULL), NULL);
+            freeChildren(temp);
+            return n;
+
+        }
+        // outputParameters --> TK_SQL idList  TK_SQR  TK_ASSIGNOP
+        //outputParameters.node = idList.node
+        case 41 :
+        {
+            treeNodeIt *temp = t->t->treeNode_type.n->children;
+            ASTNodeIt *n = temp->next->node;
+        }
+        //outputParameters --> eps
+        //outputParameters.node=NULL
+        case 42 :
+        {
+            return NULL;
+        }
+        //inputParameters --> TK_SQL idList  TK_SQR
+        //inputParameters.node = idList.node
+        case 43 :
+        {
+            treeNodeIt *temp = t->t->treeNode_type.n->children;
+            ASTNodeIt *n = temp->next->node;
+            return n;
+        }
+        //iterativeStmt --> TK_WHILE  TK_OP booleanExpression  TK_CL stmt otherStmts  TK_ENDWHILE
+        //iterativeStmt.node = new Node( TAG_ITERATIVE_STMT, NULL, booleanExpression.node, stmt.node, otherStmts.node
+        case 44 :
+        {
+            treeNodeIt *temp = t->t->treeNode_type.n->children;
+            ASTNodeIt* n = newNonLeafNode(TAG_ITERATIVE_STMT, NULL, temp->next->next->node, temp->next->next->next->next->node,temp->next->next->next->next->next->node );
+            freeChildren(temp);
+            return n;
+        }
+        //conditionalStmt --> TK_IF  TK_OP booleanExpression  TK_CL  TK_THEN stmt otherStmts elsePart
+        //conditionalStmt.node = newNode(TAG_COND_STMT, NULL, booleanExpression.node, newNode(TAG_THEN,NULL,stmt.node, otherStmts.node), elsePart.node)
+        case 45 :
+        {
+            treeNodeIt *temp = t->t->treeNode_type.n->children;
+            ASTNodeIt* n = newNonLeafNode(TAG_COND_STMT, NULL, temp->next->next->node, newNonLeafNode(TAG_THEN,NULL,temp->next->next->next->next->next->node,temp->next->next->next->next->next->next->node,NULL),temp->next->next->next->next->next->next->next->node );
+            freeChildren(temp);
+            return n;
+        }
+        // elsePart --> TK_ELSE stmt otherStmts  TK_ENDIF
+        //elsePart.node=newNode(TAG_ELSE,NULL,stmt.node, otherStmts.node)
+        case 46 :
+        {
+            treeNodeIt *temp = t->t->treeNode_type.n->children;
+            ASTNodeIt* n = newNonLeafNode(TAG_ELSE, NULL, temp->next->node,temp->next->next->node,NULL);
+            freeChildren(temp);
+            return n;
+        }
+        //elsePart --> TK_ENDIF
+        //elsePart.node = NULL
+        case 47 :
+        {
+            return NULL;
+        }
+        // ioStmt --> TK_READ  TK_OP singleOrRecId  TK_CL  TK_SEM
+        //ioStmt.node = new Node(TAG_READ, NULL, singleOrRecId.node)
+        case 48 :
+        {
+            treeNodeIt *temp = t->t->treeNode_type.n->children;
+            ASTNodeIt* n = newNonLeafNode(TAG_READ, NULL, temp->next->next->node,NULL,NULL);
+            freeChildren(temp);
+            return n;   
+        }
+        // ioStmt --> TK_WRITE  TK_OP allVar  TK_CL  TK_SEM
+        //ioStmt.node = new Node(TAG_WRITE, NULL, allVar.node)
+        case 49 :
+        {
+            treeNodeIt *temp = t->t->treeNode_type.n->children;
+            ASTNodeIt* n = newNonLeafNode(TAG_WRITE, NULL, temp->next->next->node,NULL,NULL);
+            freeChildren(temp);
+            return n; 
+        }
+       
+
+
+
+
         // ARITHMETIC EXPRESSION
         //allVar.node = LeafNode(TK_NUM)
         case 50: return newLeafNode(t->t->treeNode_type.n->children->t->treeNode_type.l->leaf_symbol);
