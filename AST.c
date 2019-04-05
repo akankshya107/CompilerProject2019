@@ -47,6 +47,7 @@ void freeChildren(treeNodeIt *temp){
             }
         }
         if(temp->t->is_leaf==1){
+            
             free(temp->t->treeNode_type.l->leaf_symbol);
             free(temp->t->treeNode_type.l);
         }else{
@@ -73,6 +74,104 @@ ASTNodeIt* semanticRuleExecute(treeNodeIt *t, int rule_no){
             ASTNodeIt* n = newNonLeafNode(TAG_MAIN, NULL, t->t->treeNode_type.n->children->node, NULL, NULL);
             return n;
         }
+        //STMTS
+        // stmts.node=new ChildrenList(newNode(TAG_TYPEDEFS, NULL,typeDefinitions.node),
+        // new Node(TAG_DECLARES, NULL,declarations.node),
+        // new Node(TAG_OTHERSTMTS,NULL, otherStmts.node),
+        // new Node(TAG_RETURNSTMT,NULL, returnStmt.node))
+        case 16:{
+            treeNodeIt* temp=t->t->treeNode_type.n->children;
+            ASTNodeIt* n1= ChildrenList(newNonLeafNode(TAG_OTHERSTMTS, NULL, temp->next->next->node,NULL,NULL),
+                                        newNonLeafNode(TAG_RETURNSTMT, NULL, temp->next->next->next->node,NULL,NULL));
+            ASTNodeIt* n2=ChildrenList(newNonLeafNode(TAG_DECLARES, NULL, temp->next->node,NULL,NULL),n1);
+            ASTNodeIt* n3=ChildrenList(newNonLeafNode(TAG_TYPEDEFS, NULL, temp->node,NULL,NULL),n2);
+            return n3;
+        }
+
+        //TYPE DEFINITIONS
+        // typeDefinitions.node = ChildrenList(typeDefinition.node,typeDefinitions​ 1​ .node)
+        case 17:{
+            treeNodeIt* temp=t->t->treeNode_type.n->children;
+            ASTNodeIt* n=ChildrenList(temp->node,temp->next->node);
+            return n;
+        }
+        // typeDefinitions.node = NULL
+        case 18:{
+            // t->t->node=NULL;
+            return (ASTNodeIt*)NULL;
+        }
+        // typeDefinition.node = new Node(TAG_TYPEDEF,LeafNode(TK_RECORDID),fieldDefinitions.node)
+        case 19:{
+            treeNodeIt* temp=t->t->treeNode_type.n->children;
+            ASTNodeIt* leaf=newLeafNode(t->t->treeNode_type.n->children->next->t->treeNode_type.l->leaf_symbol);
+            ASTNodeIt* n=newNonLeafNode(TAG_TYPEDEF,leaf->node->u.l->leaf_symbol,temp->next->next->node,NULL,NULL);
+            return n;
+        }
+        // fieldDefinitions.node =ChildrenList(fieldDefinition.node,ChildrenList(fieldDefinition.node,moreFields.node))
+        case 20:{
+            treeNodeIt* temp=t->t->treeNode_type.n->children;
+            ASTNodeIt* n1= ChildrenList(temp->next->node,temp->next->next->node);
+            ASTNodeIt n2= ChildrenList(temp->node,n1);
+            return n2;
+        }
+        // fieldDefinition.node = new Node(TAG_FIELDDEF,LeafNode(FIELDID),primitiveDataType.node)
+        case 21:{
+            treeNodeIt* temp=t->t->treeNode_type.n->children;
+            ASTNodeIt* leaf=newLeafNode(temp->next->next->next->t->treeNode_type.l->leaf_symbol);
+            ASTNodeIt* n= newNonLeafNode(TAG_FIELDDEF,leaf->node->u.l->leaf_symbol,temp->next->node,NULL,NULL );
+            return n;
+        }
+        // moreFields.node = ChildrenList(fieldDefinition.node,moreFields​ 1​ .node)
+        case 22:{
+            treeNodeIt* temp=t->t->treeNode_type.n->children;
+            ASTNodeIt* n=ChildrenList(temp->node,temp->next->node);
+            return n;    
+        }
+        // moreFields.node=NULL
+        case 23:{
+            return NULL;
+        }
+
+        // DECLARATIONS
+        // declarations.node = ChildrenList(declaration.node, declarations​ 1​ .node)
+        case 24:{
+            treeNodeIt* temp=t->t->treeNode_type.n->children;
+            ASTNodeIt* n=ChildrenList(temp->node,temp->next->node);
+            return n;
+        }
+        // declarations.node = NULL
+        case 25:{
+            return NULL;
+        }
+        // declaration.node=new Node(TAG_DECLARE, LeafNode(TK_ID),dataType.node, global_or_not.node)
+        case 26:{
+            treeNodeIt* temp=t->t->treeNode_type.n->children;
+            ASTNodeIt* leaf=newLeafNode(temp->next->next->next->t->treeNode_type.l->leaf_symbol);
+            ASTNodeIt* n=newNonLeafNode(TAG_DECLARE,leaf->node->u.l->leaf_symbol,temp->next->node,temp->next->next->next->next->node,NULL);
+            return n;
+        }
+        // global_or_not.node=LeafNode(TK_GLOBAL)
+        case 27:{
+            treeNodeIt* temp=t->t->treeNode_type.n->children;
+            ASTNodeIt* leaf=newLeafNode(temp->next->t->treeNode_type.l->leaf_symbol);
+            return leaf;
+        }
+        // global_or_not.node = NULL
+        case 28:{
+            return NULL;
+        }
+
+        //OTHER STMTS
+        // otherStmts.node =ChildrenList(stmt.node,otherStmts​ 1​ .node)
+        case 29:{
+            treeNodeIt* temp=t->t->treeNode_type.n->children;
+            ASTNodeIt* n=ChildrenList(temp->node,temp->next->node);
+            return n;
+        }
+        // otherStmts.node = NULL
+        case 30:{
+            return NULL;
+        }
 
         // ARITHMETIC EXPRESSION
         //allVar.node = LeafNode(TK_NUM)
@@ -82,7 +181,7 @@ ASTNodeIt* semanticRuleExecute(treeNodeIt *t, int rule_no){
         //allVar.node = ChildrenList( LeafNode(TK_ID), temp.node)
         case 52:{
             treeNodeIt *temp = t->t->treeNode_type.n->children;
-            ASTNodeIt *n = ChildrenList(newLeafNode(temp->t->treeNode_type.l->leaf_symbol), temp->next->node);
+            ASTNodeIt *n = ChildrenList(newLeafNode(temp->t->treeNode_type.l->leaf_symbo), temp->next->node);
             freeChildren(temp);
             return n;
         }
@@ -110,7 +209,6 @@ ASTNodeIt* semanticRuleExecute(treeNodeIt *t, int rule_no){
                 t->inh=newNonLeafNode(TAG_ARITHMETIC_EXPRESSION, temp->node->node->u.l->leaf_symbol, temp->next->inh, temp->next->next->node, NULL);
             }
             return t->inh;
-        }
         // term.node = termPrime.node
         // termPrime.inh = factor.node
         case 56:
@@ -185,6 +283,39 @@ ASTNodeIt* semanticRuleExecute(treeNodeIt *t, int rule_no){
         case 79: return newLeafNode(t->t->treeNode_type.n->children->t->treeNode_type.l->leaf_symbol);
         // relationalOp.node = LeafNode(TK_NE)
         case 80: return newLeafNode(t->t->treeNode_type.n->children->t->treeNode_type.l->leaf_symbol);
+
+        //RETURN STMT  
+        // returnStmt.node=optionalReturn.node
+        case 81:{
+            treeNodeIt* temp=t->t->treeNode_type.n->children;
+            return temp->next->node;    
+        }
+        // optionalReturn.node=idList.node
+        case 82:{
+            treeNodeIt* temp=t->t->treeNode_type.n->children;
+            return temp->next->node; 
+        }
+        // optionalReturn.node = NULL
+        case 83:{
+            return NULL;
+        }
+        // idList.node = ChildrenList(LeafNode(TK_ID), more_ids.node)
+        case 84:{
+            treeNodeIt* temp=t->t->treeNode_type.n->children;
+            ASTNodeIt* leaf=newLeafNode(temp->t->treeNode_type.l->leaf_symbol);
+            ASTNodeIt* n=ChildrenList(leaf->node->u.l->leaf_symbol,temp->next->node);
+            return n;
+        }
+        // more_ids.node=idList.node
+        case 85:{
+            treeNodeIt* temp=t->t->treeNode_type.n->children;
+            return temp->next->node;
+        }
+        // more_ids.node =NULL
+        case 86:{
+            return NULL;
+        }
+
     }
 }
 
