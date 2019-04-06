@@ -1,3 +1,4 @@
+Rule 0:  program --> otherFunctions mainFunction
 Rule 1:  mainFunction --> TK_MAIN stmts  TK_END
 Rule 2:  otherFunctions -->function otherFunctions
 Rule 3:  otherFunctions --> eps

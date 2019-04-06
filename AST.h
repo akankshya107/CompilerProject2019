@@ -17,4 +17,5 @@ ASTNodeIt* newNonLeafNode (TAG taginf, tokenInfo *ti, ASTNodeIt* input1, ASTNode
 ASTNodeIt* ChildrenList (ASTNodeIt* input1, ASTNodeIt* input2);
 ASTNodeIt* newLeafNode(tokenInfo *ti);
 void freeChildren(treeNodeIt *temp);
+void printAST(ASTNodeIt* root);
 //Nochestrell
