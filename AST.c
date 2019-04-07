@@ -28,7 +28,9 @@ ASTNodeIt* newNonLeafNode(TAG taginf, tokenInfo *ti, ASTNodeIt* input1, ASTNodeI
 }
 
 ASTNodeIt* ChildrenList(ASTNodeIt* input1, ASTNodeIt* input2){
-    if(input1!=NULL) input1->next=input2;
+    if(input1!=NULL) {
+        input1->next=input2;
+    }
     return input1;
 }
 
@@ -133,7 +135,7 @@ ASTNodeIt* semanticRuleExecute(treeNodeIt *t, int rule_no){
         //parameter_list.node = ChildrenList(dataType.node, ChildrenList(LeafNode(TK_ID), remaining_list.node))
         case 8:{
             treeNodeIt *temp = t->t->treeNode_type.n->children;
-            ASTNodeIt* n = ChildrenList(temp->node, ChildrenList(newLeafNode(temp->next->t->treeNode_type.l->leaf_symbol),temp->next->next->node));
+            ASTNodeIt* n = ChildrenList(temp->node, ChildrenList(newLeafNode(temp->next->t->treeNode_type.l->leaf_symbol), temp->next->next->node));
             freeChildren(temp);
             return n;
         }
