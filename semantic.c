@@ -50,6 +50,7 @@ hash_elem* lookup(char *str, hashTable HT){
         temp=temp->next;
     }
     return HT[index];
+<<<<<<< HEAD
 }
 
 hash_elem** create_global_HT(int len)
@@ -61,4 +62,6 @@ hash_elem** create_global_HT(int len)
         HT[i]=(hash_elem*) malloc(sizeof(hash_elem));
     }
     return HT;
+=======
+>>>>>>> cf0333a6a161c288d0bd26767ef5b9ce907ab4fa
 }
