@@ -3,10 +3,12 @@
 # // NARAPAREDDY BHAVANA 2016A7PS0034P
 # // KARABEE BATTA 2016A7PS0052P
 # // AASTHA KATARIA 2016A7PS0062P
-compile: keyhead lexhead parshead stackhead grammarhead key.o DFA.o grammar.o stack.o lexer.o parser.o driver.o
-	gcc driver.o DFA.o grammar.o stack.o lexer.o parser.o key.o -o stage1exe
+compile: keyhead lexhead parshead stackhead grammarhead ASThead key.o DFA.o AST.o grammar.o stack.o lexer.o parser.o driver.o
+	gcc driver.o AST.o DFA.o grammar.o stack.o lexer.o parser.o key.o -o stage1exe
 driver.o: driver.c 
 	gcc -c -g driver.c
+AST.o: AST.c
+	gcc -c -g AST.c
 parser.o: parser.c
 	gcc -c -g parser.c 
 lexer.o: lexer.c
@@ -34,5 +36,6 @@ stackhead:
 grammarhead: 
 	gcc grammarDef.h
 	gcc grammar.h
-# clearall: key.o lexer.o parser.o driver.o
-# 	rm key.o lexer.o parser.o driver.o
+ASThead:
+	gcc ASTDef.h
+	gcc AST.h

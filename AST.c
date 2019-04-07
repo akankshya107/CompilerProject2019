@@ -1,15 +1,25 @@
+// GROUP 39
+// AKANKSHYA MISHRA 2016A7PS0026P
+// NARAPAREDDY BHAVANA 2016A7PS0034P
+// KARABEE BATTA 2016A7PS0052P
+// AASTHA KATARIA 2016A7PS0062P
 #include <stdio.h>
 #include <stdlib.h>
+#include "lexer.h"
 #include "ASTDef.h"
 
 ASTNodeIt* newNonLeafNode(TAG taginf, tokenInfo *ti, ASTNodeIt* input1, ASTNodeIt* input2, ASTNodeIt* input3){
     input1->next=input2;
     input2->next=input3;
     ASTNodeIt* final_node=(ASTNodeIt*)malloc(sizeof(ASTNodeIt));
-    final_node->node->is_leaf=0;
+    final_node->node = (ASTNode*)malloc(sizeof(ASTNode));
+    final_node->node->u.n=(nonLeaf*)malloc(sizeof(nonLeaf));
     final_node->node->u.n->tag_info=taginf;
     final_node->node->u.n->leaf_symbol=ti;
     final_node->node->u.n->children=input1;
+    final_node->node->is_leaf=0;
+    final_node->node->parent=NULL;
+    final_node->next=NULL;
     ASTNodeIt* temp=input1;
     while(temp!=NULL){
         temp->node->parent = final_node;
@@ -19,14 +29,20 @@ ASTNodeIt* newNonLeafNode(TAG taginf, tokenInfo *ti, ASTNodeIt* input1, ASTNodeI
 }
 
 ASTNodeIt* ChildrenList(ASTNodeIt* input1, ASTNodeIt* input2){
-    input1->next=input2;
+    if(input1!=NULL) {
+        input1->next=input2;
+    }
     return input1;
 }
 
 ASTNodeIt* newLeafNode(tokenInfo *ti){
     ASTNodeIt* final_node = (ASTNodeIt*)malloc(sizeof(ASTNodeIt));
+    final_node->node = (ASTNode*)malloc(sizeof(ASTNode));
+    final_node->node->parent=NULL;
     final_node->node->is_leaf=1;
+    final_node->node->u.l=(Leaf*)malloc(sizeof(Leaf));
     final_node->node->u.l->leaf_symbol=ti;
+    final_node->next=NULL;
     return final_node;
 }
 
@@ -341,6 +357,7 @@ ASTNodeIt* semanticRuleExecute(treeNodeIt *t, int rule_no){
 
 ASTNodeIt* makeAbstractSyntaxTree(treeNodeIt *root){
     treeNodeIt *temp = root;
+
 	while(1){
 		while(temp->t->is_leaf==0){
 			temp = temp->t->treeNode_type.n->children;
@@ -367,4 +384,50 @@ ASTNodeIt* makeAbstractSyntaxTree(treeNodeIt *root){
         //iterate 
 		temp = temp->next;
 	}
+}
+
+void printAST(ASTNodeIt* root)
+{
+    ASTNodeIt *temp = root;
+    ASTNodeIt* temp_child;
+    while(1)
+    {
+        while(temp->node->is_leaf==0){
+            temp_child=temp->node->u.n->children;
+            if(temp_child==NULL)
+            {
+                printf("nonleaf with no children:  node tag: %s \n", TagString(temp->node->u.n->tag_info));
+                
+                if(temp->next==NULL)
+                break;
+
+                temp=temp->next;
+            }
+            else
+            {
+                temp=temp->node->u.n->children;
+            }
+            
+            
+        }
+        // if (temp==NULL) break;
+        if(temp->node->is_leaf==1)
+            printf("leaf node:\t\t token: %s\n", TerminalString(temp->node->u.l->leaf_symbol->tokenName));
+        while(temp->next==NULL){
+            temp=temp->node->parent;
+            if(temp==NULL){
+                printf("root reached");
+                return;
+            }
+            if(temp->node->u.n->leaf_symbol!=NULL)
+                printf("nonleaf node:\t\t token: %s tag: %s \n",TerminalString(temp->node->u.n->leaf_symbol->tokenName), TagString(temp->node->u.n->tag_info));
+            else
+            {
+                printf("nonleaf node:\t\t token: not stored tag: %s \n", TagString(temp->node->u.n->tag_info));
+            }
+            
+        }
+        temp=temp->next;
+    }
+
 }

@@ -11,6 +11,7 @@
 #include "key.h"
 #include "parser.h"
 #include "grammar.h"
+#include "AST.h"
 extern parse_table T;
 int main(int argc, char *argv[]){
 	int option;
@@ -53,8 +54,10 @@ int main(int argc, char *argv[]){
 			populateStrTable();
 			ComputeFirstAndFollowSets();
 			createParseTable();
-			treeNodeIt* t = parseInputSourceCode(argv[1]);
-			printParseTree(t, argv[2]);
+			treeNodeIt* t = parseInputSourceCode("testcase1.txt");
+			// printParseTree(t, argv[2]);
+			ASTNodeIt *plgiveerror = makeAbstractSyntaxTree(t);
+			printAST(plgiveerror);
 			printf("\n");
 		}else if(option==4){
 
