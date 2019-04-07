@@ -15,8 +15,4 @@ hash_elem* lookup(char *str, hashTable HT);
 ASTNodeIt* populateSymbolTable(ASTNodeIt* root);
 ASTNodeIt* extractTypes(ASTNodeIt* root);
 ASTNodeIt* checkTypes(ASTNodeIt* root);
-<<<<<<< HEAD
 ASTNodeIt* semanticAnalyzer(treeNodeIt *root);
-=======
-ASTNodeIt* semanticAnalyzer(treeNodeIt *root);
->>>>>>> cf0333a6a161c288d0bd26767ef5b9ce907ab4fa

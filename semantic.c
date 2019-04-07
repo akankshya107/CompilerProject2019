@@ -17,6 +17,18 @@ int hash(char *str){
 	return sum;
 }
 
+
+hash_elem** create_HT(int len)
+{
+    int i;
+    hash_elem** HT=(hash_elem**) malloc(sizeof(hash_elem*)*len);
+    for(i=0;i<len;i++)
+    {
+        HT[i]=(hash_elem*) malloc(sizeof(hash_elem));
+    }
+    return HT;
+}
+
 hash_elem *create_hash_elem(Element *ele, char *str){
     hash_elem *h = (hash_elem*)malloc(sizeof(hash_elem));
     h->str = str;
@@ -50,18 +62,5 @@ hash_elem* lookup(char *str, hashTable HT){
         temp=temp->next;
     }
     return HT[index];
-<<<<<<< HEAD
 }
 
-hash_elem** create_global_HT(int len)
-{
-    int i;
-    hash_elem** HT=(hash_elem**) malloc(sizeof(hash_elem*)*len);
-    for(i=0;i<len;i++)
-    {
-        HT[i]=(hash_elem*) malloc(sizeof(hash_elem));
-    }
-    return HT;
-=======
->>>>>>> cf0333a6a161c288d0bd26767ef5b9ce907ab4fa
-}

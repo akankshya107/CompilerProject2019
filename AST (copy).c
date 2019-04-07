@@ -75,33 +75,33 @@ ASTNodeIt* newLeafNode(tokenInfo *ti){
 }
 
 void freeChildren(treeNodeIt *temp){
-    // static int arr[23]= {TK_FUNID, TK_ID, TK_INT, TK_REAL, TK_RECORDID, TK_FIELDID, TK_GLOBAL, TK_ASSIGNOP, TK_NUM, TK_RNUM, TK_MUL, TK_DIV, TK_MINUS, TK_PLUS, TK_NOT, TK_AND, TK_OR, TK_LT, TK_LE, TK_GT, TK_GE,  TK_EQ,  TK_NE};
-    // treeNodeIt *freetemp;
-    // while(temp!=NULL){
-    //     int flag=0;
-    //     if(temp->t->is_leaf==1){
-    //         for(int i=0; i<24; i++){
-    //             if(temp->t->treeNode_type.l->leaf_symbol->tokenName==arr[i]){
-    //                 temp=temp->next;
-    //                 flag=1;
-    //                 break;
-    //             }
-    //         }
-    //         if(flag==1){
-    //             continue;
-    //         }
-    //     }
-    //     if(temp->t->is_leaf==1){
-    //         free(temp->t->treeNode_type.l->leaf_symbol);
-    //         free(temp->t->treeNode_type.l);
-    //     }else{
-    //         free(temp->t->treeNode_type.n);
-    //     }
-    //     free(temp->t);
-    //     freetemp=temp;
-    //     temp=temp->next;
-    //     free(freetemp);
-    // }
+    static int arr[23]= {TK_FUNID, TK_ID, TK_INT, TK_REAL, TK_RECORDID, TK_FIELDID, TK_GLOBAL, TK_ASSIGNOP, TK_NUM, TK_RNUM, TK_MUL, TK_DIV, TK_MINUS, TK_PLUS, TK_NOT, TK_AND, TK_OR, TK_LT, TK_LE, TK_GT, TK_GE,  TK_EQ,  TK_NE};
+    treeNodeIt *freetemp;
+    while(temp!=NULL){
+        int flag=0;
+        if(temp->t->is_leaf==1){
+            for(int i=0; i<24; i++){
+                if(temp->t->treeNode_type.l->leaf_symbol->tokenName==arr[i]){
+                    temp=temp->next;
+                    flag=1;
+                    break;
+                }
+            }
+            if(flag==1){
+                continue;
+            }
+        }
+        if(temp->t->is_leaf==1){
+            free(temp->t->treeNode_type.l->leaf_symbol);
+            free(temp->t->treeNode_type.l);
+        }else{
+            free(temp->t->treeNode_type.n);
+        }
+        free(temp->t);
+        freetemp=temp;
+        temp=temp->next;
+        free(freetemp);
+    }
 }
 
 ASTNodeIt* semanticRuleExecute(treeNodeIt *t, int rule_no){
@@ -666,6 +666,7 @@ ASTNodeIt* makeAbstractSyntaxTree(treeNodeIt *root){
                 temp->node = semanticRuleExecute(temp, temp->t->treeNode_type.n->children->t->treeNode_type.l->rule_no);
             }
 		}
+        
         //iterate 
 		temp = temp->next;
 	}
