@@ -13,5 +13,5 @@ typedef struct h{
     struct h *next;
 } hash_elem;
 
-typedef hash_elem **hashTable;
-hashTable KeyWordTable; 
+typedef hash_elem **hTable;
+hTable KeyWordTable; 

@@ -495,7 +495,6 @@ ASTNodeIt* semanticRuleExecute(treeNodeIt *t, int rule_no){
             ASTNodeIt *n;
             if(t->t->treeNode_type.n->rule_no==54){
                 n = newNonLeafNode(TAG_ARITHMETIC_EXPRESSION, temp->node->node->u.l->leaf_symbol, t->t->parent->t->treeNode_type.n->children->next->node, temp->next->next->node, NULL);
-                printf("whut");
             }else{ //Rule no 53
                 n = newNonLeafNode(TAG_ARITHMETIC_EXPRESSION, temp->node->node->u.l->leaf_symbol, t->t->parent->t->treeNode_type.n->children->node, temp->next->next->node, NULL);
             }
@@ -728,7 +727,7 @@ void printAST(ASTNodeIt* root)
         while(temp->next==NULL){
             temp=temp->node->parent;
             if(temp==NULL){
-                printf("root reached");
+                printf("root reached\n");
                 return;
             }
             if(temp->node->u.n->leaf_symbol!=NULL)
