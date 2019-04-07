@@ -167,7 +167,7 @@ ASTNodeIt* semanticRuleExecute(treeNodeIt *t, int rule_no){
         //parameter_list.node = ChildrenList(dataType.node, ChildrenList(LeafNode(TK_ID), remaining_list.node))
         case 8:{
             treeNodeIt *temp = t->t->treeNode_type.n->children;
-            ASTNodeIt* n = ChildrenList(temp->node, ChildrenList(newLeafNode(temp->next->t->treeNode_type.l->leaf_symbol), temp->next->next->node));
+            ASTNodeIt* n = ChildrenList(newNonLeafNode(TAG_ID, NULL, newLeafNode(temp->next->t->treeNode_type.l->leaf_symbol), temp->node, NULL), temp->next->next->node);
             freeChildren(temp);
             return n;
         }
