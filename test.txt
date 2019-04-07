@@ -9,6 +9,6 @@
 
 _main
 %	type int :b3;
-	b3 <--- c3bd + 3;
+	b3 <--- c3bd + 3 * 7;
 	return;
 end

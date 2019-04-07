@@ -54,7 +54,7 @@ int main(int argc, char *argv[]){
 			populateStrTable();
 			ComputeFirstAndFollowSets();
 			createParseTable();
-			treeNodeIt* t = parseInputSourceCode("test.txt");
+			treeNodeIt* t = parseInputSourceCode(argv[1]);
 			// printParseTree(t, argv[2]);
 			ASTNodeIt *plgiveerror = makeAbstractSyntaxTree(t);
 			printAST(plgiveerror);
