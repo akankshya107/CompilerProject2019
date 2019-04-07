@@ -3,7 +3,7 @@
 // NARAPAREDDY BHAVANA 2016A7PS0034P
 // KARABEE BATTA 2016A7PS0052P
 // AASTHA KATARIA 2016A7PS0062P
-
+#include <stdbool.h>
 typedef enum{ INT, REAL, RECORD }TYPE;
 
 typedef struct Element Element;
@@ -29,4 +29,3 @@ typedef struct Element{
         symTableElem *s;
     }u;
 }Element;
-
