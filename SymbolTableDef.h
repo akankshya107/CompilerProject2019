@@ -21,10 +21,14 @@ typedef hash_ele **hashTable;
 hashTable globalSymbolTable;
 hashTable SymbolTable;
 typedef struct symTableElem{
-    TYPE type;
+    bool is_record;
     int width;
     int offset;
-    symTableElem *typeList; //Only exists for TYPE==RECORD
+    union{
+        TYPE pri_type;
+        TYPE constr_type;
+    }type;
+    // symTableElem *typeList; //Only exists for TYPE==RECORD
 }symTableElem;
 
 typedef struct Element{
