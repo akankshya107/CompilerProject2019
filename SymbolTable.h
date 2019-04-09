@@ -6,9 +6,10 @@
 #include "SymbolTableDef.h"
 //hashtable functions
 int hashEle(char *str);
-void insertIntoHTEle(hash_ele *elem, hashTable HT);
+void insertIntoHTEle(hash_ele *elem, HashTable HT);
 hash_ele *create_hashEle(Element *ele, char* str);
-hash_ele* lookupEle(char *str, hashTable HT);
+hash_ele* lookupEle(char *str, HashTable HT);
 
 //semantic analyzer functions
 ASTNodeIt* populateSymbolTable(ASTNodeIt* root);
+HashTable populateGlobalTable(ASTNodeIt *root); //two passes

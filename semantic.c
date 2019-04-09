@@ -16,14 +16,20 @@ Ele* returnEle(ASTNodeIt *n){
 void printSymbolTable(ASTNodeIt *root);
 void extractTypes(ASTNodeIt* root);
 void checkTypes(ASTNodeIt* root);
+
 void semanticAnalyzer(treeNodeIt *t){
     ASTNodeIt *ast = makeAbstractSyntaxTree(t);
     printAST(ast);
-    populateSymbolTable(ast);
-    // extractTypes(ast);
-    // checkTypes(ast);
-    //Single/Double pass AST
-    // printSymbolTable(ast);
+    globalSymbolTable = populateGlobalTable(ast);
+    ASTNodeIt *temp = searchTag(ast, TAG_FUN_LIST);
+    ASTNodeIt *ch = temp->node->u.n->children;
+    while(ch!=NULL){
+        ASTNodeIt* stmts = populateSymbolTable(ch); //Populate Symbol Table for that function along with type extractor
+        semanticRuleCheck(stmts);
+        ch=ch->next;
+    }
+    
+
 }
 
 ASTNodeIt *searchTag(ASTNodeIt *root, TAG tg){
@@ -121,7 +127,7 @@ void printSymbolTable(ASTNodeIt *root){
     while(ch!=NULL){
         printf("%s\n", ch->node->u.n->leaf_symbol->u.lexeme);
         //print symbol table
-        hashTable st = lookupEle(ch->node->u.n->leaf_symbol->u.lexeme, SymbolTable)->ele->u.SymbolTable;
+        HashTable st = lookupEle(ch->node->u.n->leaf_symbol->u.lexeme, SymbolTable)->ele->u.SymbolTable;
         for(int i=0; i<LEN_HT; i++){
             hash_ele *e = st[i];
             while(e!=NULL){

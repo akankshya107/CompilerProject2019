@@ -8,7 +8,7 @@
 #include <stdbool.h>
 #include "AST.h"
 #define LEN_HT 41
-typedef enum{ INT, REAL, RECORD }TYPE;
+typedef bool TYPE;
 
 typedef struct Ele{
   ASTNodeIt *node;
@@ -24,21 +24,50 @@ typedef struct hT{
     struct hT *next;
 }hash_ele;
 
-typedef hash_ele **hashTable;
-hashTable globalSymbolTable;
-hashTable SymbolTable;
+typedef hash_ele **HashTable;
+HashTable globalSymbolTable;
+HashTable SymbolTable;
+
+typedef union{
+    TYPE pri_type;
+    char* rec_id;
+}type;
 
 typedef struct symTableElem{
-    TYPE type;
+    bool is_record;
     int width;
     int offset;
-    struct symTableElem *typeList; //Only exists for TYPE==RECORD
+    type t;
 }symTableElem;
 
-typedef struct Element{
-    bool is_func;
+typedef struct SeqListPars{
+    type t;
+    bool tag;
+    struct SeqListPars *next;
+}SeqListPars;
+
+typedef struct globalTableElem{
+    bool is_record;
     union{
-        hashTable SymbolTable;
+        type t;
+        struct rec{
+            ASTNodeIt *record_ptr;
+            int width;
+        }rec;
+    }u;
+}globalTableElem;
+
+
+typedef struct Element{
+    int flag; 
+//0 for FUN_ID hashtable, 1 for Symbol Table for a function, 3 for global hashtable(containing global variables and record definitions)
+    union{
+        struct symT{
+            SeqListPars *in_pars;
+            SeqListPars *out_pars;
+            HashTable SymbolTable;
+        }symT;
         symTableElem *s;
+        globalTableElem *g;
     }u;
 }Element;
