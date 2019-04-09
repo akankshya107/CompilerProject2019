@@ -13,25 +13,6 @@ Ele* returnEle(ASTNodeIt *n){
     return e;
 }
 
-void printSymbolTable(ASTNodeIt *root);
-void extractTypes(ASTNodeIt* root);
-void checkTypes(ASTNodeIt* root);
-
-void semanticAnalyzer(treeNodeIt *t){
-    ASTNodeIt *ast = makeAbstractSyntaxTree(t);
-    printAST(ast);
-    globalSymbolTable = populateGlobalTable(ast);
-    ASTNodeIt *temp = searchTag(ast, TAG_FUN_LIST);
-    ASTNodeIt *ch = temp->node->u.n->children;
-    while(ch!=NULL){
-        ASTNodeIt* stmts = populateSymbolTable(ch); //Populate Symbol Table for that function along with type extractor
-        semanticRuleCheck(stmts);
-        ch=ch->next;
-    }
-    
-
-}
-
 ASTNodeIt *searchTag(ASTNodeIt *root, TAG tg){
     ASTNodeIt *temp = root;
     Stack *st = newStack();
@@ -53,6 +34,22 @@ ASTNodeIt *searchTag(ASTNodeIt *root, TAG tg){
         temp = temp->next;
     }
     return NULL;
+}
+
+void semanticAnalyzer(treeNodeIt *t){
+    ASTNodeIt *ast = makeAbstractSyntaxTree(t);
+    printAST(ast);
+    globalSymbolTable = populateGlobalTable(ast);
+    ASTNodeIt *temp = searchTag(ast, TAG_FUN_LIST);
+    ASTNodeIt *ch = temp->node->u.n->children;
+    while(ch!=NULL){
+        ASTNodeIt* stmts = populateSymbolTable(ch); //Populate Symbol Table for that function along with type extractor
+        semanticRuleCheck(stmts, ch->node->u.n->leaf_symbol->u.lexeme);
+        ch=ch->next;
+    }
+    temp = searchTag(ast, TAG_MAIN);
+    ASTNodeIt* stmts = populateSymbolTable(temp); //Populate Symbol Table for that function along with type extractor
+    semanticRuleCheck(stmts, temp->node->u.n->leaf_symbol->u.lexeme);
 }
 
 void checkTypes(ASTNodeIt* root){
@@ -120,30 +117,6 @@ void checkTypes(ASTNodeIt* root){
     ch0=ch0->next;
 }
 
-void printSymbolTable(ASTNodeIt *root){
-    ASTNodeIt *temp = searchTag(root, TAG_FUN_LIST);
-    ASTNodeIt *ch = temp->node->u.n->children;
-    printf("Lexeme\tType\tScope\tOffset\n");
-    while(ch!=NULL){
-        printf("%s\n", ch->node->u.n->leaf_symbol->u.lexeme);
-        //print symbol table
-        HashTable st = lookupEle(ch->node->u.n->leaf_symbol->u.lexeme, SymbolTable)->ele->u.SymbolTable;
-        for(int i=0; i<LEN_HT; i++){
-            hash_ele *e = st[i];
-            while(e!=NULL){
-                printf("%s\t%d\t%s\t%d\n", e->str, e->ele->u.s->type, ch->node->u.n->leaf_symbol->u.lexeme, e->ele->u.s->offset);
-                e=e->next;
-            }
-        }
-        ch=ch->next;
-    }
-    temp = searchTag(root, TAG_MAIN);
-    printf("%s\n", TagString(temp->node->u.n->tag_info));
-    for(int i=0; i<LEN_HT; i++){
-        hash_ele *e = globalSymbolTable[i];
-        while(e!=NULL){
-            printf("%s\t%d\t%s\t%d\n", e->str, e->ele->u.s->type, ch->node->u.n->leaf_symbol->u.lexeme, e->ele->u.s->offset);
-            e=e->next;
-        }
-    }
+void semanticRuleCheck(ASTNodeIt *fun_root, char *fun_id){
+    //preorder traversal;
 }

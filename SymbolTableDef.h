@@ -8,7 +8,7 @@
 #include <stdbool.h>
 #include "AST.h"
 #define LEN_HT 41
-typedef bool TYPE;
+typedef bool TYPE; // 0 for int, 1 for real
 
 typedef struct Ele{
   ASTNodeIt *node;
