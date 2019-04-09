@@ -52,8 +52,3 @@ hash_elem* lookup(char *str, hashTable HT){
     return HT[index];
 }
 
-ASTNodeIt* extractTypes(ASTNodeIt* root)
-{
-    temp=root;
-    while()
-}
