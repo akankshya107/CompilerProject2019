@@ -52,7 +52,7 @@ void pre_order_populate(ASTNodeIt* child, char* function_id)
             
                 lex=param->node->u.l->leaf_symbol->u.lexeme; //"a" in int a
                 type=param->node->u.n->children->node->u.l->leaf_symbol->u.lexeme; //"int" in int a
-                populate_sym_tab(lex,type,function_id)
+                populate_symbol_table(lex,type,function_id)
             }
             param=param->next;
         }
@@ -69,7 +69,7 @@ void pre_order_populate(ASTNodeIt* child, char* function_id)
             
                 lex=param->node->u.l->leaf_symbol->u.lexeme; //"a" in int a
                 type=param->node->u.n->children->node->u.l->leaf_symbol->u.lexeme; //"int" in int a
-                populate_sym_tab(lex,type,function_id)
+                populate_sym_tab(lex,type,function_id) //doubt?
             }
             param=param->next;
         }

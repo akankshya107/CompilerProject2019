@@ -3,147 +3,231 @@
 // NARAPAREDDY BHAVANA 2016A7PS0034P
 // KARABEE BATTA 2016A7PS0052P
 // AASTHA KATARIA 2016A7PS0062P
-#include "lexer.h"
-#include "SymbolTable.h"
 
-Ele* returnEle(ASTNodeIt *n){
-    Ele *e = (Ele*)malloc(sizeof(Ele));
-    e->node=n;
-    e->next=NULL;
-    return e;
+#include "SymbolTableDef.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define LEN_HT 41
+int hashEle(char *str){
+	long unsigned int sum = 0;
+	long unsigned int a = 8;
+    int len;
+    if(str!=NULL)
+        len=strlen(str);
+    else 
+        len=0;
+	for (int i=0; i<len; i++){
+		sum=(sum*a+str[i])%LEN_HT;
+	}
+	return sum;
 }
 
-void printSymbolTable(ASTNodeIt *root);
-void extractTypes(ASTNodeIt* root);
-void checkTypes(ASTNodeIt* root);
-void semanticAnalyzer(treeNodeIt *t){
-    ASTNodeIt *ast = makeAbstractSyntaxTree(t);
-    printAST(ast);
-    populateSymbolTable(ast);
-    // extractTypes(ast);
-    // checkTypes(ast);
-    //Single/Double pass AST
-    // printSymbolTable(ast);
+
+hash_ele *create_hashEle(Element *ele, char *str){
+    hash_ele *h = (hash_ele*)malloc(sizeof(hash_ele));
+    h->str = str;
+    h->ele = ele;
+    h->next=NULL;
+    return h;
 }
 
-ASTNodeIt *searchTag(ASTNodeIt *root, TAG tg){
-    ASTNodeIt *temp = root;
-    Stack *st = newStack();
-    while(1){
-        while((temp!=NULL)){        
-            push(st, returnEle(temp));
-            if(temp->node->is_leaf==0 && temp->node->u.n->tag_info==tg){
-                return temp;
-            }
-            else if(temp->node->is_leaf==0){
-                temp = temp->node->u.n->children; 
-            }else{
-                temp = temp->next;
-            }
-            
-        }
-        if(isEmpty(st)) break;
-        temp = pop(st)->node;
-        temp = temp->next;
+HashTable create_HTEle()
+{
+    int i;
+    hash_ele** HT=(hash_ele**) malloc(sizeof(hash_ele*)*LEN_HT);
+    for(i=0;i<LEN_HT;i++)
+    {
+        HT[i]=create_hashEle(NULL,NULL);
     }
-    return NULL;
+    return HT;
 }
 
-void checkTypes(ASTNodeIt* root){
-    //Single pass through AST
-    ASTNodeIt *temp0 = searchTag(root, TAG_FUN_LIST);
-    ASTNodeIt *ch0 = temp0->node->u.n->children;
-    while(ch0!=NULL){
-        ASTNodeIt *temp = ch0;
-        Stack *st = newStack();
-        while(1){
-            while((temp!=NULL)){        
-                push(st, returnEle(temp));
-                if(temp->node->is_leaf==0 && temp->node->u.n->tag_info==TAG_ARITHMETIC_EXPRESSION){
-                    //check LHS and RHS
-                    // checkExpressionType(temp);
-                }
-                if(temp->node->is_leaf==0 && temp->node->u.n->tag_info==TAG_BOOLEAN_EXPRESSION){
-                    //check LHS and RHS
-                    // checkBExpressionType(temp);
-                }
-                if(temp->node->is_leaf==0 && temp->node->u.n->tag_info==TAG_FUN_CALL_STMT){
-                    //Formal and actual parameters being checked
-                    ASTNodeIt *out_args = temp->node->u.n->children->node->u.n->children;
-                    ASTNodeIt *in_args = temp->node->u.n->children->next->node->u.n->children;
-                    ASTNodeIt *f = searchTag(root, TAG_FUN_LIST);
-                    ASTNodeIt *ch = f->node->u.n->children;
-                    int flg =0;
-                    while(ch!=NULL){
-                        if(ch->node->u.n->leaf_symbol->u.lexeme==temp->node->u.n->leaf_symbol->u.lexeme){
-                            //input pars and input args
-                            flg=1;
-                            hashTable st = lookupEle(ch->node->u.n->leaf_symbol->u.lexeme, SymbolTable)->ele->u.SymbolTable;
-                            ASTNodeIt *in_pars = ch->node->u.n->children->node->u.n->children;
-                            while(in_pars!=NULL){
-                                if(lookupEle(in_args->node->u.l->leaf_symbol->u.lexeme, st)->ele->u.s->type =! in_pars->node->u.n->leaf_symbol->u.lexeme){
-                                    // printf("%s argument of type %s does not match with %s parameter of %s type\n");
-                                }
-                                in_pars=in_pars->next;
-                            }
-                            ASTNodeIt *out_pars = ch->node->u.n->children->next->node->u.n->children;
-                            while(out_pars!=NULL){
-                                if(lookupEle(out_args->node->u.l->leaf_symbol->u.lexeme, st)->ele->u.s->type =! out_pars->node->u.n->leaf_symbol->u.lexeme){
-                                    // printf("%s argument of type %s does not match with %s parameter of %s type\n");
-                                }
-                                out_pars=out_pars->next;
-                            }
-                        }
-                        if(flg) break;
-                        ch = ch->next;
-                    }
-                    
-                }
-                else if(temp->node->is_leaf==0){
-                    temp = temp->node->u.n->children; 
-                }else{
-                    temp = temp->next;
-                }
-                
-            }
-            if(isEmpty(st)) break;
-            temp = pop(st)->node;
-            temp = temp->next;
-        }
+Element* create_elem(bool flag)// flag=true if in global table
+                            // flag=false if in func symbol table ie 2ndlevel HT
+{
+    Element* ele=(Element*) malloc(sizeof(Element));
+    if(flag)
+    {
+        ele->is_func=true;
+        ele->u.SymbolTable=create_HTEle();
     }
-    ch0=ch0->next;
+    else
+    {
+        ele->is_func=false;
+        ele->u.s=(symTableElem*) malloc(sizeof(symTableElem));
+    }   
 }
 
-void printSymbolTable(ASTNodeIt *root){
-    ASTNodeIt *temp = searchTag(root, TAG_FUN_LIST);
-    ASTNodeIt *ch = temp->node->u.n->children;
-    printf("Lexeme\tType\tScope\tOffset\n");
-    while(ch!=NULL){
-        printf("%s\n", ch->node->u.n->leaf_symbol->u.lexeme);
-        //print symbol table
-        hashTable st = lookupEle(ch->node->u.n->leaf_symbol->u.lexeme, SymbolTable)->ele->u.SymbolTable;
-        for(int i=0; i<LEN_HT; i++){
-            hash_ele *e = st[i];
-            while(e!=NULL){
-                printf("%s\t%d\t%s\t%d\n", e->str, e->ele->u.s->type, ch->node->u.n->leaf_symbol->u.lexeme, e->ele->u.s->offset);
-                e=e->next;
-            }
-        }
-        ch=ch->next;
+void insertIntoHTEle(hash_ele *elem, HashTable HT){
+    int index = hashEle(elem->str);
+    if(HT[index]->next==NULL){
+        HT[index]->next=elem;
     }
-    temp = searchTag(root, TAG_MAIN);
-    printf("%s\n", TagString(temp->node->u.n->tag_info));
-    for(int i=0; i<LEN_HT; i++){
-        hash_ele *e = globalSymbolTable[i];
-        while(e!=NULL){
-            printf("%s\t%d\t%s\t%d\n", e->str, e->ele->u.s->type, ch->node->u.n->leaf_symbol->u.lexeme, e->ele->u.s->offset);
-            e=e->next;
+    else{
+        hash_ele *ptr = HT[index]->next;
+        while(ptr->next!=NULL){
+            ptr=ptr->next;
         }
+        ptr->next=elem;
     }
-<<<<<<< HEAD
+}
+
+hash_ele* lookupEle(char *str, HashTable HT){
+    int index = hashEle(str);
+    hash_ele *temp =HT[index]->next;
+    while(temp!=NULL){
+        if(strcmp(str, temp->str)==0){
+            // printf("%s\n", str);
+            return temp;
+        }
+        temp=temp->next;
+    }
     return HT[index];
 }
 
-=======
+ASTNodeIt* iterate_inorder(ASTNodeIt* temp)
+{
+    // int flag=0;
+    if(temp==NULL)
+        return temp;
+    if(temp->next!=NULL)
+        temp=temp->next;
+    else
+    {
+        //iterate_next_outside_function_subtree()
+        while(temp!=NULL)
+        {
+            temp=temp->node->parent;
+            if(temp==NULL)//root reached
+            {
+                // flag=1;//declare flag, may reach root node
+                //in this case should also break from outer while(1)
+                // think of how this can be done if iterate is written as a seperate function
+                return temp;
+            }
+            if(temp->next!=NULL)
+            {
+                return temp->next;
+                
+            }               
+        }   
+    }
+    return temp;
 }
->>>>>>> a833aa306281d5659b1e885ca7a59f7d7c4bc499
+
+void* populateSymbolTable(ASTNodeIt* root)
+{
+    globalSymbolTable=create_HTEle();
+    SymbolTable=create_HTEle();
+
+    ASTNodeIt* temp=root;
+    while(1)
+    {
+        int outer_sym_table;
+        if(!temp->node->is_leaf)
+        {
+            if(temp->node->u.n->tag_info==TAG_FUNCTION||temp->node->u.n->tag_info==TAG_MAIN)
+            {
+                outer_sym_table = temp->node->u.n->leaf_symbol->tokenName;
+                Element* func_elem = create_elem(true);
+                hash_ele* hashEle_func_elem=create_hashEle(func_elem,temp->node->u.n->leaf_symbol->u.lexeme);
+                insertIntoHTEle(hashEle_func_elem,SymbolTable);
+                Element* identifier_elem;
+                hash_ele* hashEle_identifier;
+                temp=temp->node->u.n->children;
+                while(1)
+                {
+                    if(temp==NULL)//root reached
+                        break;
+                    if(!temp->node->is_leaf)
+                    {
+                        if(temp->node->u.n->tag_info==TAG_FUNCTION||temp->node->u.n->tag_info==TAG_MAIN)
+                            break;
+                        
+                        if(temp->node->u.n->tag_info==TAG_ID)
+                        {
+                            identifier_elem=create_elem(false);
+                            hashEle_identifier=create_hashEle(identifier_elem,temp->node->u.n->leaf_symbol->u.lexeme);
+                            insertIntoHTEle(hashEle_identifier,func_elem->u.SymbolTable);
+                            identifier_elem->u.s->width=-1;
+                            identifier_elem->u.s->offset=0;
+                            identifier_elem->u.s->is_record=false;
+                            identifier_elem->u.s->type.pri_type=-1;
+                            
+                        }
+                        // else if(temp->node->u.n->tag_info==TAG_TYPEDEF)
+                        // {
+                        //     //global HT se karna hai
+
+                        // }
+                        else if(temp->node->u.n->tag_info==TAG_DECLARE)
+                        {
+                            identifier_elem=create_elem(false);
+                            hashEle_identifier=create_hashEle(identifier_elem,temp->node->u.n->leaf_symbol->u.lexeme);
+                            if(temp->node->u.n->children->next==NULL)
+                                insertIntoHTEle(hashEle_identifier,func_elem->u.SymbolTable);
+                            // else
+                                //insert into global symbol table
+                            identifier_elem->u.s->width=-1;
+                            identifier_elem->u.s->offset=0;
+                            identifier_elem->u.s->is_record=false;
+                            identifier_elem->u.s->type.pri_type=-1;      
+                        }
+                        else
+                        {
+                            
+                            if(temp->node->u.n->children==NULL)
+                            {
+                                // temp=temp->next;
+                                temp=iterate_inorder(temp);//if function reached, move to next function
+                                
+                                //may reach root nnode
+                                //in this case should also break from outer while(1)
+                                // think of how this can be done if iterate is written as a seperate function
+                            }
+                            else
+                            temp=temp->node->u.n->children;
+                            
+                        }
+                    }
+                    // else
+                    {
+                        temp=iterate_inorder(temp);
+                    }
+                    
+                }
+            }
+            
+            else
+            {
+                if(temp->node->u.n->children==NULL)
+                {
+                    // temp=temp->next;
+                    temp=iterate_inorder(temp);//if function reached, move to next function
+                    
+                    //may reach root nnode
+                    //in this case should also break from outer while(1)
+                    // think of how this can be done if iterate is written as a seperate function
+                }
+                else
+                temp=temp->node->u.n->children;
+            } 
+
+            if(temp==NULL)//root reached
+            break;   
+        }
+    
+        else
+        {
+            temp=iterate_inorder(temp);
+        }
+    }        
+}
+
+
+
+
+
+
+
