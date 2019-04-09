@@ -38,7 +38,7 @@ Ele* pop(Stack *s){
 	return ret;
 }
 
-Ele* returnEle(bool is_term, int t){
+Ele* returnParseEle(bool is_term, int t){
   Ele *e = (Ele*)malloc(sizeof(Ele));
   e->el = (gram_elem*)malloc(sizeof(gram_elem));
   e->el->is_term=is_term;
@@ -70,10 +70,10 @@ void pushAll(Stack *s, int rule_no){
 	}
 	while(g!=NULL){
 		if(g->is_term){
-			push(s, returnEle(1, g->elem.terminal));
+			push(s, returnParseEle(1, g->elem.terminal));
 		}
 		else{
-			push(s, returnEle(0, g->elem.nonterminal));
+			push(s, returnParseEle(0, g->elem.nonterminal));
 		}
 		g=g->prev;
 	}

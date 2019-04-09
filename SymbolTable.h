@@ -9,12 +9,15 @@
 
 //hashtable functions
 int hashEle(char *str);
-void insertIntoHTEle(hash_ele *elem, hashTable HT);
+void insertIntoHTEle(hash_ele *elem, HashTable HT);
 hash_ele *create_hashEle(Element *ele, char* str);
-hash_ele* lookupEle(char *str, hashTable HT);
+hash_ele* lookupEle(char *str, HashTable HT);
+hash_ele *create_hashEle(Element *ele, char *str);
+Element* create_elem(bool flag);
+ASTNodeIt* iterate_inorder(ASTNodeIt* temp);
+// void* populateSymbolTable(ASTNodeIt* root);
 
 //semantic analyzer functions
 void populateSymbolTable(ASTNodeIt* root);
 void extractTypes(ASTNodeIt* root);
-ASTNodeIt* checkTypes(ASTNodeIt* root);
-ASTNodeIt* semanticAnalyzer(treeNodeIt *root);
+

@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "semanticdef.h": "c"
+        "semanticdef.h": "c",
+        "ast.h": "c"
     }
 }

@@ -13,4 +13,4 @@ void pushAll(Stack *s, int rule_no);
 int size(Stack *s);
 bool isEmpty(Stack *s);
 Stack* newStack();
-Ele* returnEle(bool is_term, int t);
+Ele* returnParseEle(bool is_term, int t);

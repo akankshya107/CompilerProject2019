@@ -116,8 +116,8 @@ treeNodeIt* parseInputSourceCode(char *testcaseFile){
 	FILE *fp = fopen(testcaseFile, "r");
 	fseek(fp, 0, SEEK_SET);
 	Stack *stack = newStack();
-	push(stack, returnEle(1, EOS));
-	push(stack, returnEle(0, program));
+	push(stack, returnParseEle(1, EOS));
+	push(stack, returnParseEle(0, program));
 	tokenInfo *ti = getNextToken(fp);
 
 	treeNodeIt *root = returnIt(returnNonLeafNode(returnTreeNode(0, ti->line_no), program, 0, NULL));
