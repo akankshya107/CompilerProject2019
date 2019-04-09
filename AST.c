@@ -119,7 +119,7 @@ ASTNodeIt* semanticRuleExecute(treeNodeIt *t, int rule_no){
         //mainFunction.node=newNonLeafNode(TAG_MAIN, NULL, stmts.node) 
         case 1:{
             treeNodeIt *temp = t->t->treeNode_type.n->children;
-            ASTNodeIt* n = newNonLeafNode(TAG_MAIN, NULL, temp->next->node, NULL, NULL);
+            ASTNodeIt* n = newNonLeafNode(TAG_MAIN, temp->t->treeNode_type.l->leaf_symbol, temp->next->node, NULL, NULL);
             freeChildren(temp);
             return n;
         }

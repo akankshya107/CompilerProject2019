@@ -12,7 +12,12 @@
 int hashEle(char *str){
 	long unsigned int sum = 0;
 	long unsigned int a = 8;
-	for (int i=0; i<strlen(str); i++){
+    int len;
+    if(str!=NULL)
+        len=strlen(str);
+    else 
+        len=0;
+	for (int i=0; i<len; i++){
 		sum=(sum*a+str[i])%LEN_HT;
 	}
 	return sum;
@@ -27,7 +32,7 @@ hash_ele *create_hashEle(Element *ele, char *str){
     return h;
 }
 
-hashTable create_HTEle()
+HashTable create_HTEle()
 {
     int i;
     hash_ele** HT=(hash_ele**) malloc(sizeof(hash_ele*)*LEN_HT);
@@ -54,7 +59,7 @@ Element* create_elem(bool flag)// flag=true if in global table
     }   
 }
 
-void insertIntoHTEle(hash_ele *elem, hashTable HT){
+void insertIntoHTEle(hash_ele *elem, HashTable HT){
     int index = hashEle(elem->str);
     if(HT[index]->next==NULL){
         HT[index]->next=elem;
@@ -68,7 +73,7 @@ void insertIntoHTEle(hash_ele *elem, hashTable HT){
     }
 }
 
-hash_ele* lookupEle(char *str, hashTable HT){
+hash_ele* lookupEle(char *str, HashTable HT){
     int index = hashEle(str);
     hash_ele *temp =HT[index]->next;
     while(temp!=NULL){

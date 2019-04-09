@@ -27,12 +27,18 @@ typedef struct hT{
 typedef hash_ele **HashTable;
 HashTable globalSymbolTable;
 HashTable SymbolTable;
-
+typedef struct symTableElem symTableElem;
 typedef struct symTableElem{
-    TYPE type;
+    // TYPE type;
+    bool is_record;
     int width;
     int offset;
-    struct symTableElem *typeList; //Only exists for TYPE==RECORD
+    symTableElem *typeList; //Only exists for TYPE==RECORD
+    union{
+        TYPE pri_type;
+        TYPE constr_type;
+    }type;
+    // symTableElem *typeList; //Only exists for TYPE==RECORD
 }symTableElem;
 
 typedef struct Element{

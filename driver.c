@@ -17,8 +17,8 @@ extern parse_table T;
 int main(int argc, char *argv[]){
 	// int option;
 	// printf("(a) FIRST and FOLLOW set automated: YES\n(c) Both lexical and syntax analysis modules implemented: YES\n(f) Parse tree constructed: YES\n");
-	// populate_transition_table();
-	// populateKeyWordTable();
+	populate_transition_table();
+	populateKeyWordTable();
 	// while(1){
 	// 	scanf("%d", &option);
 	// 	if(option==0){
@@ -105,10 +105,11 @@ int main(int argc, char *argv[]){
 	populateStrTable();
 	ComputeFirstAndFollowSets();
 	createParseTable();
-	treeNodeIt* t = parseInputSourceCode("test.txt");
+	treeNodeIt* t = parseInputSourceCode("testcase1.txt");
 	// printParseTree(t, argv[2]);
 	ASTNodeIt *plgiveerror = makeAbstractSyntaxTree(t);
 	// printAST(plgiveerror);
 	populateSymbolTable(plgiveerror);
+	printSymbolTable(plgiveerror);
 	return 0;
 }
