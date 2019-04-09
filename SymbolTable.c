@@ -89,6 +89,8 @@ hash_ele* lookupEle(char *str, HashTable HT){
 ASTNodeIt* iterate_inorder(ASTNodeIt* temp)
 {
     // int flag=0;
+    if(temp==NULL)
+        return temp;
     if(temp->next!=NULL)
         temp=temp->next;
     else
@@ -189,7 +191,7 @@ void* populateSymbolTable(ASTNodeIt* root)
                             
                         }
                     }
-                    else
+                    // else
                     {
                         temp=iterate_inorder(temp);
                     }

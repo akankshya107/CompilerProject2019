@@ -124,7 +124,7 @@ void printSymbolTable(ASTNodeIt *root){
         HashTable st = lookupEle(ch->node->u.n->leaf_symbol->u.lexeme, SymbolTable)->ele->u.SymbolTable;
         for(int i=0; i<LEN_HT; i++){
             hash_ele *e = st[i];
-            while(e!=NULL){
+            while(e!=NULL&&e->ele!=NULL){
                 printf("%s\t%d\t%s\t%d\n", e->str, e->ele->u.s->type.pri_type, ch->node->u.n->leaf_symbol->u.lexeme, e->ele->u.s->offset);
                 e=e->next;
             }
