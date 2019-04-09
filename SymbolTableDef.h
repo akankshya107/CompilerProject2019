@@ -3,23 +3,36 @@
 // NARAPAREDDY BHAVANA 2016A7PS0034P
 // KARABEE BATTA 2016A7PS0052P
 // AASTHA KATARIA 2016A7PS0062P
+#include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
+#include "AST.h"
+#define LEN_HT 41
 typedef enum{ INT, REAL, RECORD }TYPE;
 
+typedef struct Ele{
+  ASTNodeIt *node;
+  struct Ele *next;
+}Ele;
+#define ELEM
+#include "stack.h"
+
 typedef struct Element Element;
-typedef struct h{
+typedef struct hT{
     char *str;
     Element *ele;
-    struct h *next;
-} hash_elem;
+    struct hT *next;
+}hash_ele;
 
-typedef hash_elem **hashTable;
+typedef hash_ele **hashTable;
+hashTable globalSymbolTable;
+hashTable SymbolTable;
 
 typedef struct symTableElem{
     TYPE type;
     int width;
     int offset;
-    symTableElem *typeList; //Only exists for TYPE==RECORD
+    struct symTableElem *typeList; //Only exists for TYPE==RECORD
 }symTableElem;
 
 typedef struct Element{
@@ -29,4 +42,3 @@ typedef struct Element{
         symTableElem *s;
     }u;
 }Element;
-

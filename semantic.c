@@ -3,52 +3,147 @@
 // NARAPAREDDY BHAVANA 2016A7PS0034P
 // KARABEE BATTA 2016A7PS0052P
 // AASTHA KATARIA 2016A7PS0062P
+#include "lexer.h"
+#include "SymbolTable.h"
 
-#include "semanticDef.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-int hash(char *str){
-	long unsigned int sum = 0;
-	long unsigned int a = 8;
-	for (int i=0; i<strlen(str); i++){
-		sum=(sum*a+str[i])%41;
-	}
-	return sum;
+Ele* returnEle(ASTNodeIt *n){
+    Ele *e = (Ele*)malloc(sizeof(Ele));
+    e->node=n;
+    e->next=NULL;
+    return e;
 }
 
-hash_elem *create_hash_elem(Element *ele, char *str){
-    hash_elem *h = (hash_elem*)malloc(sizeof(hash_elem));
-    h->str = str;
-    h->ele = ele;
-    h->next=NULL;
-    return h;
+void printSymbolTable(ASTNodeIt *root);
+void extractTypes(ASTNodeIt* root);
+void checkTypes(ASTNodeIt* root);
+void semanticAnalyzer(treeNodeIt *t){
+    ASTNodeIt *ast = makeAbstractSyntaxTree(t);
+    printAST(ast);
+    populateSymbolTable(ast);
+    // extractTypes(ast);
+    // checkTypes(ast);
+    //Single/Double pass AST
+    // printSymbolTable(ast);
 }
 
-void insertIntoHT(hash_elem *elem, hashTable HT){
-    int index = hash(elem->str);
-    if(HT[index]->next==NULL){
-        HT[index]->next=elem;
-    }
-    else{
-        hash_elem *ptr = HT[index]->next;
-        while(ptr->next!=NULL){
-            ptr=ptr->next;
+ASTNodeIt *searchTag(ASTNodeIt *root, TAG tg){
+    ASTNodeIt *temp = root;
+    Stack *st = newStack();
+    while(1){
+        while((temp!=NULL)){        
+            push(st, returnEle(temp));
+            if(temp->node->is_leaf==0 && temp->node->u.n->tag_info==tg){
+                return temp;
+            }
+            else if(temp->node->is_leaf==0){
+                temp = temp->node->u.n->children; 
+            }else{
+                temp = temp->next;
+            }
+            
         }
-        ptr->next=elem;
+        if(isEmpty(st)) break;
+        temp = pop(st)->node;
+        temp = temp->next;
     }
+    return NULL;
 }
 
-hash_elem* lookup(char *str, hashTable HT){
-    int index = hash(str);
-    hash_elem *temp =HT[index]->next;
-    while(temp!=NULL){
-        if(strcmp(str, temp->str)==0){
-            // printf("%s\n", str);
-            return temp;
+void checkTypes(ASTNodeIt* root){
+    //Single pass through AST
+    ASTNodeIt *temp0 = searchTag(root, TAG_FUN_LIST);
+    ASTNodeIt *ch0 = temp0->node->u.n->children;
+    while(ch0!=NULL){
+        ASTNodeIt *temp = ch0;
+        Stack *st = newStack();
+        while(1){
+            while((temp!=NULL)){        
+                push(st, returnEle(temp));
+                if(temp->node->is_leaf==0 && temp->node->u.n->tag_info==TAG_ARITHMETIC_EXPRESSION){
+                    //check LHS and RHS
+                    // checkExpressionType(temp);
+                }
+                if(temp->node->is_leaf==0 && temp->node->u.n->tag_info==TAG_BOOLEAN_EXPRESSION){
+                    //check LHS and RHS
+                    // checkBExpressionType(temp);
+                }
+                if(temp->node->is_leaf==0 && temp->node->u.n->tag_info==TAG_FUN_CALL_STMT){
+                    //Formal and actual parameters being checked
+                    ASTNodeIt *out_args = temp->node->u.n->children->node->u.n->children;
+                    ASTNodeIt *in_args = temp->node->u.n->children->next->node->u.n->children;
+                    ASTNodeIt *f = searchTag(root, TAG_FUN_LIST);
+                    ASTNodeIt *ch = f->node->u.n->children;
+                    int flg =0;
+                    while(ch!=NULL){
+                        if(ch->node->u.n->leaf_symbol->u.lexeme==temp->node->u.n->leaf_symbol->u.lexeme){
+                            //input pars and input args
+                            flg=1;
+                            hashTable st = lookupEle(ch->node->u.n->leaf_symbol->u.lexeme, SymbolTable)->ele->u.SymbolTable;
+                            ASTNodeIt *in_pars = ch->node->u.n->children->node->u.n->children;
+                            while(in_pars!=NULL){
+                                if(lookupEle(in_args->node->u.l->leaf_symbol->u.lexeme, st)->ele->u.s->type =! in_pars->node->u.n->leaf_symbol->u.lexeme){
+                                    // printf("%s argument of type %s does not match with %s parameter of %s type\n");
+                                }
+                                in_pars=in_pars->next;
+                            }
+                            ASTNodeIt *out_pars = ch->node->u.n->children->next->node->u.n->children;
+                            while(out_pars!=NULL){
+                                if(lookupEle(out_args->node->u.l->leaf_symbol->u.lexeme, st)->ele->u.s->type =! out_pars->node->u.n->leaf_symbol->u.lexeme){
+                                    // printf("%s argument of type %s does not match with %s parameter of %s type\n");
+                                }
+                                out_pars=out_pars->next;
+                            }
+                        }
+                        if(flg) break;
+                        ch = ch->next;
+                    }
+                    
+                }
+                else if(temp->node->is_leaf==0){
+                    temp = temp->node->u.n->children; 
+                }else{
+                    temp = temp->next;
+                }
+                
+            }
+            if(isEmpty(st)) break;
+            temp = pop(st)->node;
+            temp = temp->next;
         }
-        temp=temp->next;
     }
+    ch0=ch0->next;
+}
+
+void printSymbolTable(ASTNodeIt *root){
+    ASTNodeIt *temp = searchTag(root, TAG_FUN_LIST);
+    ASTNodeIt *ch = temp->node->u.n->children;
+    printf("Lexeme\tType\tScope\tOffset\n");
+    while(ch!=NULL){
+        printf("%s\n", ch->node->u.n->leaf_symbol->u.lexeme);
+        //print symbol table
+        hashTable st = lookupEle(ch->node->u.n->leaf_symbol->u.lexeme, SymbolTable)->ele->u.SymbolTable;
+        for(int i=0; i<LEN_HT; i++){
+            hash_ele *e = st[i];
+            while(e!=NULL){
+                printf("%s\t%d\t%s\t%d\n", e->str, e->ele->u.s->type, ch->node->u.n->leaf_symbol->u.lexeme, e->ele->u.s->offset);
+                e=e->next;
+            }
+        }
+        ch=ch->next;
+    }
+    temp = searchTag(root, TAG_MAIN);
+    printf("%s\n", TagString(temp->node->u.n->tag_info));
+    for(int i=0; i<LEN_HT; i++){
+        hash_ele *e = globalSymbolTable[i];
+        while(e!=NULL){
+            printf("%s\t%d\t%s\t%d\n", e->str, e->ele->u.s->type, ch->node->u.n->leaf_symbol->u.lexeme, e->ele->u.s->offset);
+            e=e->next;
+        }
+    }
+<<<<<<< HEAD
     return HT[index];
 }
 
+=======
+}
+>>>>>>> a833aa306281d5659b1e885ca7a59f7d7c4bc499

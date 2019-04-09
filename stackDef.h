@@ -6,6 +6,7 @@
 #ifndef PARSE_INCLUDED
 #include "parserDef.h"
 #endif
+
 typedef struct{
 	bool is_term;
 	union{
@@ -14,10 +15,12 @@ typedef struct{
 	}elem;
 }gram_elem;
 
+#ifndef ELEM
 typedef struct Ele{
   gram_elem *el;
   struct Ele *next;
 }Ele;
+#endif
 
 typedef struct{
 	int size;
