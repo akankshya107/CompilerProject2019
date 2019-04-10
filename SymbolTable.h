@@ -13,7 +13,7 @@ void insertIntoHTEle(hash_ele *elem, HashTable HT);
 hash_ele *create_hashEle(Element *ele, char* str);
 hash_ele* lookupEle(char *str, HashTable HT);
 hash_ele *create_hashEle(Element *ele, char *str);
-Element* create_elem(bool flag);
+Element* create_elem(int flag);
 ASTNodeIt* iterate_inorder(ASTNodeIt* temp);
 // void* populateSymbolTable(ASTNodeIt* root);
 

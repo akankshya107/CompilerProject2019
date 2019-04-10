@@ -43,20 +43,26 @@ HashTable create_HTEle()
     return HT;
 }
 
-Element* create_elem(bool flag)// flag=true if in global table
+Element* create_elem(int flag)// flag=true if in global table
                             // flag=false if in func symbol table ie 2ndlevel HT
 {
     Element* ele=(Element*) malloc(sizeof(Element));
-    if(flag)
+    ele->flag=flag;
+    if(flag==0)
     {
-        ele->is_func=true;
-        ele->u.SymbolTable=create_HTEle();
+        ele->u.symT.in_pars=NULL;
+        ele->u.symT.out_pars=NULL;
+        ele->u.symT.SymbolTable=create_HTEle();
+        // ele->u.SymbolTable=create_HTEle();
     }
-    else
+    else if(flag==1)
     {
-        ele->is_func=false;
         ele->u.s=(symTableElem*) malloc(sizeof(symTableElem));
-    }   
+    }  
+    else if(flag==2)
+    {
+        ele->u.g=(globalTableElem*) malloc(sizeof(globalTableElem));
+    } 
 }
 
 void insertIntoHTEle(hash_ele *elem, HashTable HT){
@@ -116,6 +122,31 @@ ASTNodeIt* iterate_inorder(ASTNodeIt* temp)
     return temp;
 }
 
+int get_width(type* t)
+{
+    if(!t->u.pri_type)//true if real
+    {
+        identifier_elem->u.s->width=2;
+        identifier_elem->u.s->offset=curr_offset+2;
+        identifier_elem->u.s->is_record=false;
+        identifier_elem->u.s->t.pri_type=false;
+    }
+    else if(type==TK_REAL)
+    {
+        identifier_elem->u.s->width=4;
+        identifier_elem->u.s->offset=curr_offset+4;  
+        identifier_elem->u.s->is_record=false; 
+        identifier_elem->u.s->t.pri_type=true;
+    }
+    else if(type==TK_RECORDID)
+    {
+        identifier_elem->u.s->width=glo->u.rec.width; //glbl
+        identifier_elem->u.s->offset=curr_offset+globalTableElem->u.rec.width; //glbl
+        identifier_elem->u.s->is_record=true;
+        identifier_elem->u.s->t.rec_id=temp->node->u.l->leaf_symbol->u.lexeme;;
+    }
+}
+
 void* populateSymbolTable(ASTNodeIt* root)
 {
     globalSymbolTable=create_HTEle();
@@ -125,7 +156,7 @@ void* populateSymbolTable(ASTNodeIt* root)
     ASTNodeIt* temp=root;
     while(1)
     {
-        int outer_sym_table;
+        // int outer_sym_table;
         if(!temp->node->is_leaf)
         {
             if(temp->node->u.n->tag_info==TAG_FUNCTION||temp->node->u.n->tag_info==TAG_MAIN)
@@ -149,9 +180,9 @@ void* populateSymbolTable(ASTNodeIt* root)
                         
                         if(temp->node->u.n->tag_info==TAG_ID)
                         {
-                            identifier_elem=create_elem(false);
+                            identifier_elem=create_elem(1);
                             hashEle_identifier=create_hashEle(identifier_elem,temp->node->u.n->leaf_symbol->u.lexeme);
-                            insertIntoHTEle(hashEle_identifier,func_elem->u.SymbolTable);
+                            insertIntoHTEle(hashEle_identifier,func_elem->u.symT.SymbolTable);
                             identifier_elem->u.s->width=-1;
                             identifier_elem->u.s->offset=0;
                             identifier_elem->u.s->is_record=false;
