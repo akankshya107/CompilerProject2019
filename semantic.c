@@ -120,17 +120,57 @@ void printSymbolTable(ASTNodeIt *root){
     printf("Lexeme\tType\tScope\tOffset\n");
     while(ch!=NULL){
         printf("%s\n", ch->node->u.n->leaf_symbol->u.lexeme);
-        //print symbol table
-        HashTable st = lookupEle(ch->node->u.n->leaf_symbol->u.lexeme, SymbolTable)->ele->u.SymbolTable;
-        for(int i=0; i<LEN_HT; i++){
-            hash_ele *e = st[i];
-            while(e!=NULL&&e->ele!=NULL){
-                printf("%s\t%d\t%s\t%d\n", e->str, e->ele->u.s->type.pri_type, ch->node->u.n->leaf_symbol->u.lexeme, e->ele->u.s->offset);
+        HashTable st=lookupEle(ch->node->u.n->leaf_symbol->u.lexeme,SymbolTable)->ele->u.SymbolTable;
+        for(int i=0;i<LEN_HT;i++)
+        {
+            hash_ele* e= st[i]->next;
+            while(e!=NULL)
+            {
+                printf("%s\t%d\t%s\t%d\n",e->str,e->ele->u.s->type.pri_type,ch->node->u.n->leaf_symbol->u.lexeme,e->ele->u.s->offset);
                 e=e->next;
             }
+
+            
         }
         ch=ch->next;
+    
     }
+
+    temp = root->node->u.n->children->next;
+    printf("%s\n", temp->node->u.n->leaf_symbol->u.lexeme);
+    HashTable st=lookupEle(temp->node->u.n->leaf_symbol->u.lexeme,SymbolTable)->ele->u.SymbolTable;
+    for(int i=0;i<LEN_HT;i++)
+        {
+            hash_ele* e= st[i]->next;
+            while(e!=NULL)
+            {
+                printf("%s\t%d\t%s\t%d\n",e->str,e->ele->u.s->type.pri_type,temp->node->u.n->leaf_symbol->u.lexeme,e->ele->u.s->offset);
+                e=e->next;
+            }
+
+            
+        }
+    // for(int i=0; i<LEN_HT; i++){
+    //     hash_ele *e = globalSymbolTable[i];
+    //     while(e!=NULL){
+    //         printf("%s\t%d\t%s\t%d\n", e->str, e->ele->u.s->type.pri_type, ch->node->u.n->leaf_symbol->u.lexeme, e->ele->u.s->offset);
+    //         e=e->next;
+    //     }
+    // }
+    
+    // while(ch!=NULL){
+    //     printf("%s\n", ch->node->u.n->leaf_symbol->u.lexeme);
+    //     //print symbol table
+    //     HashTable st = lookupEle(ch->node->u.n->leaf_symbol->u.lexeme, SymbolTable)->ele->u.SymbolTable;
+    //     for(int i=0; i<LEN_HT; i++){
+    //         hash_ele *e = st[i];
+    //         while(e!=NULL&&e->ele!=NULL){
+    //             printf("%s\t%d\t%s\t%d\n", e->str, e->ele->u.s->type.pri_type, ch->node->u.n->leaf_symbol->u.lexeme, e->ele->u.s->offset);
+    //             e=e->next;
+    //         }
+    //     }
+    //     ch=ch->next;
+    // }
     // temp = searchTag(root, TAG_MAIN);
     // printf("%s\n", TagString(temp->node->u.n->tag_info));
     // for(int i=0; i<LEN_HT; i++){

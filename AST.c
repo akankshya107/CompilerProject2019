@@ -75,7 +75,7 @@ ASTNodeIt* newLeafNode(tokenInfo *ti){
 }
 
 void freeChildren(treeNodeIt *temp){
-    static int arr[23]= {TK_FUNID, TK_ID, TK_INT, TK_REAL, TK_RECORDID, TK_FIELDID, TK_GLOBAL, TK_ASSIGNOP, TK_NUM, TK_RNUM, TK_MUL, TK_DIV, TK_MINUS, TK_PLUS, TK_NOT, TK_AND, TK_OR, TK_LT, TK_LE, TK_GT, TK_GE,  TK_EQ,  TK_NE};
+    static int arr[24]= {TK_FUNID, TK_ID, TK_INT, TK_REAL, TK_RECORDID, TK_FIELDID, TK_GLOBAL, TK_ASSIGNOP, TK_NUM, TK_RNUM, TK_MUL, TK_DIV, TK_MINUS, TK_PLUS, TK_NOT, TK_AND, TK_OR, TK_LT, TK_LE, TK_GT, TK_GE,  TK_EQ,  TK_NE,TK_MAIN};
     treeNodeIt *freetemp;
     while(temp!=NULL){
         int flag=0;
@@ -119,6 +119,7 @@ ASTNodeIt* semanticRuleExecute(treeNodeIt *t, int rule_no){
         //mainFunction.node=newNonLeafNode(TAG_MAIN, NULL, stmts.node) 
         case 1:{
             treeNodeIt *temp = t->t->treeNode_type.n->children;
+            printf("%s\n",temp->t->treeNode_type.l->leaf_symbol->u.lexeme);
             ASTNodeIt* n = newNonLeafNode(TAG_MAIN, temp->t->treeNode_type.l->leaf_symbol, temp->next->node, NULL, NULL);
             freeChildren(temp);
             return n;

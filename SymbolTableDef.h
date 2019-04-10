@@ -26,6 +26,7 @@ typedef struct hT{
 
 typedef hash_ele **HashTable;
 HashTable globalSymbolTable;
+
 HashTable SymbolTable;
 typedef struct symTableElem symTableElem;
 typedef struct symTableElem{

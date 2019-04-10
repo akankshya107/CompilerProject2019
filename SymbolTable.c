@@ -119,6 +119,7 @@ ASTNodeIt* iterate_inorder(ASTNodeIt* temp)
 void* populateSymbolTable(ASTNodeIt* root)
 {
     globalSymbolTable=create_HTEle();
+
     SymbolTable=create_HTEle();
 
     ASTNodeIt* temp=root;
@@ -129,10 +130,11 @@ void* populateSymbolTable(ASTNodeIt* root)
         {
             if(temp->node->u.n->tag_info==TAG_FUNCTION||temp->node->u.n->tag_info==TAG_MAIN)
             {
-                outer_sym_table = temp->node->u.n->leaf_symbol->tokenName;
+                // outer_sym_table = temp->node->u.n->leaf_symbol->tokenName;
                 Element* func_elem = create_elem(true);
                 hash_ele* hashEle_func_elem=create_hashEle(func_elem,temp->node->u.n->leaf_symbol->u.lexeme);
                 insertIntoHTEle(hashEle_func_elem,SymbolTable);
+
                 Element* identifier_elem;
                 hash_ele* hashEle_identifier;
                 temp=temp->node->u.n->children;
@@ -174,24 +176,16 @@ void* populateSymbolTable(ASTNodeIt* root)
                             identifier_elem->u.s->is_record=false;
                             identifier_elem->u.s->type.pri_type=-1;      
                         }
-                        else
+
+                        if(temp->node->u.n->children==NULL)
                         {
-                            
-                            if(temp->node->u.n->children==NULL)
-                            {
-                                // temp=temp->next;
-                                temp=iterate_inorder(temp);//if function reached, move to next function
-                                
-                                //may reach root nnode
-                                //in this case should also break from outer while(1)
-                                // think of how this can be done if iterate is written as a seperate function
-                            }
-                            else
-                            temp=temp->node->u.n->children;
-                            
+                            // temp=temp->next;
+                            temp=iterate_inorder(temp);//if function reached, move to next function
                         }
+                        else
+                        temp=temp->node->u.n->children;
                     }
-                    // else
+                    else
                     {
                         temp=iterate_inorder(temp);
                     }
