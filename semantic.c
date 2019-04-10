@@ -40,14 +40,14 @@ void semanticAnalyzer(treeNodeIt *t){
     ASTNodeIt *ast = makeAbstractSyntaxTree(t);
     printAST(ast);
     globalSymbolTable = populateGlobalTable(ast);
-    ASTNodeIt *temp = searchTag(ast, TAG_FUN_LIST);
+    ASTNodeIt *temp = ast->node->u.n->children;
     ASTNodeIt *ch = temp->node->u.n->children;
     while(ch!=NULL){
         ASTNodeIt* stmts = populateSymbolTable(ch); //Populate Symbol Table for that function along with type extractor
         semanticRuleCheck(stmts, ch->node->u.n->leaf_symbol->u.lexeme);
         ch=ch->next;
     }
-    temp = searchTag(ast, TAG_MAIN);
+    temp = ast->node->u.n->children->next;
     ASTNodeIt* stmts = populateSymbolTable(temp); //Populate Symbol Table for that function along with type extractor
     semanticRuleCheck(stmts, temp->node->u.n->leaf_symbol->u.lexeme);
 }
@@ -123,23 +123,33 @@ void semanticRuleCheck(ASTNodeIt *chk, char *fun_id){
     ASTNodeIt *temp = chk;
     Stack *st = newStack();
 
+    //Inner symbol table(storing for function variables)
+    HashTable funcSymbolTable = lookupEle(fun_id, SymbolTable)->ele->u.symT.SymbolTable;
+
     //Check for: The parameters being returned by a function must be assigned a value. If a parameter does not get a value assigned within the function definition, it should be reported as an error.
-    bool ret_error=0;
-    ASTNodeIt *ret = chk->next->node->u.n->children;
+    bool ret_no_error=0, ret_type_error=0, ret_declare_error=0;
+    type ret_t;
+    ASTNodeIt *ret = chk->next->node->u.n->children; //Return statement id list access
     SeqListPars *op = lookupEle(fun_id, SymbolTable)->ele->u.symT.out_pars;
     while(ret!=NULL && op!=NULL){
         op->out.tag=0;
         op->out.ret_par=ret->node->u.l->leaf_symbol->u.lexeme;
+        if(lookupEle(ret->node->u.l->leaf_symbol->u.lexeme, globalSymbolTable)->ele!=NULL){
+            ret_t = lookupEle(ret->node->u.l->leaf_symbol->u.lexeme, globalSymbolTable)->ele->u.g->u.t;
+        }else if(lookupEle(ret->node->u.l->leaf_symbol->u.lexeme, funcSymbolTable)->ele!=NULL){
+            ret_t = lookupEle(ret->node->u.l->leaf_symbol->u.lexeme, funcSymbolTable)->ele->u.s->t;
+        }else{
+            ret_declare_error=1;
+        }
+        if(op->t!=ret->node->u.l->leaf_symbol->u.lexeme)
         op = op->next;
         ret = ret->next;
     }
-    if(ret!=NULL) ret_error=1;
-    if(op!=NULL) ret_error=1;
-    
-    HashTable funcSymbolTable = lookupEle(fun_id, SymbolTable)->ele->u.symT.SymbolTable;
+    if(ret!=NULL) ret_no_error=1;
+    if(op!=NULL) ret_no_error=1;
 
     while(1){
-        while((temp!=NULL)){        
+        while(temp!=NULL){        
             push(st, returnEle(temp));
             if(temp->node->is_leaf==0){
                 //Non-leaf node: contains some TAG and is associated with some semantic check
@@ -185,5 +195,19 @@ void semanticRuleCheck(ASTNodeIt *chk, char *fun_id){
         if(isEmpty(st)) break;
         temp = pop(st)->node;
         temp = temp->next;
+    }
+
+    if(ret_error){
+        printf("Line %d: The number of parameters in return statement of function %s is incorrect", chk->next->node->u.n->children->node->u.l->leaf_symbol->line_no, fun_id);
+    }
+    if(ret_type_error){
+
+    }
+    op = lookupEle(fun_id, SymbolTable)->ele->u.symT.out_pars;
+    while(op!=NULL){
+        if(op->out.tag==0){
+            printf("Line %d: Parameters in return statement of function must have a value assigned to them", chk->next->node->u.n->children->node->u.l->leaf_symbol->line_no);
+            break;
+        }
     }
 }
