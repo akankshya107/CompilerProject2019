@@ -128,14 +128,16 @@ void semanticRuleCheck(ASTNodeIt *chk, char *fun_id){
     ASTNodeIt *ret = chk->next->node->u.n->children;
     SeqListPars *op = lookupEle(fun_id, SymbolTable)->ele->u.symT.out_pars;
     while(ret!=NULL && op!=NULL){
-        op->u.out.tag=0;
-        op->u.out.ret_par=ret->node->u.l->leaf_symbol->u.lexeme;
+        op->out.tag=0;
+        op->out.ret_par=ret->node->u.l->leaf_symbol->u.lexeme;
         op = op->next;
         ret = ret->next;
     }
     if(ret!=NULL) ret_error=1;
     if(op!=NULL) ret_error=1;
     
+    HashTable funcSymbolTable = lookupEle(fun_id, SymbolTable)->ele->u.symT.SymbolTable;
+
     while(1){
         while((temp!=NULL)){        
             push(st, returnEle(temp));
@@ -144,9 +146,26 @@ void semanticRuleCheck(ASTNodeIt *chk, char *fun_id){
 
                 //The right hand side expression of an assignment statement must be of the same type as that of the left hand side identifier.
                 if(temp->node->u.n->tag_info==TAG_ASSIGNMENT_STMT){
+
                     type lhs_type;
-                    if(temp->node->u.n->children->next==NULL){
-                        
+                    bool check_val = temp->node->u.n->children->next->node->is_leaf;
+                    if(!check_val){
+                        hash_ele *g = lookupEle(temp->node->u.n->children->node->u.l->leaf_symbol->u.lexeme, globalSymbolTable);
+                        hash_ele *s = lookupEle(temp->node->u.n->children->node->u.l->leaf_symbol->u.lexeme, funcSymbolTable);
+                        if(g->ele!=NULL){
+                            if(g->ele->u.g->is_record){
+                                lhs_type.is_record=1;
+                                lhs_type.u.rec_id=g->ele->u.g->u.rec.rec_id;
+                            }else{
+                                lhs_type.is_record=0;
+                                lhs_type = g->ele->u.g->u.t;
+                            }
+                        }
+                        else if(s->ele!=NULL){
+                            lhs_type=s->ele->u.s->t;
+                        }
+                    }else{
+
                     }
                 }
                 if(temp->node->u.n->tag_info==TAG_ITERATIVE_STMT){

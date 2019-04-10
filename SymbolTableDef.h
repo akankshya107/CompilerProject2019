@@ -28,34 +28,36 @@ typedef hash_ele **HashTable;
 HashTable globalSymbolTable;
 HashTable SymbolTable;
 
-typedef union{
-    TYPE pri_type;
-    char* rec_id;
+typedef struct{
+    int is_record;
+    union{
+        TYPE pri_type;
+        char* rec_id;
+    }u;
 }type;
 
 typedef struct symTableElem{
-    bool is_record;
+    type t;
     int width;
     int offset;
-    type t;
 }symTableElem;
 
 typedef struct SeqListPars{
-    union{
-        type t;
-        struct{
-            bool tag;
-            char *ret_par;
-        }out;
-    }u;
+    bool in_flg;
+    type t;
+    struct{
+        bool tag;
+        char *ret_par;
+    }out; //Should be made NULL for in_pars
     struct SeqListPars *next;
 }SeqListPars;
 
 typedef struct globalTableElem{
     bool is_record;
     union{
-        TYPE t;
+        type t;
         struct rec{
+            char* rec_id;
             ASTNodeIt *record_ptr;
             int width;
         }rec;
