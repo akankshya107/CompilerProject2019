@@ -7,3 +7,4 @@
 void extractTypes(ASTNodeIt* root);
 void checkTypes(ASTNodeIt* root);
 void semanticAnalyzer(treeNodeIt *root);
+void printSymbolTable(ASTNodeIt *root);

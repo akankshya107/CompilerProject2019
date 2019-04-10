@@ -9,10 +9,10 @@
 #include "ASTDef.h"
 
 char *TagString(int index){
-    static char *tagTable[TAG_ID+1] = {"TAG_PROGRAM", "TAG_FUN_LIST", "TAG_MAIN", "TAG_ARITHMETIC_EXPRESSION", "TAG_BOOLEAN_EXPRESSION", 
+    static char *tagTable[TAG_WRITE+1] = {"TAG_PROGRAM", "TAG_FUN_LIST", "TAG_MAIN", "TAG_ARITHMETIC_EXPRESSION", "TAG_BOOLEAN_EXPRESSION", 
 "TAG_OTHERSTMTS", "TAG_RETURNSTMT", "TAG_DECLARES", "TAG_TYPEDEFS", "TAG_TYPEDEF", "TAG_FIELDDEF", "TAG_DECLARE",
 "TAG_FUNCTION", "TAG_INPUT_PARS", "TAG_OUTPUT_PARS", "TAG_ASSIGNMENT_STMT", "TAG_FUN_CALL_STMT", "TAG_OUTPUT_ARGS",
-"TAG_INPUT_ARGS", "TAG_ITERATIVE_STMT", "TAG_COND_STMT", "TAG_THEN", "TAG_ELSE", "TAG_READ", "TAG_WRITE", "TAG_ID"
+"TAG_INPUT_ARGS", "TAG_ITERATIVE_STMT", "TAG_COND_STMT", "TAG_THEN", "TAG_ELSE", "TAG_READ", "TAG_WRITE"
 };
     return tagTable[index];
 }
@@ -119,7 +119,7 @@ ASTNodeIt* semanticRuleExecute(treeNodeIt *t, int rule_no){
         //mainFunction.node=newNonLeafNode(TAG_MAIN, NULL, stmts.node) 
         case 1:{
             treeNodeIt *temp = t->t->treeNode_type.n->children;
-            ASTNodeIt* n = newNonLeafNode(TAG_MAIN, temp->t->treeNode_type.l->leaf_symbol, temp->next->node, NULL, NULL);
+            ASTNodeIt* n = newNonLeafNode(TAG_MAIN, NULL, temp->next->node, NULL, NULL);
             freeChildren(temp);
             return n;
         }
@@ -167,15 +167,7 @@ ASTNodeIt* semanticRuleExecute(treeNodeIt *t, int rule_no){
         //parameter_list.node = ChildrenList(dataType.node, ChildrenList(LeafNode(TK_ID), remaining_list.node))
         case 8:{
             treeNodeIt *temp = t->t->treeNode_type.n->children;
-<<<<<<< HEAD
-<<<<<<< HEAD
-            ASTNodeIt* n = ChildrenList(newNonLeafNode(TAG_ID, NULL, newLeafNode(temp->next->t->treeNode_type.l->leaf_symbol), temp->node, NULL), temp->next->next->node);
-=======
-            ASTNodeIt* n = ChildrenList(newNonLeafNode(TAG_ID, temp->next->t->treeNode_type.l->leaf_symbol, temp->node, NULL, NULL), temp->next->next->node);
->>>>>>> a833aa306281d5659b1e885ca7a59f7d7c4bc499
-=======
-            ASTNodeIt* n = ChildrenList(newNonLeafNode(TAG_ID, temp->next->t->treeNode_type.l->leaf_symbol, temp->node, NULL, NULL), temp->next->next->node);
->>>>>>> 44e30e9226951be02ecb12744bf7631812b402c1
+            ASTNodeIt* n = ChildrenList(temp->node, ChildrenList(newLeafNode(temp->next->t->treeNode_type.l->leaf_symbol), temp->next->next->node));
             freeChildren(temp);
             return n;
         }
@@ -500,27 +492,14 @@ ASTNodeIt* semanticRuleExecute(treeNodeIt *t, int rule_no){
         // expPrime.node = new Node(TAG_ARITHMETIC_EXPRESSION, lowPrecedenceOperators.node, term.node, expPrime.node)
         case 54:{
             treeNodeIt *temp = t->t->treeNode_type.n->children;
-            ASTNodeIt *n;
-            if(t->t->treeNode_type.n->rule_no==54){
-                n = newNonLeafNode(TAG_ARITHMETIC_EXPRESSION, temp->node->node->u.l->leaf_symbol, t->t->parent->t->treeNode_type.n->children->next->node, temp->next->next->node, NULL);
-            }else{ //Rule no 53
-                n = newNonLeafNode(TAG_ARITHMETIC_EXPRESSION, temp->node->node->u.l->leaf_symbol, t->t->parent->t->treeNode_type.n->children->node, temp->next->next->node, NULL);
-            }
+            ASTNodeIt *n = newNonLeafNode(TAG_ARITHMETIC_EXPRESSION, temp->node->node->u.l->leaf_symbol, t->t->parent->t->treeNode_type.n->children->node, temp->next->next->node, NULL);
             freeChildren(temp);
             return n;
         }
         // expPrime --> eps
         // expPrime.node = NULL
         case 55:{
-            treeNodeIt *temp = t->t->parent;
-            ASTNodeIt *n;
-            if(t->t->treeNode_type.n->rule_no==54){
-                n = temp->t->treeNode_type.n->children->next->node;
-            }else{//Rule no 53
-                n = temp->t->treeNode_type.n->children->node;
-            }
-            freeChildren(t->t->treeNode_type.n->children);
-            return n;
+            return NULL;
         }
         // term -->factor termPrime
         case 56: {
@@ -532,26 +511,13 @@ ASTNodeIt* semanticRuleExecute(treeNodeIt *t, int rule_no){
         // termPrime → highPrecedenceOperators factor termPrime1
         case 57: {
             treeNodeIt *temp = t->t->treeNode_type.n->children;
-            ASTNodeIt *n;
-            if(t->t->treeNode_type.n->rule_no==57){
-                n = newNonLeafNode(TAG_ARITHMETIC_EXPRESSION, temp->node->node->u.l->leaf_symbol, t->t->parent->t->treeNode_type.n->children->next->node, temp->next->next->node, NULL);
-            }else{ //Rule no 56
-                n = newNonLeafNode(TAG_ARITHMETIC_EXPRESSION, temp->node->node->u.l->leaf_symbol, t->t->parent->t->treeNode_type.n->children->node, temp->next->next->node, NULL);
-            }
+            ASTNodeIt *n = newNonLeafNode(TAG_ARITHMETIC_EXPRESSION, temp->node->node->u.l->leaf_symbol, t->t->parent->t->treeNode_type.n->children->node, temp->next->next->node, NULL);
             freeChildren(temp);
             return n;
         }
         // termPrime.node = NULL
         case 58: {
-            treeNodeIt *temp = t->t->parent;
-            ASTNodeIt *n;
-            if(t->t->treeNode_type.n->rule_no==57){
-                n = temp->t->treeNode_type.n->children->next->node;
-            }else{//Rule no 56
-                n = temp->t->treeNode_type.n->children->node;
-            }
-            freeChildren(t->t->treeNode_type.n->children);
-            return n;
+            return NULL;
         }
         // factor.node = arithmeticExpression.node
         case 59: {
@@ -700,6 +666,7 @@ ASTNodeIt* makeAbstractSyntaxTree(treeNodeIt *root){
                 temp->node = semanticRuleExecute(temp, temp->t->treeNode_type.n->children->t->treeNode_type.l->rule_no);
             }
 		}
+        
         //iterate 
 		temp = temp->next;
 	}
@@ -735,7 +702,7 @@ void printAST(ASTNodeIt* root)
         while(temp->next==NULL){
             temp=temp->node->parent;
             if(temp==NULL){
-                printf("root reached\n");
+                printf("root reached");
                 return;
             }
             if(temp->node->u.n->leaf_symbol!=NULL)

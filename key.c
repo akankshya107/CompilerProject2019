@@ -16,6 +16,7 @@ int hash(char *str){
 	return sum;
 }
 
+
 hash_elem *create_hash_elem(int tkname, char *str){
     hash_elem *h = (hash_elem*)malloc(sizeof(hash_elem));
     h->str = str;
