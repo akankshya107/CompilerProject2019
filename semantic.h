@@ -4,6 +4,9 @@
 // KARABEE BATTA 2016A7PS0052P
 // AASTHA KATARIA 2016A7PS0062P
 #include "SymbolTable.h"
-void extractTypes(ASTNodeIt* root);
+Ele* returnEle(ASTNodeIt *n);
+ASTNodeIt *searchTag(ASTNodeIt *root, TAG tg);
+void semanticAnalyzer(treeNodeIt *t);
 void checkTypes(ASTNodeIt* root);
-void semanticAnalyzer(treeNodeIt *root);
+void semanticRuleCheck(ASTNodeIt *chk, char* fun_id);
+type getType(ASTNodeIt *t);

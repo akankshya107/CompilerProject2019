@@ -41,15 +41,20 @@ typedef struct symTableElem{
 }symTableElem;
 
 typedef struct SeqListPars{
-    type t;
-    bool tag;
+    union{
+        type t;
+        struct{
+            bool tag;
+            char *ret_par;
+        }out;
+    }u;
     struct SeqListPars *next;
 }SeqListPars;
 
 typedef struct globalTableElem{
     bool is_record;
     union{
-        type t;
+        TYPE t;
         struct rec{
             ASTNodeIt *record_ptr;
             int width;
