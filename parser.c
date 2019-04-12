@@ -13,6 +13,9 @@
 #include "stack.h"
 #include "string.h"
 
+int parse_correct=0;
+int ParseNodes=0;
+
 void ComputeFirstAndFollowSets(){
 	f = (FirstAndFollow*)malloc(sizeof(FirstAndFollow));
 	// f->first = (node_head**)malloc(sizeof(node*)*NO_OF_RULES);
@@ -48,7 +51,6 @@ treeNodeIt* returnIt(treeNode *t){
 	ti->next=NULL;
 	ti->t=t;
 	ti->node=NULL;
-	ti->inh=NULL;
 	return ti;
 }
 
@@ -131,6 +133,7 @@ treeNodeIt* parseInputSourceCode(char *testcaseFile){
 		if(e->is_term && e->elem.terminal==ti->tokenName){
 			if(ti->tokenName==EOS){
 				if(panic_mode==0) printf("Input source code is syntactically correct...........\n");
+				parse_correct=1;
 				break;
 			}
 			// printf("Popped: %s\n", TerminalString(ti->tokenName));
@@ -349,77 +352,76 @@ void print_parse_table()
 
 }
 
-void print_leaf(FILE *fw, leafNode *l, NON_TERMINAL nt){
+void print_leaf(leafNode *l, NON_TERMINAL nt){
 	if(l->leaf_symbol==NULL){
 		printf("\n");
 		return;
 	}
 	char *s = "--------------   ";
 	if(l->leaf_symbol->flag==0){
-		if(strlen(l->leaf_symbol->u.lexeme)>6) fprintf(fw, "%-20s", l->leaf_symbol->u.lexeme);
-		else fprintf(fw, "%-20s", l->leaf_symbol->u.lexeme);
+		if(strlen(l->leaf_symbol->u.lexeme)>6) printf("%-20s", l->leaf_symbol->u.lexeme);
+		else printf("%-20s", l->leaf_symbol->u.lexeme);
 	}else{
-		fprintf(fw, "%-20s", s);
+		printf("%-20s", s);
 	}
 
-	fprintf(fw, "%-10d", l->leaf_symbol->line_no);
+	printf("%-10d", l->leaf_symbol->line_no);
 
 	if(strlen(TerminalString(l->leaf_symbol->tokenName))>=8){
-		fprintf(fw, "%-20s", TerminalString(l->leaf_symbol->tokenName));
+		printf("%-20s", TerminalString(l->leaf_symbol->tokenName));
 	}else{
-		fprintf(fw, "%-20s", TerminalString(l->leaf_symbol->tokenName));
+		printf("%-20s", TerminalString(l->leaf_symbol->tokenName));
 	}
 
 	if(l->leaf_symbol->flag==1){
-		fprintf(fw, "%-20d", l->leaf_symbol->u.value_of_int);
+		printf("%-20d", l->leaf_symbol->u.value_of_int);
 	}else if(l->leaf_symbol->flag==1){
-		fprintf(fw, "%-20.2f", l->leaf_symbol->u.value_of_real);
+		printf("%-20.2f", l->leaf_symbol->u.value_of_real);
 	}
 	else{
-		fprintf(fw, "%-20s", s);
+		printf("%-20s", s);
 	}
 
 	if(strlen(nonTerminalStringTable[nt]->nonterminal)<=7){
-		fprintf(fw, "%-30s", nonTerminalStringTable[nt]->nonterminal);
+		printf("%-30s", nonTerminalStringTable[nt]->nonterminal);
 	}
 	else if(strlen(nonTerminalStringTable[nt]->nonterminal)<=15) {
-		fprintf(fw, "%-30s", nonTerminalStringTable[nt]->nonterminal);
-	}else fprintf(fw, "%-30s", nonTerminalStringTable[nt]->nonterminal);
+		printf("%-30s", nonTerminalStringTable[nt]->nonterminal);
+	}else printf("%-30s", nonTerminalStringTable[nt]->nonterminal);
 
-	fprintf(fw, "Yes");
+	printf("Yes");
 
-	fprintf(fw, "%30s", s);
-	fprintf(fw, "\n");
+	printf("%30s", s);
+	printf("\n");
 }
 
-void print_nonleaf(FILE *fw, nonLeafNode *n, int line_no, NON_TERMINAL nt, bool flag){
+void print_nonleaf(nonLeafNode *n, int line_no, NON_TERMINAL nt, bool flag){
 	char *s = "--------------   ";
-	fprintf(fw, "%-20s", s);
+	printf("%-20s", s);
 
-	fprintf(fw, "%-10d", line_no);
+	printf("%-10d", line_no);
 
-	fprintf(fw, "%s", s);
+	printf("%s", s);
 
-	fprintf(fw, "%-23s", s);
+	printf("%-23s", s);
 
 	if(!flag){
 		if(strlen(nonTerminalStringTable[nt]->nonterminal)<=7){
-			fprintf(fw, "%-30s", nonTerminalStringTable[nt]->nonterminal);
+			printf("%-30s", nonTerminalStringTable[nt]->nonterminal);
 		}
 		else if(strlen(nonTerminalStringTable[nt]->nonterminal)<=15) {
-			fprintf(fw, "%-30s", nonTerminalStringTable[nt]->nonterminal);
-		}else fprintf(fw, "%-30s", nonTerminalStringTable[nt]->nonterminal);
+			printf("%-30s", nonTerminalStringTable[nt]->nonterminal);
+		}else printf("%-30s", nonTerminalStringTable[nt]->nonterminal);
 	}else{
-		fprintf(fw, "Root node\t\t\t\t\t\t\t\t\t\t");
+		printf("Root node\t\t\t\t\t\t\t\t\t\t");
 	}
 
-	fprintf(fw, "No\t");
+	printf("No\t");
 
-	fprintf(fw, "%30s\n", nonTerminalStringTable[n->nonterminal]->nonterminal);
+	printf("%30s\n", nonTerminalStringTable[n->nonterminal]->nonterminal);
 }
 
-void printParseTree(treeNodeIt *root, char *outfile){
-	FILE *fw = fopen(outfile, "w");
+void printParseTree(treeNodeIt *root){
 	treeNodeIt *temp = root;
 	while(1){
 		while(temp->t->is_leaf==0){
@@ -427,16 +429,43 @@ void printParseTree(treeNodeIt *root, char *outfile){
 			if (temp==NULL) break;
 		}
 		if (temp==NULL) break;
-		print_leaf(fw, temp->t->treeNode_type.l, temp->t->parent->t->treeNode_type.n->nonterminal);
+		print_leaf(temp->t->treeNode_type.l, temp->t->parent->t->treeNode_type.n->nonterminal);
 		while(temp->next==NULL){
 			temp = temp->t->parent;
 			if(temp->t->parent==NULL){
-				print_nonleaf(fw, temp->t->treeNode_type.n, temp->t->line_no , 0, 1);
+				print_nonleaf(temp->t->treeNode_type.n, temp->t->line_no , 0, 1);
 				return;	
 			}
-			print_nonleaf(fw, temp->t->treeNode_type.n, temp->t->line_no , temp->t->parent->t->treeNode_type.n->nonterminal, 0);
+			print_nonleaf(temp->t->treeNode_type.n, temp->t->line_no , temp->t->parent->t->treeNode_type.n->nonterminal, 0);
 		}
 		temp = temp->next;
 	}
-	fclose(fw);
+}
+
+size_t printParseTreeNodes(treeNodeIt *root){
+	ParseNodes=0;
+	treeNodeIt *temp = root;
+	size_t allocatedBytes=0;
+	while(1){
+		while(temp->t->is_leaf==0){
+			temp = temp->t->treeNode_type.n->children;
+			if (temp==NULL) break;
+		}
+		if (temp==NULL) break;
+		
+		ParseNodes++;
+		allocatedBytes+= sizeof(temp) + sizeof(&temp) + sizeof(&(temp->t)) + sizeof(&(temp->t->treeNode_type.l)) + sizeof(&(temp->t->treeNode_type.l->leaf_symbol));
+		
+		while(temp->next==NULL){
+			temp = temp->t->parent;
+			if(temp->t->parent==NULL){
+				ParseNodes++;
+				allocatedBytes+= sizeof(temp) + sizeof(&temp) + sizeof(&(temp->t)) + sizeof(&(temp->t->treeNode_type.n));
+				return allocatedBytes;	
+			}
+			ParseNodes++;
+			allocatedBytes+= sizeof(temp) + sizeof(&temp) + sizeof(&(temp->t)) + sizeof(&(temp->t->treeNode_type.n));
+		}
+		temp = temp->next;
+	}
 }

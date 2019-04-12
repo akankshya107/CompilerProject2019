@@ -9,7 +9,6 @@
 #include <stdlib.h>
 #include <string.h>
 #define LEN_HT 41
-int curr_offset = 0;
 int hashEle(char *str){
 	long unsigned int sum = 0;
 	long unsigned int a = 8;
@@ -44,21 +43,21 @@ HashTable create_HTEle()
     return HT;
 }
 
-Element* create_elem(bool flag)// flag=true if in global table
+Element* create_elem(bool flag);// flag=true if in global table
                             // flag=false if in func symbol table ie 2ndlevel HT
-{
-    Element* ele=(Element*) malloc(sizeof(Element));
-    if(flag)
-    {
-        ele->is_func=true;
-        ele->u.SymbolTable=create_HTEle();
-    }
-    else
-    {
-        ele->is_func=false;
-        ele->u.s=(symTableElem*) malloc(sizeof(symTableElem));
-    }   
-}
+// {
+//     Element* ele=(Element*) malloc(sizeof(Element));
+//     if(flag)
+//     {
+//         ele->is_func=true;
+//         ele->u.SymbolTable=create_HTEle();
+//     }
+//     else
+//     {
+//         ele->is_func=false;
+//         ele->u.s=(symTableElem*) malloc(sizeof(symTableElem));
+//     }   
+// }
 
 void insertIntoHTEle(hash_ele *elem, HashTable HT){
     int index = hashEle(elem->str);
@@ -117,135 +116,111 @@ ASTNodeIt* iterate_inorder(ASTNodeIt* temp)
     return temp;
 }
 
-void* populateSymbolTable(ASTNodeIt* root)
-{
-    globalSymbolTable=create_HTEle();
-    SymbolTable=create_HTEle();
-
-    ASTNodeIt* temp=root;
-    while(1)
-    {
-        int outer_sym_table;
-        if(!temp->node->is_leaf)
-        {
-            if(temp->node->u.n->tag_info==TAG_FUNCTION||temp->node->u.n->tag_info==TAG_MAIN)
-            {
-                outer_sym_table = temp->node->u.n->leaf_symbol->tokenName;
-                Element* func_elem = create_elem(true);
-                hash_ele* hashEle_func_elem=create_hashEle(func_elem,temp->node->u.n->leaf_symbol->u.lexeme);
-                insertIntoHTEle(hashEle_func_elem,SymbolTable);
-                Element* identifier_elem;
-                hash_ele* hashEle_identifier;
-                temp=temp->node->u.n->children;
-                
-                char * type;
-                while(1)
-                {
-                    if(temp==NULL)//root reached
-                        break;
-                    if(!temp->node->is_leaf)
-                    {
-                        if(temp->node->u.n->tag_info==TAG_FUNCTION||temp->node->u.n->tag_info==TAG_MAIN)
-                            break;
-                        
-                        if(temp->node->u.n->tag_info==TAG_ID)
-                        {
-                            identifier_elem=create_elem(false);
-                            hashEle_identifier=create_hashEle(identifier_elem,temp->node->u.n->leaf_symbol->u.lexeme);
-                            insertIntoHTEle(hashEle_identifier,func_elem->u.SymbolTable);
-                            type=temp->node->u.n->children->node->u.l->leaf_symbol->u.lexeme;
-                            if(type==TK_INT)
-                            {
-                                identifier_elem->u.s->width=2;
-                                identifier_elem->u.s->offset=curr_offset+2;
-                                identifier_elem->u.s->is_record=false;
-                                identifier_elem->u.s->t.pri_type=false;
-                            }
-                            else if(type==TK_REAL)
-                            {
-                                identifier_elem->u.s->width=4;
-                                identifier_elem->u.s->offset=curr_offset+4;  
-                                identifier_elem->u.s->is_record=false; 
-                                identifier_elem->u.s->t.pri_type=true;
-                            }
-                            else if(type==TK_RECORDID)
-                            {
-                                identifier_elem->u.s->width=glo->u.rec.width; //glbl
-                                identifier_elem->u.s->offset=curr_offset+globalTableElem->u.rec.width; //glbl
-                                identifier_elem->u.s->is_record=true;
-                                identifier_elem->u.s->t.rec_id=temp->node->u.l->leaf_symbol->u.lexeme;;
-                            }
-                            
-                            
-                            identifier_elem->u.s->type.pri_type=-1;
-                            
-                        }
-                        // else if(temp->node->u.n->tag_info==TAG_TYPEDEF)
-                        // {
-                        //     //global HT se karna hai
-
-                        // }
-                        else if(temp->node->u.n->tag_info==TAG_DECLARE)
-                        {
-                            identifier_elem=create_elem(false);
-                            hashEle_identifier=create_hashEle(identifier_elem,temp->node->u.n->leaf_symbol->u.lexeme);
-                            if(temp->node->u.n->children->next==NULL)
-                                insertIntoHTEle(hashEle_identifier,func_elem->u.SymbolTable);
-                            // else
-                                //insert into global symbol table
-                            identifier_elem->u.s->width=-1;
-                            identifier_elem->u.s->offset=0;
-                            identifier_elem->u.s->is_record=false;
-                            identifier_elem->u.s->type.pri_type=-1;      
-                        }
-                        else
-                        {
-                            
-                            if(temp->node->u.n->children==NULL)
-                            {
-                                // temp=temp->next;
-                                temp=iterate_inorder(temp);//if function reached, move to next function
-                                
-                                //may reach root nnode
-                                //in this case should also break from outer while(1)
-                                // think of how this can be done if iterate is written as a seperate function
-                            }
-                            else
-                            temp=temp->node->u.n->children;
-                            
-                        }
-                    }
-                    // else
-                    {
-                        temp=iterate_inorder(temp);
-                    }
-                    
-                }
-            }
-            
-            else
-            {
-                if(temp->node->u.n->children==NULL)
-                {
-                    // temp=temp->next;
-                    temp=iterate_inorder(temp);//if function reached, move to next function
-                    
-                    //may reach root nnode
-                    //in this case should also break from outer while(1)
-                    // think of how this can be done if iterate is written as a seperate function
-                }
-                else
-                temp=temp->node->u.n->children;
-            } 
-
-            if(temp==NULL)//root reached
-            break;   
-        }
-    
-        else
-        {
-            temp=iterate_inorder(temp);
-        }
-    }        
+ASTNodeIt* populateSymbolTable(ASTNodeIt* root){
+    return root;
 }
 
+void populateGlobalTable(ASTNodeIt* root){
+    return;
+}
+// {
+//     globalSymbolTable=create_HTEle();
+
+//     SymbolTable=create_HTEle();
+
+//     ASTNodeIt* temp=root;
+//     while(1)
+//     {
+//         int outer_sym_table;
+//         if(!temp->node->is_leaf)
+//         {
+//             if(temp->node->u.n->tag_info==TAG_FUNCTION||temp->node->u.n->tag_info==TAG_MAIN)
+//             {
+//                 // outer_sym_table = temp->node->u.n->leaf_symbol->tokenName;
+//                 Element* func_elem = create_elem(true);
+//                 hash_ele* hashEle_func_elem=create_hashEle(func_elem,temp->node->u.n->leaf_symbol->u.lexeme);
+//                 insertIntoHTEle(hashEle_func_elem,SymbolTable);
+
+//                 Element* identifier_elem;
+//                 hash_ele* hashEle_identifier;
+//                 temp=temp->node->u.n->children;
+//                 while(1)
+//                 {
+//                     if(temp==NULL)//root reached
+//                         break;
+//                     if(!temp->node->is_leaf)
+//                     {
+//                         if(temp->node->u.n->tag_info==TAG_FUNCTION||temp->node->u.n->tag_info==TAG_MAIN)
+//                             break;
+                        
+//                         if(temp->node->u.n->tag_info==TAG_ID)
+//                         {
+//                             identifier_elem=create_elem(false);
+//                             hashEle_identifier=create_hashEle(identifier_elem,temp->node->u.n->leaf_symbol->u.lexeme);
+//                             insertIntoHTEle(hashEle_identifier,func_elem->u.SymbolTable);
+//                             identifier_elem->u.s->width=-1;
+//                             identifier_elem->u.s->offset=0;
+//                             identifier_elem->u.s->is_record=false;
+//                             identifier_elem->u.s->type.pri_type=-1;
+                            
+//                         }
+//                         // else if(temp->node->u.n->tag_info==TAG_TYPEDEF)
+//                         // {
+//                         //     //global HT se karna hai
+
+//                         // }
+//                         else if(temp->node->u.n->tag_info==TAG_DECLARE)
+//                         {
+//                             identifier_elem=create_elem(false);
+//                             hashEle_identifier=create_hashEle(identifier_elem,temp->node->u.n->leaf_symbol->u.lexeme);
+//                             if(temp->node->u.n->children->next==NULL)
+//                                 insertIntoHTEle(hashEle_identifier,func_elem->u.SymbolTable);
+//                             // else
+//                                 //insert into global symbol table
+//                             identifier_elem->u.s->width=-1;
+//                             identifier_elem->u.s->offset=0;
+//                             identifier_elem->u.s->is_record=false;
+//                             identifier_elem->u.s->type.pri_type=-1;      
+//                         }
+
+//                         if(temp->node->u.n->children==NULL)
+//                         {
+//                             // temp=temp->next;
+//                             temp=iterate_inorder(temp);//if function reached, move to next function
+//                         }
+//                         else
+//                         temp=temp->node->u.n->children;
+//                     }
+//                     else
+//                     {
+//                         temp=iterate_inorder(temp);
+//                     }
+                    
+//                 }
+//             }
+            
+//             else
+//             {
+//                 if(temp->node->u.n->children==NULL)
+//                 {
+//                     // temp=temp->next;
+//                     temp=iterate_inorder(temp);//if function reached, move to next function
+                    
+//                     //may reach root nnode
+//                     //in this case should also break from outer while(1)
+//                     // think of how this can be done if iterate is written as a seperate function
+//                 }
+//                 else
+//                 temp=temp->node->u.n->children;
+//             } 
+
+//             if(temp==NULL)//root reached
+//             break;   
+//         }
+    
+//         else
+//         {
+//             temp=iterate_inorder(temp);
+//         }
+//     }        
+// }

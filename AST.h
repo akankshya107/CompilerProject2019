@@ -16,3 +16,7 @@ void freeChildren(treeNodeIt *temp);
 void printAST(ASTNodeIt* root);
 char *TagString(int index);
 size_t printASTNodes(ASTNodeIt *root);
+<<<<<<< HEAD
+=======
+//Nochestrell
+>>>>>>> 1710f9d9377c283a8dfa2872115f3a01c987d24e
