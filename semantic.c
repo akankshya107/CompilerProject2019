@@ -7,6 +7,11 @@
 #include "SymbolTable.h"
 #include <string.h>
 
+char *TypeString(int index){
+    static char *typeTable[3] = { "int", "real", "record" };
+    return typeTable[index];
+}
+
 Ele* returnEle(ASTNodeIt *n){
     Ele *e = (Ele*)malloc(sizeof(Ele));
     e->node=n;
@@ -58,16 +63,21 @@ ASTNodeIt *semanticAnalyzer(treeNodeIt *t){
     return ast;
 }
 
-type* getType(ASTNodeIt *temp, HashTable funcSymbolTable){
+type* getType(ASTNodeIt *temp, HashTable funcSymbolTable, bool idlist){
     type *lhs_type = (type*)malloc(sizeof(type));
     bool check_val;
-    if(temp->next==NULL){
+    if(idlist){
         check_val=0;
-    }else if(!temp->next->node->is_leaf){
+    }
+    else if(temp->next==NULL){
         check_val=0;
-    }else{
+    }
+    else if(!temp->next->node->is_leaf){
+        check_val=0;
+    }
+    else{
         if(temp->next->next==NULL){
-            check_val=0; //Assignment operators with single RHS(i.e. no TAG_ARITHMETIC_EXPRESSION)
+            check_val=0; //Assignment operators with single RHS(i.e. no TAG_ARITHMETIC_EXPRESSION) and for Boolean operators
         }
         else{
             check_val=1;
@@ -137,7 +147,7 @@ type* getType(ASTNodeIt *temp, HashTable funcSymbolTable){
     return lhs_type;
 }
 
-type* verifyType(ASTNodeIt* tn, type *t, HashTable funcTable, TAG tag){
+type* verifyType(ASTNodeIt* tn, HashTable funcTable, TAG tag){
     //post-order traversal, should match type of t, check for declare, and for undefined record operations
     ASTNodeIt *temp = tn;
     ASTNodeIt *temp_child;
@@ -153,7 +163,7 @@ type* verifyType(ASTNodeIt* tn, type *t, HashTable funcTable, TAG tag){
                 temp->node->t->is_record=0;
                 temp->node->t->u.pri_type=1;
             }else if(temp->node->u.l->leaf_symbol->flag==is_lexeme){
-                temp->node->t = getType(temp, funcTable);
+                temp->node->t = getType(temp, funcTable, 0);
             }
             return temp->node->t;
         }
@@ -171,7 +181,7 @@ type* verifyType(ASTNodeIt* tn, type *t, HashTable funcTable, TAG tag){
                     temp->node->t->is_record=0;
                     temp->node->t->u.pri_type=1;
                 }else if(temp->node->u.l->leaf_symbol->flag==is_lexeme){
-                    temp->node->t = getType(temp, funcTable);
+                    temp->node->t = getType(temp, funcTable, 0);
                 }
             }
             while(temp->next==NULL){
@@ -180,15 +190,26 @@ type* verifyType(ASTNodeIt* tn, type *t, HashTable funcTable, TAG tag){
                     if(typ_err){
                         type *chk1 = temp->node->u.n->children->node->t;
                         type *chk2 = temp->node->u.n->children->next->node->t;
-                        if(chk1->is_record!=chk2->is_record){
+                        if((chk1->is_record==1 || chk2->is_record==1) && (temp->node->u.n->leaf_symbol->tokenName==TK_MUL || temp->node->u.n->leaf_symbol->tokenName==TK_DIV)){
+                            if(chk1->is_record==1 && chk2->is_record!=1){
+                                temp->node->t = (type*)malloc(sizeof(type));
+                                temp->node->t->is_record = chk1->is_record;
+                                temp->node->t->u.rec_id = chk1->u.rec_id;
+                                return temp->node->t;
+                            }else if(chk1->is_record!=1 && chk2->is_record==1){
+                                temp->node->t = (type*)malloc(sizeof(type));
+                                temp->node->t->is_record = chk2->is_record;
+                                temp->node->t->u.rec_id = chk2->u.rec_id;
+                                return temp->node->t;
+                            }else{
+                                printf("Line %d: Type mismatch in arithmetic expression", temp->node->u.l->leaf_symbol->line_no);
+                            }
+                        }else if(chk1->is_record!=chk2->is_record){
                             printf("Line %d: Type mismatch in arithmetic expression", temp->node->u.l->leaf_symbol->line_no);
-                            typ_err=0;
                         }else if(chk1->is_record==0 && chk1->u.pri_type!=chk2->u.pri_type){
                             printf("Line %d: Type mismatch in arithmetic expression", temp->node->u.l->leaf_symbol->line_no);
-                            typ_err=0;
                         }else if(chk1->is_record==1 && strcmp(chk1->u.rec_id, chk2->u.rec_id)){
                             printf("Line %d: Type mismatch in arithmetic expression", temp->node->u.l->leaf_symbol->line_no);
-                            typ_err=0;
                         }else{
                             temp->node->t = (type*)malloc(sizeof(type));
                             temp->node->t->is_record = chk1->is_record;
@@ -202,7 +223,20 @@ type* verifyType(ASTNodeIt* tn, type *t, HashTable funcTable, TAG tag){
                 if(typ_err){
                     type *chk1 = temp->node->u.n->children->node->t;
                     type *chk2 = temp->node->u.n->children->next->node->t;
-                    if(chk1->is_record!=chk2->is_record){
+                    if((chk1->is_record==1 || chk2->is_record==1) && (temp->node->u.n->leaf_symbol->tokenName==TK_MUL || temp->node->u.n->leaf_symbol->tokenName==TK_DIV)){
+                        if(chk1->is_record==1 && chk2->is_record!=1){
+                            temp->node->t = (type*)malloc(sizeof(type));
+                            temp->node->t->is_record = chk1->is_record;
+                            temp->node->t->u.rec_id = chk1->u.rec_id;
+                        }else if(chk1->is_record!=1 && chk2->is_record==1){
+                            temp->node->t = (type*)malloc(sizeof(type));
+                            temp->node->t->is_record = chk2->is_record;
+                            temp->node->t->u.rec_id = chk2->u.rec_id;
+                        }else{
+                            printf("Line %d: Type mismatch in arithmetic expression", temp->node->u.l->leaf_symbol->line_no);
+                            typ_err=0;
+                        }
+                    }else if(chk1->is_record!=chk2->is_record){
                         printf("Line %d: Type mismatch in arithmetic expression", temp->node->u.l->leaf_symbol->line_no);
                         typ_err=0;
                     }else if(chk1->is_record==0 && chk1->u.pri_type!=chk2->u.pri_type){
@@ -222,9 +256,196 @@ type* verifyType(ASTNodeIt* tn, type *t, HashTable funcTable, TAG tag){
             temp=temp->next;
         }
     }else if(tag==TAG_BOOLEAN_EXPRESSION){
-
+        while(1){
+            while(temp->node->is_leaf==0){
+                temp=temp->node->u.n->children;
+            }
+            if(temp->node->is_leaf==1){
+                if(temp->node->u.l->leaf_symbol->flag==is_int){
+                    temp->node->t = (type*)malloc(sizeof(type));
+                    temp->node->t->is_record=0;
+                    temp->node->t->u.pri_type=0;
+                }else if(temp->node->u.l->leaf_symbol->flag==is_real){
+                    temp->node->t = (type*)malloc(sizeof(type));
+                    temp->node->t->is_record=0;
+                    temp->node->t->u.pri_type=1;
+                }else if(temp->node->u.l->leaf_symbol->flag==is_lexeme){
+                    temp->node->t = getType(temp, funcTable, 0);
+                }
+            }
+            while(temp->next==NULL){
+                temp=temp->node->parent;
+                if(temp==tn){
+                    if(typ_err){
+                        type *chk1 = temp->node->u.n->children->node->t;
+                        type *chk2 = temp->node->u.n->children->next->node->t;
+                        if(chk1->is_record==1 || chk2->is_record==1){
+                            printf("Line %d: No record variables can be used in boolean expression\n", temp->node->u.l->leaf_symbol->line_no);
+                        }
+                        else if(temp->node->u.n->leaf_symbol->tokenName==TK_AND || temp->node->u.n->leaf_symbol->tokenName==TK_OR){
+                            temp->node->t = (type*)malloc(sizeof(type));
+                            temp->node->t->is_record = 0;
+                            temp->node->t->u.pri_type = t_bool;
+                            return temp->node->t;
+                        }
+                        else if(temp->node->u.n->leaf_symbol->tokenName==TK_NOT){
+                            temp->node->t = (type*)malloc(sizeof(type));
+                            temp->node->t->is_record = 0;
+                            temp->node->t->u.pri_type = t_bool;
+                            return temp->node->t;
+                        }
+                        else{
+                            if(chk1->u.pri_type!=chk2->u.pri_type){
+                                printf("Line %d: Type %s of %s does not match with type %s of %s in boolean expression\n", temp->node->u.l->leaf_symbol->line_no, TypeString(chk1->u.pri_type), temp->node->u.n->children->node->u.l->leaf_symbol->u.lexeme, TypeString(chk2->u.pri_type), temp->node->u.n->children->next->node->u.l->leaf_symbol->u.lexeme);
+                            }
+                            else{
+                                temp->node->t = (type*)malloc(sizeof(type));
+                                temp->node->t->is_record = 0;
+                                temp->node->t->u.pri_type = t_bool;
+                                return temp->node->t;
+                            }
+                        }
+                    }
+                    return NULL;
+                }
+                if(typ_err){
+                    type *chk1 = temp->node->u.n->children->node->t;
+                    type *chk2 = temp->node->u.n->children->next->node->t;
+                    if(chk1->is_record==1 || chk2->is_record==1){
+                        printf("Line %d: No record variables can be used in boolean expression\n", temp->node->u.l->leaf_symbol->line_no);
+                        typ_err=0;
+                    }
+                    else if(temp->node->u.n->leaf_symbol->tokenName==TK_AND || temp->node->u.n->leaf_symbol->tokenName==TK_OR){
+                        temp->node->t = (type*)malloc(sizeof(type));
+                        temp->node->t->is_record = 0;
+                        temp->node->t->u.pri_type = t_bool;
+                    }
+                    else if(temp->node->u.n->leaf_symbol->tokenName==TK_NOT){
+                        temp->node->t = (type*)malloc(sizeof(type));
+                        temp->node->t->is_record = 0;
+                        temp->node->t->u.pri_type = t_bool;
+                    }
+                    else{
+                        if(chk1->u.pri_type!=chk2->u.pri_type){
+                            printf("Line %d: Type %s of %s does not match with type %s of %s in boolean expression\n", temp->node->u.l->leaf_symbol->line_no, TypeString(chk1->u.pri_type), temp->node->u.n->children->node->u.l->leaf_symbol->u.lexeme, TypeString(chk2->u.pri_type), temp->node->u.n->children->next->node->u.l->leaf_symbol->u.lexeme);
+                            typ_err=0;
+                        }
+                        else{
+                            temp->node->t = (type*)malloc(sizeof(type));
+                            temp->node->t->is_record = 0;
+                            temp->node->t->u.pri_type = t_bool;
+                        }
+                    }
+                }
+            }
+            temp=temp->next;
+        }
     }else{
         printf("Code??\n");
+    }
+}
+
+int noOfTerms(ASTNodeIt *b){
+    ASTNodeIt *temp =b;
+    int count=0;
+    while(1){
+        while(temp->node->is_leaf==0){
+            temp=temp->node->u.n->children;
+        }
+        if(temp->node->is_leaf==1){
+            count++;
+        }
+        while(temp->next==NULL){
+            temp=temp->node->parent;
+            if(temp==b){
+                return count;
+            }
+        }
+        temp=temp->next;
+    }
+}
+
+void checkChange(ASTNodeIt *t){
+    //For ITERATIVE_STATEMENT
+    ASTNodeIt *temp = t->node->u.n->children;
+    int size = noOfTerms(temp);
+    char **arr = (char**)malloc(sizeof(char*)*size);
+    int i=0;
+    while(1){
+        while(temp->node->is_leaf==0){
+            temp=temp->node->u.n->children;
+        }
+        if(temp->node->is_leaf==1){
+            int flg=0;
+            for(int j=0; j<i; j++){
+                if(strcmp(arr[j], temp->node->u.l->leaf_symbol->u.lexeme)==0){
+                    flg=1; break;
+                }
+            }
+            if(!flg) arr[i++] = temp->node->u.l->leaf_symbol->u.lexeme;
+        }
+        while(temp->next==NULL){
+            temp=temp->node->parent;
+            if(temp==t){
+                break;
+            }
+        }
+        temp=temp->next;
+    }
+    //Check if assignment statement, fun_call_statement, io_stmt
+    int flgs[i];
+    temp = temp->node->u.n->children->next;
+    int end_flag=0;
+    while(1){
+        if(temp->node->u.n->tag_info==TAG_ASSIGNMENT_STMT){
+            for(int j=0; j<i; j++){
+                if(strcmp(temp->node->u.n->children->node->u.l->leaf_symbol->u.lexeme, arr[j])==0){
+                    flgs[j]=1;
+                    end_flag=1;
+                    break;
+                }
+            }
+        }
+        else if(temp->node->u.n->tag_info==TAG_FUN_CALL_STMT){
+            ASTNodeIt* f_out = temp->node->u.n->children->node->u.n->children;
+            while(f_out!=NULL){
+                for(int j=0; j<i; j++){
+                    if(strcmp(f_out->node->u.l->leaf_symbol->u.lexeme, arr[j])==0){
+                        flgs[j]=1;
+                        end_flag=1;
+                        break;
+                    }
+                }
+            }
+        }
+        else if(temp->node->u.n->tag_info==TAG_READ){
+            for(int j=0; j<i; j++){
+                if(strcmp(temp->node->u.n->children->node->u.l->leaf_symbol->u.lexeme, arr[j])==0){
+                    flgs[j]=1;
+                    end_flag=1;
+                    break;
+                }
+            }
+        }
+        else if(temp->node->u.n->tag_info==TAG_ITERATIVE_STMT){
+            temp=temp->node->u.n->children->next;
+            continue;
+        }
+        else if(temp->node->u.n->tag_info==TAG_COND_STMT){
+            temp = temp->node->u.n->children->next->node->u.n->children;
+            continue;
+        }
+        if(end_flag) break;
+        if(temp->next==NULL){
+            if(temp->node->parent==t) break;
+            if(temp->node->parent->node->u.n->tag_info==TAG_ITERATIVE_STMT) temp=temp->node->parent;
+            else if(temp->node->parent->node->u.n->tag_info==TAG_THEN) temp=temp->node->parent;
+            else if(temp->node->parent->node->u.n->tag_info==TAG_COND_STMT) temp=temp->node->parent;
+        }
+        else temp = temp->next;
+    }
+    if(!end_flag){
+        printf("Lines %d: None of the variables participating in the iterations of the while loop gets updated\n", t->node->u.n->children->node->u.n->leaf_symbol->line_no);
     }
 }
 
@@ -260,51 +481,164 @@ void semanticRuleCheck(ASTNodeIt *chk, char *fun_id){
     if(ret!=NULL) ret_no_error=1;
     if(op!=NULL) ret_no_error=1;
 
+    temp=chk->node->u.n->children;
     while(1){
-        while(temp!=NULL){        
-            push(st, returnEle(temp));
-            if(temp->node->is_leaf==0){
-                //Non-leaf node: contains some TAG and is associated with some semantic check
+        //Non-leaf node: contains some TAG and is associated with some semantic check
 
-                //The right hand side expression of an assignment statement must be of the same type as that of the left hand side identifier.
-                if(temp->node->u.n->tag_info==TAG_ASSIGNMENT_STMT){
-                    temp = temp->node->u.n->children;
-                    type *lhs_type = getType(temp, funcSymbolTable);
-                    int ln = temp->node->u.l->leaf_symbol->line_no;
-                    while(temp->next!=NULL){
-                        temp=temp->next;
-                    }
-                    type *rhs_type = verifyType(temp, lhs_type, funcSymbolTable, TAG_ARITHMETIC_EXPRESSION);
-                    if(rhs_type==NULL){
-                        printf("Line %d: Assignment to type mismatched arithmetic expression\n", ln);
-                    }else{
-                        if(lhs_type->is_record!=rhs_type->is_record){
-                            printf("Line %d: Type mismatch in assignment statement", ln);
-                        }else if(lhs_type->is_record==0 && lhs_type->u.pri_type!=rhs_type->u.pri_type){
-                            printf("Line %d: Type mismatch in assignment statement", ln);
-                        }else if(lhs_type->is_record==1 && strcmp(lhs_type->u.rec_id, rhs_type->u.rec_id)){
-                            printf("Line %d: Type mismatch in assignment statement", ln);
-                        }
-                    }
+        //The right hand side expression of an assignment statement must be of the same type as that of the left hand side identifier.
+        if(temp->node->u.n->tag_info==TAG_ASSIGNMENT_STMT){
+
+            op = lookupEle(fun_id, SymbolTable)->ele->u.out_table->out_pars;
+            while(op!=NULL){
+                if(strcmp(op->out_check->ret_par, temp->node->u.n->children->node->u.l->leaf_symbol->u.lexeme)==0){
+                    op->out_check->tag=1;
+                    break;
                 }
-                if(temp->node->u.n->tag_info==TAG_ITERATIVE_STMT){
-                    //While statement: one pass for checking if variables are being changed
-                    ASTNodeIt *chk = temp->node->u.n->children;
-                }
-                if(temp->node->u.n->tag_info==TAG_COND_STMT){
-                    //type-check for boolean
-                }
-                if(temp->node->u.n->tag_info==TAG_FUN_CALL_STMT){
-                    
-                }
-                temp = temp->node->u.n->children; 
-            }else{
-                temp = temp->next;
             }
+
+            temp = temp->node->u.n->children;
+            type *lhs_type = getType(temp, funcSymbolTable, 0);
+            int ln = temp->node->u.l->leaf_symbol->line_no;
+            while(temp->next!=NULL){
+                temp=temp->next;
+            }
+            type *rhs_type = verifyType(temp, funcSymbolTable, TAG_ARITHMETIC_EXPRESSION);
+            if(rhs_type==NULL){
+                printf("Line %d: Assignment to type mismatched arithmetic expression\n", ln);
+            }else{
+                if(lhs_type->is_record!=rhs_type->is_record){
+                    printf("Line %d: The type %s of LHS in assignment statement does not match with type %s of arithmetic expression", ln, lhs_type->is_record ? lhs_type->u.rec_id : TypeString(lhs_type->u.pri_type), rhs_type->is_record ? rhs_type->u.rec_id : TypeString(rhs_type->u.pri_type));
+                }else if(lhs_type->is_record==0 && lhs_type->u.pri_type!=rhs_type->u.pri_type){
+                    printf("Line %d: The type %s of LHS in assignment statement does not match with type %s of arithmetic expression", ln, TypeString(lhs_type->u.pri_type), TypeString(lhs_type->u.pri_type));
+                }else if(lhs_type->is_record==1 && strcmp(lhs_type->u.rec_id, rhs_type->u.rec_id)){
+                    printf("Line %d: The type %s of LHS in assignment statement does not match with type %s of arithmetic expression", ln, lhs_type->u.rec_id, rhs_type->u.rec_id);
+                }
+            }
+
+            temp = temp->node->parent;
+            if(temp->next==NULL){
+                if(temp->node->parent->node->u.n->tag_info==TAG_ITERATIVE_STMT) temp=temp->node->parent;
+                else if(temp->node->parent->node->u.n->tag_info==TAG_THEN) temp=temp->node->parent;
+                else if(temp->node->parent->node->u.n->tag_info==TAG_COND_STMT) temp=temp->node->parent;
+                else break;
+            }
+            else temp = temp->next;
         }
-        if(isEmpty(st)) break;
-        temp = pop(st)->node;
-        temp = temp->next;
+        else if(temp->node->u.n->tag_info==TAG_ITERATIVE_STMT){
+            //While statement: one pass for checking if variables are being changed
+            ASTNodeIt *chk = temp->node->u.n->children;
+            type *cond = verifyType(chk, funcSymbolTable, TAG_BOOLEAN_EXPRESSION);
+            if(cond!=NULL){
+                checkChange(temp);
+            }
+            temp=temp->node->u.n->children->next;
+        }
+        else if(temp->node->u.n->tag_info==TAG_COND_STMT){
+            //if-then-else
+            ASTNodeIt *chk = temp->node->u.n->children;
+            type *cond = verifyType(chk, funcSymbolTable, TAG_BOOLEAN_EXPRESSION);
+            temp = temp->node->u.n->children->next->node->u.n->children;
+        }
+        else if(temp->node->u.n->tag_info==TAG_FUN_CALL_STMT){
+            ASTNodeIt *out_args = temp->node->u.n->children->node->u.n->children;
+            while(out_args!=NULL){
+                op = lookupEle(fun_id, SymbolTable)->ele->u.out_table->out_pars;
+                while(op!=NULL){
+                    if(strcmp(op->out_check->ret_par, out_args->node->u.l->leaf_symbol->u.lexeme)==0){
+                        op->out_check->tag=1;
+                        break;
+                    }
+                }
+                out_args=out_args->next;
+            }
+
+            hash_ele *f = lookupEle(temp->node->u.n->leaf_symbol->u.lexeme, SymbolTable);
+            int ln = temp->node->u.n->leaf_symbol->line_no;
+            if(f->ele==NULL){
+                printf("Line %d: Function %s used without being declared before the %s function\n", ln, temp->node->u.n->leaf_symbol->u.lexeme, fun_id);
+            }
+            else if(strcmp(temp->node->u.n->leaf_symbol->u.lexeme, fun_id)==0){
+                printf("Line %d: Function %s being invoked recursively\n", ln, fun_id);
+            }
+            else{
+                ASTNodeIt *out_args = temp->node->u.n->children->node->u.n->children;
+                ASTNodeIt *in_args = temp->node->u.n->children->next->node->u.n->children;
+                SeqListPars *f_in_pars = f->ele->u.out_table->in_pars;
+                SeqListPars *f_out_pars = f->ele->u.out_table->out_pars;
+                type *chk1, *chk2;
+
+                while(out_args!=NULL && f_out_pars!=NULL){
+                    chk1 = getType(out_args, funcSymbolTable, 1);
+                    chk2 = f_out_pars->t;
+                    if(chk1->is_record!=chk2->is_record){
+                        printf("Line %d: The type %s of variable %s does not match with the type %s of the formal output parameter\n", ln, chk1->is_record ? chk1->u.rec_id : TypeString(chk1->u.pri_type), out_args->node->u.l->leaf_symbol->u.lexeme, chk2->is_record ? chk2->u.rec_id : TypeString(chk2->u.pri_type));
+                    }else if(chk1->is_record==0 && chk1->u.pri_type!=chk2->u.pri_type){
+                        printf("Line %d: The type %s of variable %s does not match with the type %s of the formal output parameter\n", ln, TypeString(chk1->u.pri_type), out_args->node->u.l->leaf_symbol->u.lexeme, TypeString(chk2->u.pri_type));
+                    }else if(chk1->is_record==1 && strcmp(chk1->u.rec_id, chk2->u.rec_id)){
+                        printf("Line %d: The type %s of variable %s does not match with the type %s of the formal output parameter\n", ln, chk1->u.rec_id, out_args->node->u.l->leaf_symbol->u.lexeme, chk2->u.rec_id);
+                    }
+                    out_args = out_args->next;
+                    f_out_pars = f_out_pars->next;
+                }
+                if(out_args!=NULL)  printf("Line %d: The number of output parameters at function call %s is incorrect\n", ln, temp->node->u.n->leaf_symbol->u.lexeme);
+                if(f_out_pars!=NULL) printf("Line %d: The number of output parameters at function call %s is incorrect\n", ln, temp->node->u.n->leaf_symbol->u.lexeme);
+
+                while(in_args!=NULL && f_in_pars!=NULL){
+                    chk1 = getType(in_args, funcSymbolTable, 1);
+                    chk2 = f_in_pars->t;
+                    if(chk1->is_record!=chk2->is_record){
+                        printf("Line %d: The type %s of variable %s does not match with the type %s of the formal input parameter\n", ln, chk1->is_record ? chk1->u.rec_id : TypeString(chk1->u.pri_type), in_args->node->u.l->leaf_symbol->u.lexeme, chk2->is_record ? chk2->u.rec_id : TypeString(chk2->u.pri_type));
+                    }else if(chk1->is_record==0 && chk1->u.pri_type!=chk2->u.pri_type){
+                        printf("Line %d: The type %s of variable %s does not match with the type %s of the formal input parameter\n", ln, TypeString(chk1->u.pri_type), in_args->node->u.l->leaf_symbol->u.lexeme, TypeString(chk2->u.pri_type));
+                    }else if(chk1->is_record==1 && strcmp(chk1->u.rec_id, chk2->u.rec_id)){
+                        printf("Line %d: The type %s of variable %s does not match with the type %s of the formal input parameter\n", ln, chk1->u.rec_id, in_args->node->u.l->leaf_symbol->u.lexeme, chk2->u.rec_id);
+                    }
+                    in_args = in_args->next;
+                    f_in_pars = f_in_pars->next;
+                }
+                if(in_args!=NULL)  printf("Line %d: The number of input parameters at function call %s is incorrect\n", ln, temp->node->u.n->leaf_symbol->u.lexeme);
+                if(f_in_pars!=NULL) printf("Line %d: The number of input parameters at function call %s is incorrect\n", ln, temp->node->u.n->leaf_symbol->u.lexeme);
+
+            }
+
+            if(temp->next==NULL){
+                if(temp->node->parent->node->u.n->tag_info==TAG_ITERATIVE_STMT) temp=temp->node->parent;
+                else if(temp->node->parent->node->u.n->tag_info==TAG_THEN) temp=temp->node->parent;
+                else if(temp->node->parent->node->u.n->tag_info==TAG_COND_STMT) temp=temp->node->parent;
+                else break;
+            }
+            else temp = temp->next;
+        }
+        else if(temp->node->u.n->tag_info==TAG_READ){
+
+            op = lookupEle(fun_id, SymbolTable)->ele->u.out_table->out_pars;
+            while(op!=NULL){
+                if(strcmp(op->out_check->ret_par, temp->node->u.n->children->node->u.l->leaf_symbol->u.lexeme)==0){
+                    op->out_check->tag=1;
+                    break;
+                }
+            }
+
+            getType(temp->node->u.n->children, funcSymbolTable, 0);
+            if(temp->next==NULL){
+                if(temp->node->parent->node->u.n->tag_info==TAG_ITERATIVE_STMT) temp=temp->node->parent;
+                else if(temp->node->parent->node->u.n->tag_info==TAG_THEN) temp=temp->node->parent;
+                else if(temp->node->parent->node->u.n->tag_info==TAG_COND_STMT) temp=temp->node->parent;
+                else break;
+            }
+            else temp = temp->next;
+        }
+        else if(temp->node->u.n->tag_info==TAG_WRITE){
+            if(temp->node->u.n->children->node->u.l->leaf_symbol->flag==is_lexeme) getType(temp->node->u.n->children, funcSymbolTable, 0);
+            if(temp->next==NULL){
+                if(temp->node->parent->node->u.n->tag_info==TAG_ITERATIVE_STMT) temp=temp->node->parent;
+                else if(temp->node->parent->node->u.n->tag_info==TAG_THEN) temp=temp->node->parent;
+                else if(temp->node->parent->node->u.n->tag_info==TAG_COND_STMT) temp=temp->node->parent;
+                else break;
+            }
+            else temp = temp->next;
+        }
+        else printf("Check AST structure\n");
     }
 
     if(ret_no_error){

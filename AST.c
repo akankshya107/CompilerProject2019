@@ -445,7 +445,7 @@ ASTNodeIt* semanticRuleExecute(treeNodeIt *t, int rule_no){
         case 44 :
         {
             treeNodeIt *temp = t->t->treeNode_type.n->children;
-            ASTNodeIt* n = newNonLeafNode(TAG_ITERATIVE_STMT, NULL, temp->next->next->node, temp->next->next->next->next->node,temp->next->next->next->next->next->node );
+            ASTNodeIt* n = newNonLeafNode(TAG_ITERATIVE_STMT, NULL, temp->next->next->node, temp->next->next->next->next->node, temp->next->next->next->next->next->node );
             freeChildren(temp);
             return n;
         }
