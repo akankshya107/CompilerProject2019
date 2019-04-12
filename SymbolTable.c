@@ -116,8 +116,8 @@ ASTNodeIt* iterate_inorder(ASTNodeIt* temp)
     return temp;
 }
 
-void populateSymbolTable(ASTNodeIt* root){
-    return;
+ASTNodeIt* populateSymbolTable(ASTNodeIt* root){
+    return root;
 }
 
 void populateGlobalTable(ASTNodeIt* root){

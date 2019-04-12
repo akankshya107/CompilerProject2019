@@ -6,7 +6,7 @@
 #include "SymbolTable.h"
 Ele* returnEle(ASTNodeIt *n);
 ASTNodeIt *searchTag(ASTNodeIt *root, TAG tg);
-void semanticAnalyzer(treeNodeIt *t);
+ASTNodeIt *semanticAnalyzer(treeNodeIt *t);
 void checkTypes(ASTNodeIt* root);
 void semanticRuleCheck(ASTNodeIt *chk, char* fun_id);
 type getType(ASTNodeIt *t);

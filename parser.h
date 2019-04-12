@@ -10,7 +10,7 @@
 #endif
 void ComputeFirstAndFollowSets();
 treeNodeIt* parseInputSourceCode(char *testcaseFile);
-void printParseTree(treeNodeIt *root, char *outfile);
+void printParseTree(treeNodeIt *root);
 void createParseTable();
 //Aux functions
 treeNodeIt* returnIt(treeNode *t);
@@ -20,6 +20,6 @@ treeNode* returnLeafNode(treeNode *t, tokenInfo *ti, int rule_no);
 treeNodeIt* makeTreeNodes(g_node_head *h, treeNodeIt *par, int line_no);
 treeNodeIt* iterate(treeNodeIt *root);
 void print_parse_table();
-void print_leaf(FILE *fw, leafNode *l, NON_TERMINAL nt);
-void print_nonleaf(FILE *fw, nonLeafNode *n, int line_no, NON_TERMINAL nt, bool flag);
-void printParseTree(treeNodeIt *root, char *outfile);
+void print_leaf(leafNode *l, NON_TERMINAL nt);
+void print_nonleaf(nonLeafNode *n, int line_no, NON_TERMINAL nt, bool flag);
+size_t printParseTreeNodes(treeNodeIt *root);

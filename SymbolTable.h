@@ -12,4 +12,7 @@ hash_ele* lookupEle(char *str, HashTable HT);
 
 //semantic analyzer functions
 ASTNodeIt* populateSymbolTable(ASTNodeIt* root);
-HashTable populateGlobalTable(ASTNodeIt *root); //two passes
+void populateGlobalTable(ASTNodeIt *root); //two passes
+void printSymbolTable();
+void printGlobalTable(bool flg);
+void printMemReqST();
