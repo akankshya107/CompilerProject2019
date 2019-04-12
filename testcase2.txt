@@ -32,7 +32,9 @@ _main
 	type int : d5cb34567 : global;
 	type record #marks : b5c6 : global;
 	type record #marks : b5c67 : global;
+	type int : d5cb34567 : global;
 	type int : b4;
+	type int : b4
 	%The identifier b5c6 stores the sum of marks
 
 	b5 <--- 1;
