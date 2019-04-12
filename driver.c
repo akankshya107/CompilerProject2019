@@ -67,15 +67,15 @@ int main(int argc, char *argv[]){
 			while(ch!=NULL){
 				populateSymbolTable(ch);
 			}
-			if(option==5){
-				printSymbolTable();
-			}else if(option==6){
-				printGlobalTable(0); //print global variables
-			}else if(option==7){
-				printMemReqST();
-			}else{
-				printGlobalTable(1); //print record defs
-			}
+			// if(option==5){
+			// 	printSymbolTable();
+			// }else if(option==6){
+			// 	printGlobalTable(0); //print global variables
+			// }else if(option==7){
+			// 	printMemReqST();
+			// }else{
+			// 	printGlobalTable(1); //print record defs
+			// }
 		}else if(option==9){
 
 			clock_t start_time, end_time;
