@@ -6,29 +6,38 @@
 #include "lexer.h"
 #include "SymbolTable.h"
 
-Ele* returnEle(ASTNodeIt *n){
-    Ele *e = (Ele*)malloc(sizeof(Ele));
-    e->node=n;
-    e->next=NULL;
+Ele *returnEle(ASTNodeIt *n)
+{
+    Ele *e = (Ele *)malloc(sizeof(Ele));
+    e->node = n;
+    e->next = NULL;
     return e;
 }
 
-ASTNodeIt *searchTag(ASTNodeIt *root, TAG tg){
+ASTNodeIt *searchTag(ASTNodeIt *root, TAG tg)
+{
     ASTNodeIt *temp = root;
     Stack *st = newStack();
-    while(1){
-        while((temp!=NULL)){        
+    while (1)
+    {
+        while ((temp != NULL))
+        {
             push(st, returnEle(temp));
-            if(temp->node->is_leaf==0 && temp->node->u.n->tag_info==tg){
+            if (temp->node->is_leaf == 0 && temp->node->u.n->tag_info == tg)
+            {
                 return temp;
             }
-            else if(temp->node->is_leaf==0){
-                temp = temp->node->u.n->children; 
-            }else{
+            else if (temp->node->is_leaf == 0)
+            {
+                temp = temp->node->u.n->children;
+            }
+            else
+            {
                 temp = temp->next;
             }
         }
-        if(isEmpty(st)) break;
+        if (isEmpty(st))
+            break;
         temp = pop(st)->node;
         temp = temp->next;
     }
@@ -52,7 +61,6 @@ void semanticRuleCheck(ASTNodeIt *chk, char *fun_id);
 //     semanticRuleCheck(stmts, temp->node->u.n->leaf_symbol->u.lexeme);
 // }
 
-
 // void checkTypes(ASTNodeIt* root){
 //     //Single pass through AST
 //     ASTNodeIt *temp0 = searchTag(root, TAG_FUN_LIST);
@@ -61,7 +69,7 @@ void semanticRuleCheck(ASTNodeIt *chk, char *fun_id);
 //         ASTNodeIt *temp = ch0;
 //         Stack *st = newStack();
 //         while(1){
-//             while((temp!=NULL)){        
+//             while((temp!=NULL)){
 //                 push(st, returnEle(temp));
 //                 if(temp->node->is_leaf==0 && temp->node->u.n->tag_info==TAG_ARITHMETIC_EXPRESSION){
 //                     //check LHS and RHS
@@ -101,14 +109,14 @@ void semanticRuleCheck(ASTNodeIt *chk, char *fun_id);
 //                         if(flg) break;
 //                         ch = ch->next;
 //                     }
-                    
+
 //                 }
 //                 else if(temp->node->is_leaf==0){
-//                     temp = temp->node->u.n->children; 
+//                     temp = temp->node->u.n->children;
 //                 }else{
 //                     temp = temp->next;
 //                 }
-                
+
 //             }
 //             if(isEmpty(st)) break;
 //             temp = pop(st)->node;
@@ -118,71 +126,89 @@ void semanticRuleCheck(ASTNodeIt *chk, char *fun_id);
 //     ch0=ch0->next;
 // }
 
-void semanticRuleCheck(ASTNodeIt *chk, char *fun_id){
+void semanticRuleCheck(ASTNodeIt *chk, char *fun_id)
+{
     //preorder traversal;
     ASTNodeIt *temp = chk;
     Stack *st = newStack();
 
     //Check for: The parameters being returned by a function must be assigned a value. If a parameter does not get a value assigned within the function definition, it should be reported as an error.
-    bool ret_error=0;
+    bool ret_error = 0;
     ASTNodeIt *ret = chk->next->node->u.n->children;
     SeqListPars *op = lookupEle(fun_id, SymbolTable)->ele->u.symT.out_pars;
-    while(ret!=NULL && op!=NULL){
-        op->out.tag=0;
-        op->out.ret_par=ret->node->u.l->leaf_symbol->u.lexeme;
+    while (ret != NULL && op != NULL)
+    {
+        op->out.tag = 0;
+        op->out.ret_par = ret->node->u.l->leaf_symbol->u.lexeme;
         op = op->next;
         ret = ret->next;
     }
-    if(ret!=NULL) ret_error=1;
-    if(op!=NULL) ret_error=1;
-    
+    if (ret != NULL)
+        ret_error = 1;
+    if (op != NULL)
+        ret_error = 1;
+
     HashTable funcSymbolTable = lookupEle(fun_id, SymbolTable)->ele->u.symT.SymbolTable;
 
-    while(1){
-        while((temp!=NULL)){        
+    while (1)
+    {
+        while ((temp != NULL))
+        {
             push(st, returnEle(temp));
-            if(temp->node->is_leaf==0){
+            if (temp->node->is_leaf == 0)
+            {
                 //Non-leaf node: contains some TAG and is associated with some semantic check
 
                 //The right hand side expression of an assignment statement must be of the same type as that of the left hand side identifier.
-                if(temp->node->u.n->tag_info==TAG_ASSIGNMENT_STMT){
+                if (temp->node->u.n->tag_info == TAG_ASSIGNMENT_STMT)
+                {
 
                     type lhs_type;
                     bool check_val = temp->node->u.n->children->next->node->is_leaf;
-                    if(!check_val){
+                    if (!check_val)
+                    {
                         hash_ele *g = lookupEle(temp->node->u.n->children->node->u.l->leaf_symbol->u.lexeme, globalSymbolTable);
                         hash_ele *s = lookupEle(temp->node->u.n->children->node->u.l->leaf_symbol->u.lexeme, funcSymbolTable);
-                        if(g->ele!=NULL){
-                            if(g->ele->u.g->is_record){
-                                lhs_type.is_record=1;
-                                lhs_type.u.rec_id=g->ele->u.g->u.rec.rec_id;
-                            }else{
-                                lhs_type.is_record=0;
+                        if (g->ele != NULL)
+                        {
+                            if (g->ele->u.g->is_record)
+                            {
+                                lhs_type.is_record = 1;
+                                lhs_type.u.rec_id = g->ele->u.g->u.rec.rec_id;
+                            }
+                            else
+                            {
+                                lhs_type.is_record = 0;
                                 lhs_type = g->ele->u.g->u.t;
                             }
                         }
-                        else if(s->ele!=NULL){
-                            lhs_type=s->ele->u.s->t;
+                        else if (s->ele != NULL)
+                        {
+                            lhs_type = s->ele->u.s->t;
                         }
-                    }else{
-
+                    }
+                    else
+                    {
                     }
                 }
-                if(temp->node->u.n->tag_info==TAG_ITERATIVE_STMT){
-                    
+                if (temp->node->u.n->tag_info == TAG_ITERATIVE_STMT)
+                {
                 }
-                if(temp->node->u.n->tag_info==TAG_COND_STMT){
-                    
+                if (temp->node->u.n->tag_info == TAG_COND_STMT)
+                {
                 }
-                if(temp->node->u.n->tag_info==TAG_FUN_CALL_STMT){
-                    
+                if (temp->node->u.n->tag_info == TAG_FUN_CALL_STMT)
+                {
                 }
-                temp = temp->node->u.n->children; 
-            }else{
+                temp = temp->node->u.n->children;
+            }
+            else
+            {
                 temp = temp->next;
             }
         }
-        if(isEmpty(st)) break;
+        if (isEmpty(st))
+            break;
         temp = pop(st)->node;
         temp = temp->next;
     }

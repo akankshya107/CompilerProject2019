@@ -20,5 +20,8 @@ ASTNodeIt* iterate_inorder(ASTNodeIt* temp);
 //semantic analyzer functions
 ASTNodeIt* populateSymbolTable(ASTNodeIt* root);
 ASTNodeIt* populateGlobalTable(ASTNodeIt* root);
+void printSymbolTable();
+void printGlobalTable_recDef();
+void printGlobalvar();
 void extractTypes(ASTNodeIt* root);
 

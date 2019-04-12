@@ -146,22 +146,45 @@ int get_width(type* t)
 
 void populate_type(hash_ele* hashEle_identifier,ASTNodeIt* temp)
 {
-    if(temp->node->u.n->children->node->u.l->leaf_symbol->tokenName==TK_INT)
+    if(hashEle_identifier->ele->flag==1)
     {
-        hashEle_identifier->ele->u.s->t->is_record=0;
-        hashEle_identifier->ele->u.s->t->u.pri_type=false;
+        if(temp->node->u.n->children->node->u.l->leaf_symbol->tokenName==TK_INT)
+        {
+            hashEle_identifier->ele->u.s->t->is_record=0;
+            hashEle_identifier->ele->u.s->t->u.pri_type=false;
+        }
+        else if(temp->node->u.n->children->node->u.l->leaf_symbol->tokenName==TK_REAL)
+        {
+            hashEle_identifier->ele->u.s->t->is_record=0;
+            hashEle_identifier->ele->u.s->t->u.pri_type=true;
+        }
+        else
+        {
+            hashEle_identifier->ele->u.s->t->is_record=1;
+            hashEle_identifier->ele->u.s->t->u.rec_id=temp->node->u.n->children->node->u.l->leaf_symbol->u.lexeme;
+        }
     }
-    else if(temp->node->u.n->children->node->u.l->leaf_symbol->tokenName==TK_REAL)
+    else if(hashEle_identifier->ele->flag==2)
     {
-        hashEle_identifier->ele->u.s->t->is_record=0;
-        hashEle_identifier->ele->u.s->t->u.pri_type=true;
-    }
-    else
-    {
-        hashEle_identifier->ele->u.s->t->is_record=1;
-        hashEle_identifier->ele->u.s->t->u.rec_id=temp->node->u.n->children->node->u.l->leaf_symbol->u.lexeme;
+        if(temp->node->u.n->children->node->u.l->leaf_symbol->tokenName==TK_INT)
+        {
+            hashEle_identifier->ele->u.g->u.t->is_record=0;
+            hashEle_identifier->ele->u.g->u.t->u.pri_type=false;
+        }
+        else if(temp->node->u.n->children->node->u.l->leaf_symbol->tokenName==TK_REAL)
+        {
+            hashEle_identifier->ele->u.g->u.t->is_record=0;
+            hashEle_identifier->ele->u.g->u.t->u.pri_type=false;
+        }
+        else
+        {
+            hashEle_identifier->ele->u.g->u.t->is_record=1;
+            hashEle_identifier->ele->u.g->u.t->u.rec_id=temp->node->u.n->children->node->u.l->leaf_symbol->u.lexeme;
+        }
     }
 }
+
+
 
 void* populateSymbolTable(ASTNodeIt* root)
 {
@@ -329,6 +352,8 @@ void populateGlobalTable(ASTNodeIt* root)
     ASTNodeIt* temp=root;
     while(1)
     {
+        if(temp==NULL)
+            break;
         if(!temp->node->is_leaf)
         {
             if(temp->node->u.n->tag_info==TAG_TYPEDEF)
@@ -351,8 +376,10 @@ void populateGlobalTable(ASTNodeIt* root)
                 {
                     printf("Line no: %d Redeclaration of function %s\n",temp->node->u.n->leaf_symbol->line_no,temp->node->u.n->leaf_symbol->u.lexeme);
                 }
+                 
+            }
 
-                if(temp->node->u.n->children==NULL)
+            if(temp->node->u.n->children==NULL)
                 {
                     // temp=temp->next;
                     temp=iterate_inorder(temp);//if function reached, move to next function
@@ -360,14 +387,14 @@ void populateGlobalTable(ASTNodeIt* root)
                 else
                 temp=temp->node->u.n->children;
 
-                if(temp==NULL)//root reached
-                break; 
-            } 
-        }
-        else
-        {
-            temp=iterate_inorder(temp);
-        }
+            }
+            else
+            {
+                temp=iterate_inorder(temp);
+            }
+
+            if(temp==NULL)//root reached
+            break;
     }
 
     temp=root;
@@ -386,7 +413,7 @@ void populateGlobalTable(ASTNodeIt* root)
                 temp_children=temp->node->u.n->children;
                 if(temp_children->next!=NULL)
                 {
-                    if(lookupEle(temp->node->u.n->leaf_symbol->u.lexeme,SymbolTable)->ele==NULL)
+                    if(lookupEle(temp->node->u.n->leaf_symbol->u.lexeme,globalSymbolTable)->ele==NULL)
                     {
                         func_elem = create_elem(2);
                         hashEle_func_elem=create_hashEle(func_elem,temp->node->u.n->leaf_symbol->u.lexeme);           
@@ -424,21 +451,23 @@ void populateGlobalTable(ASTNodeIt* root)
             else
             temp=temp->node->u.n->children;
 
-            if(temp==NULL)//root reached
-            break; 
+             
         } 
         
         else
         {
             temp=iterate_inorder(temp);
         }
+
+        if(temp==NULL)//root reached
+            break;
     }              
 
 }
 
 
 
-void printSymbolTable(ASTNodeIt *root){
+void printSymbolTable(){
     int i,j;
     hash_ele* temp1,*temp2;
     printf("Lexeme\tType\tScope\tOffset\n");
@@ -469,13 +498,63 @@ void printSymbolTable(ASTNodeIt *root){
     }
 }
 
-void printGlobalTable(int n)
+void printGlobalTable_recDef()
 {
-    if(n==0)
+    int i;
+    hash_ele* temp;
+    ASTNodeIt* temp_ast;
+
+    for(i=0;i<LEN_HT;i++)
     {
+        temp=globalSymbolTable[i]->next;
+        while(temp!=NULL)
+        {
+            if(temp->ele->u.g->is_record)
+            {
+                temp_ast=temp->ele->u.g->u.rec_type_list->record_ptr;
+                printf("%s\t",temp->str);
+                while(temp_ast!=NULL)
+                {
+                    printf("%s,",temp_ast->node->u.n->children->node->u.l->leaf_symbol->u.lexeme);
+                    temp_ast=temp_ast->next;
+                }
+                printf("\t");
+
+                printf("%d\n",temp->ele->u.g->u.rec_type_list->width);
+
+            }
+            temp=temp->next;
+        }
         
     }
+}
 
+void printGlobalvar()
+{
+    int i;
+    hash_ele* temp;
+
+    for(i=0;i<LEN_HT;i++)
+    {
+        temp=globalSymbolTable[i]->next;
+        while(temp!=NULL)
+        {
+            if(!temp->ele->u.g->is_record)
+            {
+                
+                if(temp->ele->u.s->t->is_record==0)
+                {
+                    printf("%s\t%d\t--\t%d\n", temp->str, temp->ele->u.g->u.t->u.pri_type, temp->ele->u.s->offset);
+                }
+                else if (temp->ele->u.s->t->is_record==1)
+                {
+                printf("%s\t%s\t--\t%d\n", temp->str, temp->ele->u.g->u.t->u.rec_id, temp->ele->u.s->offset); 
+                }
+                
+            }
+            temp=temp->next;
+        }
+    }
 }
 
 
