@@ -16,8 +16,9 @@ hash_ele *create_hashEle(Element *ele, char *str);
 Element* create_elem(int flag);
 ASTNodeIt* iterate_inorder(ASTNodeIt* temp);
 // void* populateSymbolTable(ASTNodeIt* root);
-
+// void* populateSymbolTable(ASTNodeIt* root)
 //semantic analyzer functions
-void populateSymbolTable(ASTNodeIt* root);
+ASTNodeIt* populateSymbolTable(ASTNodeIt* root);
+ASTNodeIt* populateGlobalTable(ASTNodeIt* root);
 void extractTypes(ASTNodeIt* root);
 

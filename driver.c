@@ -15,7 +15,7 @@
 #include "semantic.h"
 extern parse_table T;
 int main(int argc, char *argv[]){
-	// int option;
+	int option;
 	// printf("(a) FIRST and FOLLOW set automated: YES\n(c) Both lexical and syntax analysis modules implemented: YES\n(f) Parse tree constructed: YES\n");
 	populate_transition_table();
 	populateKeyWordTable();
@@ -38,7 +38,7 @@ int main(int argc, char *argv[]){
 	// 		printf("\n");
 	// 	}else if(option==2){
 	// 		//Invoke only lexer
-	// 		FILE *fp = fopen(argv[1], "r");
+	// 		FILE *fp = fopen("testcase1.txt", "r");
 	// 		tokenInfo *ti;
 	// 		do{
 	// 			ti = getNextToken(fp);
@@ -105,7 +105,7 @@ int main(int argc, char *argv[]){
 	populateStrTable();
 	ComputeFirstAndFollowSets();
 	createParseTable();
-	treeNodeIt* t = parseInputSourceCode("testcase3.txt");
+	treeNodeIt* t = parseInputSourceCode("testcase1.txt");
 	// printParseTree(t, argv[2]);
 	ASTNodeIt *plgiveerror = makeAbstractSyntaxTree(t);
 	// printAST(plgiveerror);

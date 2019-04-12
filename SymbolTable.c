@@ -50,9 +50,11 @@ Element* create_elem(int flag)// flag=true if in global table
     ele->flag=flag;
     if(flag==0)
     {
-        ele->u.symT.in_pars=NULL;
-        ele->u.symT.out_pars=NULL;
-        ele->u.symT.SymbolTable=create_HTEle();
+        ele->u.out_table=(symT*)malloc(sizeof(symT));
+        ele->u.out_table->in_pars=NULL;
+        ele->u.out_table->out_pars=NULL;
+        // ele->u.out_table->
+        ele->u.out_table->SymbolTable=create_HTEle();
         // ele->u.SymbolTable=create_HTEle();
     }
     else if(flag==1)
@@ -62,7 +64,8 @@ Element* create_elem(int flag)// flag=true if in global table
     else if(flag==2)
     {
         ele->u.g=(globalTableElem*) malloc(sizeof(globalTableElem));
-    } 
+    }
+    return ele; 
 }
 
 void insertIntoHTEle(hash_ele *elem, HashTable HT){
@@ -124,47 +127,77 @@ ASTNodeIt* iterate_inorder(ASTNodeIt* temp)
 
 int get_width(type* t)
 {
-    if(!t->u.pri_type)//true if real
+    if(!t->is_record)
     {
-        identifier_elem->u.s->width=2;
-        identifier_elem->u.s->offset=curr_offset+2;
-        identifier_elem->u.s->is_record=false;
-        identifier_elem->u.s->t.pri_type=false;
+        if(!t->u.pri_type)//false if int
+        {
+            return INT_WIDTH;
+        }
+        else if(t->u.pri_type)
+        {
+            return REAL_WIDTH;
+        }
     }
-    else if(type==TK_REAL)
+    else 
     {
-        identifier_elem->u.s->width=4;
-        identifier_elem->u.s->offset=curr_offset+4;  
-        identifier_elem->u.s->is_record=false; 
-        identifier_elem->u.s->t.pri_type=true;
+        return lookupEle(t->u.rec_id,globalSymbolTable)->ele->u.g->u.rec_type_list->width;
     }
-    else if(type==TK_RECORDID)
+}
+
+void populate_type(hash_ele* hashEle_identifier,ASTNodeIt* temp)
+{
+    if(temp->node->u.n->children->node->u.l->leaf_symbol->tokenName==TK_INT)
     {
-        identifier_elem->u.s->width=glo->u.rec.width; //glbl
-        identifier_elem->u.s->offset=curr_offset+globalTableElem->u.rec.width; //glbl
-        identifier_elem->u.s->is_record=true;
-        identifier_elem->u.s->t.rec_id=temp->node->u.l->leaf_symbol->u.lexeme;;
+        hashEle_identifier->ele->u.s->t->is_record=0;
+        hashEle_identifier->ele->u.s->t->u.pri_type=false;
+    }
+    else if(temp->node->u.n->children->node->u.l->leaf_symbol->tokenName==TK_REAL)
+    {
+        hashEle_identifier->ele->u.s->t->is_record=0;
+        hashEle_identifier->ele->u.s->t->u.pri_type=true;
+    }
+    else
+    {
+        hashEle_identifier->ele->u.s->t->is_record=1;
+        hashEle_identifier->ele->u.s->t->u.rec_id=temp->node->u.n->children->node->u.l->leaf_symbol->u.lexeme;
     }
 }
 
 void* populateSymbolTable(ASTNodeIt* root)
 {
-    globalSymbolTable=create_HTEle();
-
     SymbolTable=create_HTEle();
-
     ASTNodeIt* temp=root;
     while(1)
     {
-        // int outer_sym_table;
         if(!temp->node->is_leaf)
         {
             if(temp->node->u.n->tag_info==TAG_FUNCTION||temp->node->u.n->tag_info==TAG_MAIN)
             {
-                // outer_sym_table = temp->node->u.n->leaf_symbol->tokenName;
-                Element* func_elem = create_elem(true);
-                hash_ele* hashEle_func_elem=create_hashEle(func_elem,temp->node->u.n->leaf_symbol->u.lexeme);
-                insertIntoHTEle(hashEle_func_elem,SymbolTable);
+                Element* func_elem;
+                hash_ele* hashEle_func_elem;
+                
+                if(lookupEle(temp->node->u.n->leaf_symbol->u.lexeme,SymbolTable)->ele==NULL)
+                {
+                    func_elem = create_elem(0);
+                    hashEle_func_elem=create_hashEle(func_elem,temp->node->u.n->leaf_symbol->u.lexeme);           
+                    insertIntoHTEle(hashEle_func_elem,SymbolTable);
+                }
+                else
+                {
+                    printf("Line no: %d Redeclaration of function %s\n",temp->node->u.n->leaf_symbol->line_no,temp->node->u.n->leaf_symbol->u.lexeme);
+                    if(temp->next!=NULL)
+                        temp=temp->next;
+                    else
+                    {
+                        temp=iterate_inorder(temp);
+                        if(temp==NULL)
+                            break;
+                    }
+                    
+                    continue;
+                }
+                
+                int global_offset=0;
 
                 Element* identifier_elem;
                 hash_ele* hashEle_identifier;
@@ -180,33 +213,63 @@ void* populateSymbolTable(ASTNodeIt* root)
                         
                         if(temp->node->u.n->tag_info==TAG_ID)
                         {
-                            identifier_elem=create_elem(1);
-                            hashEle_identifier=create_hashEle(identifier_elem,temp->node->u.n->leaf_symbol->u.lexeme);
-                            insertIntoHTEle(hashEle_identifier,func_elem->u.symT.SymbolTable);
-                            identifier_elem->u.s->width=-1;
-                            identifier_elem->u.s->offset=0;
-                            identifier_elem->u.s->is_record=false;
-                            identifier_elem->u.s->type.pri_type=-1;
-                            
-                        }
-                        // else if(temp->node->u.n->tag_info==TAG_TYPEDEF)
-                        // {
-                        //     //global HT se karna hai
+                            //check if not previously created
+                            if(lookupEle(temp->node->u.n->leaf_symbol->u.lexeme,func_elem->u.out_table->SymbolTable)->ele==NULL)
+                            {
+                                identifier_elem=create_elem(1);
+                                hashEle_identifier=create_hashEle(identifier_elem,temp->node->u.n->leaf_symbol->u.lexeme);
+                                insertIntoHTEle(hashEle_identifier,func_elem->u.out_table->SymbolTable);
+                                hashEle_identifier->ele->u.s->t=(type*) malloc(sizeof(type));
+                                //type population
+                                populate_type(hashEle_identifier,temp);
+                                //width population
+                                identifier_elem->u.s->width=get_width(hashEle_identifier->ele->u.s->t);
+                                identifier_elem->u.s->offset=global_offset;
+                                global_offset+=identifier_elem->u.s->width; 
+                            }
+                            else
+                            {
+                                printf("Line no: %d Redeclaration of variable %s\n",temp->node->u.n->leaf_symbol->line_no,temp->node->u.n->leaf_symbol->u.lexeme);
 
-                        // }
+                            }
+
+                        }
+
                         else if(temp->node->u.n->tag_info==TAG_DECLARE)
                         {
-                            identifier_elem=create_elem(false);
-                            hashEle_identifier=create_hashEle(identifier_elem,temp->node->u.n->leaf_symbol->u.lexeme);
-                            if(temp->node->u.n->children->next==NULL)
-                                insertIntoHTEle(hashEle_identifier,func_elem->u.SymbolTable);
-                            // else
-                                //insert into global symbol table
-                            identifier_elem->u.s->width=-1;
-                            identifier_elem->u.s->offset=0;
-                            identifier_elem->u.s->is_record=false;
-                            identifier_elem->u.s->type.pri_type=-1;      
+                            if(lookupEle(temp->node->u.n->leaf_symbol->u.lexeme,func_elem->u.out_table->SymbolTable)->ele==NULL)
+                            {
+                                identifier_elem=create_elem(1);
+                                hashEle_identifier=create_hashEle(identifier_elem,temp->node->u.n->leaf_symbol->u.lexeme);
+                                insertIntoHTEle(hashEle_identifier,func_elem->u.out_table->SymbolTable);
+                                hashEle_identifier->ele->u.s->t=(type*) malloc(sizeof(type));
+                                if(temp->node->u.n->leaf_symbol->tokenName!=TK_RECORDID)
+                                {
+                                    hashEle_func_elem->ele->u.g->is_record=false;
+                                    
+                                }
+                                else
+                                {
+                                    hashEle_func_elem->ele->u.g->is_record=true;    
+                                }
+                                //type population
+                                populate_type(hashEle_identifier,temp);
+                                //width population
+                                identifier_elem->u.s->width=get_width(hashEle_identifier->ele->u.s->t);
+                                identifier_elem->u.s->offset=global_offset;
+                                global_offset+=identifier_elem->u.s->width; 
+                            }
+                            else
+                            {
+                                printf("Line no: %d Redeclaration of variable %s\n",temp->node->u.n->leaf_symbol->line_no,temp->node->u.n->leaf_symbol->u.lexeme);
+
+                            }
+                                  
                         }
+                        // else if(temp->node->u.n->tag_info==TAG_INPUT_PARS)
+                        // {
+
+                        // }
 
                         if(temp->node->u.n->children==NULL)
                         {
@@ -230,10 +293,6 @@ void* populateSymbolTable(ASTNodeIt* root)
                 {
                     // temp=temp->next;
                     temp=iterate_inorder(temp);//if function reached, move to next function
-                    
-                    //may reach root nnode
-                    //in this case should also break from outer while(1)
-                    // think of how this can be done if iterate is written as a seperate function
                 }
                 else
                 temp=temp->node->u.n->children;
@@ -248,6 +307,175 @@ void* populateSymbolTable(ASTNodeIt* root)
             temp=iterate_inorder(temp);
         }
     }        
+}
+
+int get_width_record(ASTNodeIt* n){
+    ASTNodeIt* temp=n;
+    int width=0;
+    while(n!=NULL)
+    {
+        if(n->node->u.n->children->node->u.l->leaf_symbol->tokenName==TK_INT)
+            width+=INT_WIDTH;
+        else
+            width+=REAL_WIDTH;
+        n=n->next;
+    }
+    return width;
+}
+
+void populateGlobalTable(ASTNodeIt* root)
+{
+    globalSymbolTable=create_HTEle();
+    ASTNodeIt* temp=root;
+    while(1)
+    {
+        if(!temp->node->is_leaf)
+        {
+            if(temp->node->u.n->tag_info==TAG_TYPEDEF)
+            {
+                Element* func_elem;
+                hash_ele* hashEle_func_elem;
+                
+                if(lookupEle(temp->node->u.n->leaf_symbol->u.lexeme,globalSymbolTable)->ele==NULL)
+                {
+                    func_elem = create_elem(2);
+                    hashEle_func_elem=create_hashEle(func_elem,temp->node->u.n->leaf_symbol->u.lexeme);           
+                    insertIntoHTEle(hashEle_func_elem,globalSymbolTable);
+                    hashEle_func_elem->ele->u.g->is_record=true;
+                    hashEle_func_elem->ele->u.g->u.rec_type_list=(rec*) malloc(sizeof(rec));
+                    hashEle_func_elem->ele->u.g->u.rec_type_list->rec_id=temp->node->u.n->leaf_symbol->u.lexeme;
+                    hashEle_func_elem->ele->u.g->u.rec_type_list->record_ptr=temp->node->u.n->children;
+                    hashEle_func_elem->ele->u.g->u.rec_type_list->width=get_width_record(temp->node->u.n->children);    
+                }
+                else
+                {
+                    printf("Line no: %d Redeclaration of function %s\n",temp->node->u.n->leaf_symbol->line_no,temp->node->u.n->leaf_symbol->u.lexeme);
+                }
+
+                if(temp->node->u.n->children==NULL)
+                {
+                    // temp=temp->next;
+                    temp=iterate_inorder(temp);//if function reached, move to next function
+                }
+                else
+                temp=temp->node->u.n->children;
+
+                if(temp==NULL)//root reached
+                break; 
+            } 
+        }
+        else
+        {
+            temp=iterate_inorder(temp);
+        }
+    }
+
+    temp=root;
+    ASTNodeIt* temp_children;
+    int offset=0;
+
+    while(1)
+    {
+        if(!temp->node->is_leaf)
+        {
+            if(temp->node->u.n->tag_info==TAG_DECLARE)
+            {
+                Element* func_elem;
+                hash_ele* hashEle_func_elem;
+
+                temp_children=temp->node->u.n->children;
+                if(temp_children->next!=NULL)
+                {
+                    if(lookupEle(temp->node->u.n->leaf_symbol->u.lexeme,SymbolTable)->ele==NULL)
+                    {
+                        func_elem = create_elem(2);
+                        hashEle_func_elem=create_hashEle(func_elem,temp->node->u.n->leaf_symbol->u.lexeme);           
+                        insertIntoHTEle(hashEle_func_elem,globalSymbolTable);
+                        hashEle_func_elem->ele->u.g->u.t=(type*) malloc(sizeof(type));
+                        if(temp->node->u.n->leaf_symbol->tokenName!=TK_RECORDID)
+                        {
+                            hashEle_func_elem->ele->u.g->is_record=false;
+                            
+                        }
+                        else
+                        {
+                            hashEle_func_elem->ele->u.g->is_record=true;    
+                        }
+                        //populate type
+                        populate_type(hashEle_func_elem,temp);
+                        
+
+                        //populate offset
+                        hashEle_func_elem->ele->u.g->offset=offset;
+                        offset+=get_width(hashEle_func_elem->ele->u.g->u.t);
+
+                    }
+                    else
+                    {
+                        printf("Line no: %d Redeclaration of function %s\n",temp->node->u.n->leaf_symbol->line_no,temp->node->u.n->leaf_symbol->u.lexeme);
+                    }
+                }
+            }
+            if(temp->node->u.n->children==NULL)
+            {
+                // temp=temp->next;
+                temp=iterate_inorder(temp);//if function reached, move to next function
+            }
+            else
+            temp=temp->node->u.n->children;
+
+            if(temp==NULL)//root reached
+            break; 
+        } 
+        
+        else
+        {
+            temp=iterate_inorder(temp);
+        }
+    }              
+
+}
+
+
+
+void printSymbolTable(ASTNodeIt *root){
+    int i,j;
+    hash_ele* temp1,*temp2;
+    printf("Lexeme\tType\tScope\tOffset\n");
+    for(i=0;i<LEN_HT;i++)
+    {
+        temp1=SymbolTable[i]->next;
+        while(temp1!=NULL)
+        {
+            for(j=0;j<LEN_HT;j++)
+            {
+                temp2=temp1->ele->u.out_table->SymbolTable[j]->next;
+                while(temp2!=NULL)
+                {
+                    if(temp2->ele->u.s->t->is_record==0)
+                    {
+                        printf("%s\t%d\t%s\t%d\n", temp2->str, temp2->ele->u.s->t->u.pri_type, temp1->str, temp2->ele->u.s->offset);
+                    }
+                    else if (temp2->ele->u.s->t->is_record==1)
+                    {
+                    printf("%s\t%s\t%s\t%d\n", temp2->str, temp2->ele->u.s->t->u.rec_id, temp1->str, temp2->ele->u.s->offset); 
+                    }
+                    temp2=temp2->next;
+                }
+                
+            }        
+            temp1=temp1->next;
+        }
+    }
+}
+
+void printGlobalTable(int n)
+{
+    if(n==0)
+    {
+        
+    }
+
 }
 
 

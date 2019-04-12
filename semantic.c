@@ -36,21 +36,21 @@ ASTNodeIt *searchTag(ASTNodeIt *root, TAG tg){
 }
 
 void semanticRuleCheck(ASTNodeIt *chk, char *fun_id);
-void semanticAnalyzer(treeNodeIt *t){
-    ASTNodeIt *ast = makeAbstractSyntaxTree(t);
-    printAST(ast);
-    globalSymbolTable = populateGlobalTable(ast);
-    ASTNodeIt *temp = searchTag(ast, TAG_FUN_LIST);
-    ASTNodeIt *ch = temp->node->u.n->children;
-    while(ch!=NULL){
-        ASTNodeIt* stmts = populateSymbolTable(ch); //Populate Symbol Table for that function along with type extractor
-        semanticRuleCheck(stmts, ch->node->u.n->leaf_symbol->u.lexeme);
-        ch=ch->next;
-    }
-    temp = searchTag(ast, TAG_MAIN);
-    ASTNodeIt* stmts = populateSymbolTable(temp); //Populate Symbol Table for that function along with type extractor
-    semanticRuleCheck(stmts, temp->node->u.n->leaf_symbol->u.lexeme);
-}
+// void semanticAnalyzer(treeNodeIt *t){
+//     ASTNodeIt *ast = makeAbstractSyntaxTree(t);
+//     printAST(ast);
+//     globalSymbolTable = populateGlobalTable(ast);
+//     ASTNodeIt *temp = searchTag(ast, TAG_FUN_LIST);
+//     ASTNodeIt *ch = temp->node->u.n->children;
+//     while(ch!=NULL){
+//         ASTNodeIt* stmts = populateSymbolTable(ch); //Populate Symbol Table for that function along with type extractor
+//         semanticRuleCheck(stmts, ch->node->u.n->leaf_symbol->u.lexeme);
+//         ch=ch->next;
+//     }
+//     temp = searchTag(ast, TAG_MAIN);
+//     ASTNodeIt* stmts = populateSymbolTable(temp); //Populate Symbol Table for that function along with type extractor
+//     semanticRuleCheck(stmts, temp->node->u.n->leaf_symbol->u.lexeme);
+// }
 
 
 // void checkTypes(ASTNodeIt* root){

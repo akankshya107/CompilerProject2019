@@ -8,6 +8,8 @@
 #include <stdbool.h>
 #include "AST.h"
 #define LEN_HT 41
+#define INT_WIDTH 2
+#define REAL_WIDTH 4
 typedef bool TYPE; // 0 for int, 1 for real
 
 typedef struct Ele{
@@ -18,10 +20,11 @@ typedef struct Ele{
 #include "stack.h"
 
 typedef struct Element Element;
+typedef struct hT hash_ele;
 typedef struct hT{
     char *str;
     Element *ele;
-    struct hT *next;
+    hash_ele *next;
 }hash_ele;
 
 typedef hash_ele **HashTable;
@@ -47,10 +50,12 @@ typedef struct{
     char *ret_par;
 }out; //Should be made NULL for in_pars
 
+typedef struct SeqListPars SeqListPars;
+
 typedef struct SeqListPars{
-    bool in_flg;
+    bool out_flg;
     type* t;
-    out* out_check;
+    out* out_check;//null for inpar
     SeqListPars *next;
 }SeqListPars;
 
@@ -66,6 +71,7 @@ typedef struct globalTableElem{
         type* t;
         rec* rec_type_list;    
     }u;
+    int offset;
 }globalTableElem;
 
 typedef struct symT{

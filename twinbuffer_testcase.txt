@@ -15,7 +15,7 @@ output parameter list[real d3,int d2,real b5];
 	return [d3];
 end
 
-_sumN  input parameter list [int d5cc34,real b5]  
+_sumN  input parameter list [int d5cc34,int b3]  
 output parameter list[real d3,int d2,real b5];
 	type int : b5b567;
 	type int : b5b57;
@@ -28,24 +28,8 @@ output parameter list[real d3,int d2,real b5];
 	endwhile
 	return [d3];
 end
-
-_sumN  input parameter list [int d5cc34,real b5]  
-output parameter list[real d3,int d2,real b5];
-	type int : b5b567;
-	type int : b5b57;
-	b5b567 <--- 1;
-	%d3 <--- 0.00;
-	while ( b5b567 <= d5cc34)
-		read( c3bd);
-		d3 <--- d3 + c3bd;
-		b5b567 <--- b5b567 + 1;
-	endwhile
-	return [d3];
-end
-
 _main
 	type int :b3;
-	type real:b3;
 	type real :c4bd56;
 	b3 <--- 7;
 	[c4bd56]<--- call _sumN with parameters [b3];
