@@ -23,7 +23,7 @@ int main(int argc, char *argv[]){
 	populateStrTable();
 	ComputeFirstAndFollowSets();
 	createParseTable();
-	treeNodeIt* t = parseInputSourceCode("testcase2.txt");
+	treeNodeIt* t = parseInputSourceCode("semAn/testcase1.txt");
 	// printParseTree(t, argv[2]);
 	ASTNodeIt *plgiveerror = makeAbstractSyntaxTree(t);
 	// printAST(plgiveerror);
