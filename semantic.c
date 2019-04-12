@@ -505,13 +505,15 @@ void semanticRuleCheck(ASTNodeIt *chk, char *fun_id){
         //The right hand side expression of an assignment statement must be of the same type as that of the left hand side identifier.
         if(temp->node->u.n->tag_info==TAG_ASSIGNMENT_STMT){
 
-            op = lookupEle(fun_id, SymbolTable)->ele->u.out_table->out_pars;
-            while(op!=NULL){
-                if(strcmp(op->out_check->ret_par, temp->node->u.n->children->node->u.l->leaf_symbol->u.lexeme)==0){
-                    op->out_check->tag=1;
-                    break;
+            if(!ret_no_error){
+                op = lookupEle(fun_id, SymbolTable)->ele->u.out_table->out_pars;
+                while(op!=NULL){
+                    if(strcmp(op->out_check->ret_par, temp->node->u.n->children->node->u.l->leaf_symbol->u.lexeme)==0){
+                        op->out_check->tag=1;
+                        break;
+                    }
+                    op=op->next;
                 }
-                op=op->next;
             }
 
             temp = temp->node->u.n->children;
@@ -561,16 +563,18 @@ void semanticRuleCheck(ASTNodeIt *chk, char *fun_id){
         }
         else if(temp->node->u.n->tag_info==TAG_FUN_CALL_STMT){
             ASTNodeIt *out_args = temp->node->u.n->children->node->u.n->children;
-            while(out_args!=NULL){
-                op = lookupEle(fun_id, SymbolTable)->ele->u.out_table->out_pars;
-                while(op!=NULL){
-                    if(strcmp(op->out_check->ret_par, out_args->node->u.l->leaf_symbol->u.lexeme)==0){
-                        op->out_check->tag=1;
-                        break;
+            if(!ret_no_error){
+                while(out_args!=NULL){
+                    op = lookupEle(fun_id, SymbolTable)->ele->u.out_table->out_pars;
+                    while(op!=NULL){
+                        if(strcmp(op->out_check->ret_par, out_args->node->u.l->leaf_symbol->u.lexeme)==0){
+                            op->out_check->tag=1;
+                            break;
+                        }
+                        op=op->next;
                     }
-                    op=op->next;
+                    out_args=out_args->next;
                 }
-                out_args=out_args->next;
             }
 
             hash_ele *f = lookupEle(temp->node->u.n->leaf_symbol->u.lexeme, SymbolTable);
@@ -636,13 +640,15 @@ void semanticRuleCheck(ASTNodeIt *chk, char *fun_id){
         }
         else if(temp->node->u.n->tag_info==TAG_READ){
 
-            op = lookupEle(fun_id, SymbolTable)->ele->u.out_table->out_pars;
-            while(op!=NULL){
-                if(strcmp(op->out_check->ret_par, temp->node->u.n->children->node->u.l->leaf_symbol->u.lexeme)==0){
-                    op->out_check->tag=1;
-                    break;
+            if(!ret_no_error){
+                op = lookupEle(fun_id, SymbolTable)->ele->u.out_table->out_pars;
+                while(op!=NULL){
+                    if(strcmp(op->out_check->ret_par, temp->node->u.n->children->node->u.l->leaf_symbol->u.lexeme)==0){
+                        op->out_check->tag=1;
+                        break;
+                    }
+                    op=op->next;
                 }
-                op=op->next;
             }
 
             getType(temp->node->u.n->children, funcSymbolTable, 0);

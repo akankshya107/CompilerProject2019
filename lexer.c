@@ -91,6 +91,7 @@ tokenInfo* getNextToken(FILE *fp){
     static bool global_flag = 0;
     static int flag = 0;
     static size_t no_of_bytes;
+    static char temp;
 
     if(!global_flag){
         input_buffer=(char*)malloc(sizeof(char)*BUF_LENGTH);
@@ -101,7 +102,6 @@ tokenInfo* getNextToken(FILE *fp){
     bool exceed_length=0;
     int j=0, state=0;   
     int ch;
-    char temp;
     char* lex = (char*)malloc(sizeof(char)*MAX_LENGTH);
     while(1){
         if(input_buffer_pointer==no_of_bytes) {
@@ -109,7 +109,6 @@ tokenInfo* getNextToken(FILE *fp){
                 no_of_bytes=getStream(fp);
                 input_buffer_pointer=0;
             }else{
-
                 if(state==0 || state==27 || state==28 || state==53 || state==54){
                     // printf("EOF\n");
                 }
@@ -181,7 +180,7 @@ tokenInfo* getNextToken(FILE *fp){
             if(ch=='\n') line_count++;
         }else if(transition_table[state][ch].flag==1){
             if(transition_table[state][ch].u.func.is_retract) {
-                if(input_buffer_pointer==no_of_bytes){
+                if(input_buffer_pointer==0){
                     flag=1;
                     temp=lex[j-1];
                 }
