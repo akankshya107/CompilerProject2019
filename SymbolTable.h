@@ -23,5 +23,7 @@ ASTNodeIt* populateGlobalTable(ASTNodeIt* root);
 void printSymbolTable();
 void printGlobalTable_recDef();
 void printGlobalvar();
+void print_inpar_list();
+void print_outpar_list();
 void extractTypes(ASTNodeIt* root);
 

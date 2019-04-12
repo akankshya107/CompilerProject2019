@@ -114,5 +114,7 @@ int main(int argc, char *argv[]){
 	printGlobalTable_recDef();
 	printGlobalvar();
 	printSymbolTable();
+	print_inpar_list();
+	 print_outpar_list();
 	return 0;
 }

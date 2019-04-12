@@ -5,8 +5,8 @@
 %Following function reads marks of a student in all subjects and returns as a record variable
 % Note that the variable b7 is not used anywhere but it is the syntactic requirement to have 
 % atleast one input parameter
-_readMarks input parameter list[real b6,int b456,real b567]
-output parameter list [ record #marks b3c45,real c5];
+_readMarks input parameter list[real b6,int b4]
+output parameter list [ record #marks b3c45];
 	read(b3c45.maths);
 	read(b3c45.physics);
 	read(b3c45.chemistry);

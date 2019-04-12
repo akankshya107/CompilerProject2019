@@ -184,7 +184,27 @@ void populate_type(hash_ele* hashEle_identifier,ASTNodeIt* temp)
     }
 }
 
+SeqListPars* make_inpars_node(type *t)
+{
+    SeqListPars* n=(SeqListPars*) malloc(sizeof(SeqListPars));
+    n->out_flg=false;
+    n->t=t;
+    n->out_check=NULL;
+    n->next=NULL;
+    return n;
+}
 
+SeqListPars* make_outpars_node(type* t)
+{
+    SeqListPars* n=(SeqListPars*) malloc(sizeof(SeqListPars));
+    n->out_flg=true;
+    n->t=t;
+    n->out_check=(out*) malloc(sizeof(out));
+    n->out_check->tag=false;
+    n->out_check->ret_par=NULL;
+    n->next=NULL;
+    return n;
+}
 
 void* populateSymbolTable(ASTNodeIt* root)
 {
@@ -289,10 +309,41 @@ void* populateSymbolTable(ASTNodeIt* root)
                             }
                                   
                         }
-                        // else if(temp->node->u.n->tag_info==TAG_INPUT_PARS)
-                        // {
+                        else if(temp->node->u.n->tag_info==TAG_OUTPUT_PARS)
+                        {
+                            ASTNodeIt* temp_ast=temp->node->parent->node->u.n->children->node->u.n->children;
+                            func_elem->u.out_table->in_pars=make_inpars_node(lookupEle(temp_ast->node->u.n->leaf_symbol->u.lexeme,func_elem->u.out_table->SymbolTable)->ele->u.s->t);
+                            SeqListPars* temp_seq=func_elem->u.out_table->in_pars;
+                            temp_ast=temp_ast->next;
+                            while(temp_ast!=NULL)
+                            {
+                                temp_seq->next=make_inpars_node(lookupEle(temp_ast->node->u.n->leaf_symbol->u.lexeme,func_elem->u.out_table->SymbolTable)->ele->u.s->t);
+                                temp_ast=temp_ast->next;
+                                temp_seq=temp_seq->next;
+                            }
+                        }
 
-                        // }
+                        else if( temp->node->u.n->tag_info==TAG_TYPEDEFS)
+                        {
+                            if(temp->node->parent->node->u.n->tag_info!=TAG_MAIN)
+                            {
+                                ASTNodeIt* temp_ast=temp->node->parent->node->u.n->children->next->node->u.n->children;
+                                func_elem->u.out_table->out_pars=make_outpars_node(lookupEle(temp_ast->node->u.n->leaf_symbol->u.lexeme,func_elem->u.out_table->SymbolTable)->ele->u.s->t);
+                                // func_elem->u.out_table->out_pars->out_check->ret_par=temp_ast->node->u.n->leaf_symbol->u.lexeme;
+                                SeqListPars* temp_seq=func_elem->u.out_table->out_pars;
+                                temp_ast=temp_ast->next;
+                                while(temp_ast!=NULL)
+                                {
+                                    temp_seq->next=make_outpars_node(lookupEle(temp_ast->node->u.n->leaf_symbol->u.lexeme,func_elem->u.out_table->SymbolTable)->ele->u.s->t);
+                                    // func_elem->u.out_table->out_pars->out_check->ret_par=temp_ast->node->u.n->leaf_symbol->u.lexeme;
+                                    temp_ast=temp_ast->next;
+                                    temp_seq=temp_seq->next;
+                                }
+                            }
+
+                        }
+                        else if(temp->node->u.n->tag_info==TAG_RETURNSTMT)
+                        {}
 
                         if(temp->node->u.n->children==NULL)
                         {
@@ -542,13 +593,13 @@ void printGlobalvar()
             if(!temp->ele->u.g->is_record)
             {
                 
-                if(temp->ele->u.s->t->is_record==0)
+                if(temp->ele->u.g->u.t->is_record==0)
                 {
-                    printf("%s\t%d\t--\t%d\n", temp->str, temp->ele->u.g->u.t->u.pri_type, temp->ele->u.s->offset);
+                    printf("%s\t%d\t--\t%d\n", temp->str, temp->ele->u.g->u.t->u.pri_type, temp->ele->u.g->offset);
                 }
-                else if (temp->ele->u.s->t->is_record==1)
+                else if (temp->ele->u.g->u.t->is_record==1)
                 {
-                printf("%s\t%s\t--\t%d\n", temp->str, temp->ele->u.g->u.t->u.rec_id, temp->ele->u.s->offset); 
+                printf("%s\t%s\t--\t%d\n", temp->str, temp->ele->u.g->u.t->u.rec_id, temp->ele->u.g->offset); 
                 }
                 
             }
@@ -557,6 +608,66 @@ void printGlobalvar()
     }
 }
 
+void print_inpar_list()
+{
+    int i;
+    hash_ele* temp;
+    SeqListPars* temp_seq;
+    for(i=0;i<LEN_HT;i++)
+    {
+        temp=SymbolTable[i]->next;
+
+        while(temp!=NULL)
+        {
+            temp_seq=temp->ele->u.out_table->in_pars;
+            while(temp_seq!=NULL)
+            {
+                if(!temp_seq->t->is_record)
+                printf("%d  ",temp_seq->t->u.pri_type);
+                else
+                {
+                    printf("%s  ",temp_seq->t->u.rec_id);
+                }
+                temp_seq=temp_seq->next;
+            }
+            temp=temp->next;
+            if(temp==NULL)
+            printf("\n");
+        }
+        // printf("\n");
+    }
+}
+
+void print_outpar_list()
+{
+    int i;
+    hash_ele* temp;
+    SeqListPars* temp_seq;
+    for(i=0;i<LEN_HT;i++)
+    {
+        temp=SymbolTable[i]->next;
+
+        while(temp!=NULL)
+        {
+            temp_seq=temp->ele->u.out_table->out_pars;
+            while(temp_seq!=NULL)
+            {
+                if(!temp_seq->t->is_record)
+                printf("%d  ",temp_seq->t->u.pri_type);
+                else
+                {
+                    printf("%s  ",temp_seq->t->u.rec_id);
+                }
+                temp_seq=temp_seq->next;
+            }
+            temp=temp->next;
+            if(temp==NULL)
+            printf("\n");
+        }
+        
+        
+    }
+}
 
 
 
