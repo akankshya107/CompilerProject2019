@@ -700,9 +700,7 @@ ASTNodeIt* makeAbstractSyntaxTree(treeNodeIt *root){
 	while(1){
 		while(temp->t->is_leaf==0){
 			temp = temp->t->treeNode_type.n->children;
-			if (temp==NULL) break;
 		}
-		if (temp==NULL) break;
 		//REACHED A LEAF
         //do nothing
 		while(temp->next==NULL){

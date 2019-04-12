@@ -31,7 +31,7 @@ int main(int argc, char *argv[]){
 			break;
 		}else if(option==1){
 			//Invoke only lexer
-			FILE *fp = fopen("sem_test_cases/testcase1.txt", "r");
+			FILE *fp = fopen(argv[1], "r");
 			tokenInfo *ti;
 			do{
 				ti = getNextToken(fp);
@@ -43,15 +43,15 @@ int main(int argc, char *argv[]){
 			fclose(fp);
 			printf("\n");
 		}else if(option==2){
-			treeNodeIt* t = parseInputSourceCode("sem_test_cases/testcase1.txt");
+			treeNodeIt* t = parseInputSourceCode(argv[1]);
 			printParseTree(t);
 		}else if(option==3){
 			printf("Traversal order of AST: Post-order\n");
-			treeNodeIt* t = parseInputSourceCode("sem_test_cases/testcase1.txt");
+			treeNodeIt* t = parseInputSourceCode(argv[1]);
 			ASTNodeIt* ast = makeAbstractSyntaxTree(t);
 			printAST(ast);
 		}else if(option==4){
-			treeNodeIt* t = parseInputSourceCode("sem_test_cases/testcase1.txt");
+			treeNodeIt* t = parseInputSourceCode(argv[1]);
 			size_t p = printParseTreeNodes(t);
 			printf("Parse tree Number of nodes = %d\t\tAllocated Memory = %lu Bytes\n", ParseNodes, p);
 			ASTNodeIt* ast = makeAbstractSyntaxTree(t);
@@ -60,7 +60,7 @@ int main(int argc, char *argv[]){
 			printf("Compression percentage = %f\n", (((float)p-a)/(float)p)*100 );
 		}
 		else if(option==5 || option==6 || option==7 || option==8){
-			treeNodeIt* t = parseInputSourceCode("sem_test_cases/testcase1.txt");
+			treeNodeIt* t = parseInputSourceCode(argv[1]);
 			ASTNodeIt* ast = makeAbstractSyntaxTree(t);
 			ASTNodeIt * ch = searchTag(ast, TAG_FUN_LIST)->node->u.n->children;
 			populateGlobalTable(ast);
@@ -86,7 +86,7 @@ int main(int argc, char *argv[]){
 
 			start_time = clock();
 
-			treeNodeIt* t = parseInputSourceCode("sem_test_cases/testcase1.txt");
+			treeNodeIt* t = parseInputSourceCode(argv[1]);
 			if(parse_correct){
 				ASTNodeIt *ast = semanticAnalyzer(t);
 			}
@@ -107,7 +107,7 @@ int main(int argc, char *argv[]){
 			printf("To check, use option=9 first\n");
 			scanf("%d\n", &i);
 			if(i){
-				treeNodeIt* t = parseInputSourceCode("sem_test_cases/testcase1.txt");
+				treeNodeIt* t = parseInputSourceCode(argv[1]);
 				ASTNodeIt *ast;
 				if(parse_correct){
 					ast = semanticAnalyzer(t);

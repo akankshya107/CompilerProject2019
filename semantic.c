@@ -89,6 +89,7 @@ type* getType(ASTNodeIt *temp, HashTable funcSymbolTable, bool idlist){
         }
         else{
             printf("Line %d: Variable %s not declared\n", temp->node->u.l->leaf_symbol->line_no, temp->node->u.l->leaf_symbol->u.lexeme);
+            return NULL;
         }
     }else{ //LHS = TK_ID.TK_FIELDID
         hash_ele *g = lookupEle(temp->node->u.l->leaf_symbol->u.lexeme, globalSymbolTable);
@@ -137,6 +138,7 @@ type* getType(ASTNodeIt *temp, HashTable funcSymbolTable, bool idlist){
         }
         else{
             printf("Line %d: Variable %s not declared\n", temp->node->u.l->leaf_symbol->line_no, temp->node->u.l->leaf_symbol->u.lexeme);
+            return NULL;
         }
     }
     return lhs_type;
@@ -185,32 +187,34 @@ type* verifyType(ASTNodeIt* tn, HashTable funcTable, TAG tag){
                     if(typ_err){
                         type *chk1 = temp->node->u.n->children->node->t;
                         type *chk2 = temp->node->u.n->children->next->node->t;
-                        if((chk1->is_record==1 || chk2->is_record==1) && (temp->node->u.n->leaf_symbol->tokenName==TK_MUL || temp->node->u.n->leaf_symbol->tokenName==TK_DIV)){
-                            if(chk1->is_record==1 && chk2->is_record!=1){
+                        if(chk1!=NULL && chk2!=NULL){
+                            if((chk1->is_record==1 || chk2->is_record==1) && (temp->node->u.n->leaf_symbol->tokenName==TK_MUL || temp->node->u.n->leaf_symbol->tokenName==TK_DIV)){
+                                if(chk1->is_record==1 && chk2->is_record!=1){
+                                    temp->node->t = (type*)malloc(sizeof(type));
+                                    temp->node->t->is_record = chk1->is_record;
+                                    temp->node->t->u.rec_id = chk1->u.rec_id;
+                                    return temp->node->t;
+                                }else if(chk1->is_record!=1 && chk2->is_record==1){
+                                    temp->node->t = (type*)malloc(sizeof(type));
+                                    temp->node->t->is_record = chk2->is_record;
+                                    temp->node->t->u.rec_id = chk2->u.rec_id;
+                                    return temp->node->t;
+                                }else{
+                                    printf("Line %d: Type mismatch in arithmetic expression\n", temp->node->u.n->leaf_symbol->line_no);
+                                }
+                            }else if(chk1->is_record!=chk2->is_record){
+                                printf("Line %d: Type mismatch in arithmetic expression\n", temp->node->u.n->leaf_symbol->line_no);
+                            }else if(chk1->is_record==0 && chk1->u.pri_type!=chk2->u.pri_type){
+                                printf("Line %d: Type mismatch in arithmetic expression\n", temp->node->u.n->leaf_symbol->line_no);
+                            }else if(chk1->is_record==1 && strcmp(chk1->u.rec_id, chk2->u.rec_id)){
+                                printf("Line %d: Type mismatch in arithmetic expression\n", temp->node->u.n->leaf_symbol->line_no);
+                            }else{
                                 temp->node->t = (type*)malloc(sizeof(type));
                                 temp->node->t->is_record = chk1->is_record;
-                                temp->node->t->u.rec_id = chk1->u.rec_id;
+                                if(chk1->is_record==0) temp->node->t->u.pri_type = chk1->u.pri_type;
+                                if(chk1->is_record==1) temp->node->t->u.rec_id = chk1->u.rec_id;
                                 return temp->node->t;
-                            }else if(chk1->is_record!=1 && chk2->is_record==1){
-                                temp->node->t = (type*)malloc(sizeof(type));
-                                temp->node->t->is_record = chk2->is_record;
-                                temp->node->t->u.rec_id = chk2->u.rec_id;
-                                return temp->node->t;
-                            }else{
-                                printf("Line %d: Type mismatch in arithmetic expression\n", temp->node->u.n->leaf_symbol->line_no);
                             }
-                        }else if(chk1->is_record!=chk2->is_record){
-                            printf("Line %d: Type mismatch in arithmetic expression\n", temp->node->u.n->leaf_symbol->line_no);
-                        }else if(chk1->is_record==0 && chk1->u.pri_type!=chk2->u.pri_type){
-                            printf("Line %d: Type mismatch in arithmetic expression\n", temp->node->u.n->leaf_symbol->line_no);
-                        }else if(chk1->is_record==1 && strcmp(chk1->u.rec_id, chk2->u.rec_id)){
-                            printf("Line %d: Type mismatch in arithmetic expression\n", temp->node->u.n->leaf_symbol->line_no);
-                        }else{
-                            temp->node->t = (type*)malloc(sizeof(type));
-                            temp->node->t->is_record = chk1->is_record;
-                            if(chk1->is_record==0) temp->node->t->u.pri_type = chk1->u.pri_type;
-                            if(chk1->is_record==1) temp->node->t->u.rec_id = chk1->u.rec_id;
-                            return temp->node->t;
                         }
                     }
                     return NULL;
@@ -218,34 +222,36 @@ type* verifyType(ASTNodeIt* tn, HashTable funcTable, TAG tag){
                 if(typ_err){
                     type *chk1 = temp->node->u.n->children->node->t;
                     type *chk2 = temp->node->u.n->children->next->node->t;
-                    if((chk1->is_record==1 || chk2->is_record==1) && (temp->node->u.n->leaf_symbol->tokenName==TK_MUL || temp->node->u.n->leaf_symbol->tokenName==TK_DIV)){
-                        if(chk1->is_record==1 && chk2->is_record!=1){
-                            temp->node->t = (type*)malloc(sizeof(type));
-                            temp->node->t->is_record = chk1->is_record;
-                            temp->node->t->u.rec_id = chk1->u.rec_id;
-                        }else if(chk1->is_record!=1 && chk2->is_record==1){
-                            temp->node->t = (type*)malloc(sizeof(type));
-                            temp->node->t->is_record = chk2->is_record;
-                            temp->node->t->u.rec_id = chk2->u.rec_id;
-                        }else{
+                    if(chk1!=NULL && chk2!=NULL){
+                        if((chk1->is_record==1 || chk2->is_record==1) && (temp->node->u.n->leaf_symbol->tokenName==TK_MUL || temp->node->u.n->leaf_symbol->tokenName==TK_DIV)){
+                            if(chk1->is_record==1 && chk2->is_record!=1){
+                                temp->node->t = (type*)malloc(sizeof(type));
+                                temp->node->t->is_record = chk1->is_record;
+                                temp->node->t->u.rec_id = chk1->u.rec_id;
+                            }else if(chk1->is_record!=1 && chk2->is_record==1){
+                                temp->node->t = (type*)malloc(sizeof(type));
+                                temp->node->t->is_record = chk2->is_record;
+                                temp->node->t->u.rec_id = chk2->u.rec_id;
+                            }else{
+                                printf("Line %d: Type mismatch in arithmetic expression\n", temp->node->u.n->leaf_symbol->line_no);
+                                typ_err=0;
+                            }
+                        }else if(chk1->is_record!=chk2->is_record){
                             printf("Line %d: Type mismatch in arithmetic expression\n", temp->node->u.n->leaf_symbol->line_no);
                             typ_err=0;
+                        }else if(chk1->is_record==0 && chk1->u.pri_type!=chk2->u.pri_type){
+                            printf("Line %d: Type mismatch in arithmetic expression\n", temp->node->u.n->leaf_symbol->line_no);
+                            typ_err=0;
+                        }else if(chk1->is_record==1 && strcmp(chk1->u.rec_id, chk2->u.rec_id)){
+                            printf("Line %d: Type mismatch in arithmetic expression\n", temp->node->u.n->leaf_symbol->line_no);
+                            typ_err=0;
+                        }else{
+                            temp->node->t = (type*)malloc(sizeof(type));
+                            temp->node->t->is_record = chk1->is_record;
+                            if(chk1->is_record==0) temp->node->t->u.pri_type = chk1->u.pri_type;
+                            if(chk1->is_record==1) temp->node->t->u.rec_id = chk1->u.rec_id;
                         }
-                    }else if(chk1->is_record!=chk2->is_record){
-                        printf("Line %d: Type mismatch in arithmetic expression\n", temp->node->u.n->leaf_symbol->line_no);
-                        typ_err=0;
-                    }else if(chk1->is_record==0 && chk1->u.pri_type!=chk2->u.pri_type){
-                        printf("Line %d: Type mismatch in arithmetic expression\n", temp->node->u.n->leaf_symbol->line_no);
-                        typ_err=0;
-                    }else if(chk1->is_record==1 && strcmp(chk1->u.rec_id, chk2->u.rec_id)){
-                        printf("Line %d: Type mismatch in arithmetic expression\n", temp->node->u.n->leaf_symbol->line_no);
-                        typ_err=0;
-                    }else{
-                        temp->node->t = (type*)malloc(sizeof(type));
-                        temp->node->t->is_record = chk1->is_record;
-                        if(chk1->is_record==0) temp->node->t->u.pri_type = chk1->u.pri_type;
-                        if(chk1->is_record==1) temp->node->t->u.rec_id = chk1->u.rec_id;
-                    }
+                    }else typ_err=0;
                 }
             }
             temp=temp->next;
@@ -369,6 +375,7 @@ void checkChange(ASTNodeIt *t){
         arr[i]=NULL;
     }
     int i=0;
+    int br_flag=0;
     while(1){
         while(temp->node->is_leaf==0){
             temp=temp->node->u.n->children;
@@ -384,16 +391,19 @@ void checkChange(ASTNodeIt *t){
         }
         while(temp->next==NULL){
             temp=temp->node->parent;
-            if(temp==t){
+            if(temp==t->node->u.n->children){
+                br_flag=1;
                 break;
             }
         }
+        if(br_flag) break;
         temp=temp->next;
     }
     //Check if assignment statement, fun_call_statement, io_stmt
     int flgs[i];
-    temp = temp->node->u.n->children->next;
+    temp = t->node->u.n->children->next;
     int end_flag=0;
+    br_flag=0;
     while(1){
         if(temp->node->u.n->tag_info==TAG_ASSIGNMENT_STMT){
             for(int j=0; j<i; j++){
@@ -414,6 +424,7 @@ void checkChange(ASTNodeIt *t){
                         break;
                     }
                 }
+                f_out = f_out->next;
             }
         }
         else if(temp->node->u.n->tag_info==TAG_READ){
@@ -435,15 +446,19 @@ void checkChange(ASTNodeIt *t){
         }
         if(end_flag) break;
         while(temp->next==NULL){
-            if(temp->node->parent==t) break;
+            if(temp->node->parent==t) {
+                br_flag=1;
+                break;
+            }
             if(temp->node->parent->node->u.n->tag_info==TAG_ITERATIVE_STMT) temp=temp->node->parent;
             else if(temp->node->parent->node->u.n->tag_info==TAG_THEN) temp=temp->node->parent;
             else if(temp->node->parent->node->u.n->tag_info==TAG_COND_STMT) temp=temp->node->parent;
         }
+        if(br_flag) break;
         temp = temp->next;
     }
     if(!end_flag){
-        printf("Lines %d: None of the variables participating in the iterations of the while loop gets updated\n", t->node->u.n->children->node->u.n->leaf_symbol->line_no);
+        printf("Line %d: None of the variables participating in the iterations of the while loop gets updated\n", t->node->u.n->children->node->u.n->leaf_symbol->line_no);
     }
 }
 
@@ -506,15 +521,17 @@ void semanticRuleCheck(ASTNodeIt *chk, char *fun_id){
                 temp=temp->next;
             }
             type *rhs_type = verifyType(temp, funcSymbolTable, TAG_ARITHMETIC_EXPRESSION);
-            if(rhs_type==NULL){
-                printf("Line %d: Assignment to type mismatched arithmetic expression\n", ln);
-            }else{
-                if(lhs_type->is_record!=rhs_type->is_record){
-                    printf("Line %d: The type %s of LHS in assignment statement does not match with type %s of arithmetic expression", ln, lhs_type->is_record ? lhs_type->u.rec_id : TypeString(lhs_type->u.pri_type), rhs_type->is_record ? rhs_type->u.rec_id : TypeString(rhs_type->u.pri_type));
-                }else if(lhs_type->is_record==0 && lhs_type->u.pri_type!=rhs_type->u.pri_type){
-                    printf("Line %d: The type %s of LHS in assignment statement does not match with type %s of arithmetic expression", ln, TypeString(lhs_type->u.pri_type), TypeString(lhs_type->u.pri_type));
-                }else if(lhs_type->is_record==1 && strcmp(lhs_type->u.rec_id, rhs_type->u.rec_id)){
-                    printf("Line %d: The type %s of LHS in assignment statement does not match with type %s of arithmetic expression", ln, lhs_type->u.rec_id, rhs_type->u.rec_id);
+            if(lhs_type!=NULL){
+                if(rhs_type==NULL){
+                    printf("Line %d: Assignment to type mismatched arithmetic expression\n", ln);
+                }else{
+                    if(lhs_type->is_record!=rhs_type->is_record){
+                        printf("Line %d: The type %s of LHS in assignment statement does not match with type %s of arithmetic expression\n", ln, lhs_type->is_record ? lhs_type->u.rec_id : TypeString(lhs_type->u.pri_type), rhs_type->is_record ? rhs_type->u.rec_id : TypeString(rhs_type->u.pri_type));
+                    }else if(lhs_type->is_record==0 && lhs_type->u.pri_type!=rhs_type->u.pri_type){
+                        printf("Line %d: The type %s of LHS in assignment statement does not match with type %s of arithmetic expression\n", ln, TypeString(lhs_type->u.pri_type), TypeString(lhs_type->u.pri_type));
+                    }else if(lhs_type->is_record==1 && strcmp(lhs_type->u.rec_id, rhs_type->u.rec_id)){
+                        printf("Line %d: The type %s of LHS in assignment statement does not match with type %s of arithmetic expression\n", ln, lhs_type->u.rec_id, rhs_type->u.rec_id);
+                    }
                 }
             }
 
@@ -532,7 +549,7 @@ void semanticRuleCheck(ASTNodeIt *chk, char *fun_id){
             ASTNodeIt *chk = temp->node->u.n->children;
             type *cond = verifyType(chk, funcSymbolTable, TAG_BOOLEAN_EXPRESSION);
             if(cond!=NULL){
-                // checkChange(temp);
+                checkChange(temp);
             }
             temp=temp->node->u.n->children->next;
         }
@@ -574,12 +591,14 @@ void semanticRuleCheck(ASTNodeIt *chk, char *fun_id){
                 while(out_args!=NULL && f_out_pars!=NULL){
                     chk1 = getType(out_args, funcSymbolTable, 1);
                     chk2 = f_out_pars->t;
-                    if(chk1->is_record!=chk2->is_record){
-                        printf("Line %d: The type %s of variable %s does not match with the type %s of the formal output parameter\n", ln, chk1->is_record ? chk1->u.rec_id : TypeString(chk1->u.pri_type), out_args->node->u.l->leaf_symbol->u.lexeme, chk2->is_record ? chk2->u.rec_id : TypeString(chk2->u.pri_type));
-                    }else if(chk1->is_record==0 && chk1->u.pri_type!=chk2->u.pri_type){
-                        printf("Line %d: The type %s of variable %s does not match with the type %s of the formal output parameter\n", ln, TypeString(chk1->u.pri_type), out_args->node->u.l->leaf_symbol->u.lexeme, TypeString(chk2->u.pri_type));
-                    }else if(chk1->is_record==1 && strcmp(chk1->u.rec_id, chk2->u.rec_id)){
-                        printf("Line %d: The type %s of variable %s does not match with the type %s of the formal output parameter\n", ln, chk1->u.rec_id, out_args->node->u.l->leaf_symbol->u.lexeme, chk2->u.rec_id);
+                    if(chk1!=NULL){
+                        if(chk1->is_record!=chk2->is_record){
+                            printf("Line %d: The type %s of variable %s does not match with the type %s of the formal output parameter\n", ln, chk1->is_record ? chk1->u.rec_id : TypeString(chk1->u.pri_type), out_args->node->u.l->leaf_symbol->u.lexeme, chk2->is_record ? chk2->u.rec_id : TypeString(chk2->u.pri_type));
+                        }else if(chk1->is_record==0 && chk1->u.pri_type!=chk2->u.pri_type){
+                            printf("Line %d: The type %s of variable %s does not match with the type %s of the formal output parameter\n", ln, TypeString(chk1->u.pri_type), out_args->node->u.l->leaf_symbol->u.lexeme, TypeString(chk2->u.pri_type));
+                        }else if(chk1->is_record==1 && strcmp(chk1->u.rec_id, chk2->u.rec_id)){
+                            printf("Line %d: The type %s of variable %s does not match with the type %s of the formal output parameter\n", ln, chk1->u.rec_id, out_args->node->u.l->leaf_symbol->u.lexeme, chk2->u.rec_id);
+                        }
                     }
                     out_args = out_args->next;
                     f_out_pars = f_out_pars->next;
@@ -590,12 +609,14 @@ void semanticRuleCheck(ASTNodeIt *chk, char *fun_id){
                 while(in_args!=NULL && f_in_pars!=NULL){
                     chk1 = getType(in_args, funcSymbolTable, 1);
                     chk2 = f_in_pars->t;
-                    if(chk1->is_record!=chk2->is_record){
-                        printf("Line %d: The type %s of variable %s does not match with the type %s of the formal input parameter\n", ln, chk1->is_record ? chk1->u.rec_id : TypeString(chk1->u.pri_type), in_args->node->u.l->leaf_symbol->u.lexeme, chk2->is_record ? chk2->u.rec_id : TypeString(chk2->u.pri_type));
-                    }else if(chk1->is_record==0 && chk1->u.pri_type!=chk2->u.pri_type){
-                        printf("Line %d: The type %s of variable %s does not match with the type %s of the formal input parameter\n", ln, TypeString(chk1->u.pri_type), in_args->node->u.l->leaf_symbol->u.lexeme, TypeString(chk2->u.pri_type));
-                    }else if(chk1->is_record==1 && strcmp(chk1->u.rec_id, chk2->u.rec_id)){
-                        printf("Line %d: The type %s of variable %s does not match with the type %s of the formal input parameter\n", ln, chk1->u.rec_id, in_args->node->u.l->leaf_symbol->u.lexeme, chk2->u.rec_id);
+                    if(chk1!=NULL){
+                        if(chk1->is_record!=chk2->is_record){
+                            printf("Line %d: The type %s of variable %s does not match with the type %s of the formal input parameter\n", ln, chk1->is_record ? chk1->u.rec_id : TypeString(chk1->u.pri_type), in_args->node->u.l->leaf_symbol->u.lexeme, chk2->is_record ? chk2->u.rec_id : TypeString(chk2->u.pri_type));
+                        }else if(chk1->is_record==0 && chk1->u.pri_type!=chk2->u.pri_type){
+                            printf("Line %d: The type %s of variable %s does not match with the type %s of the formal input parameter\n", ln, TypeString(chk1->u.pri_type), in_args->node->u.l->leaf_symbol->u.lexeme, TypeString(chk2->u.pri_type));
+                        }else if(chk1->is_record==1 && strcmp(chk1->u.rec_id, chk2->u.rec_id)){
+                            printf("Line %d: The type %s of variable %s does not match with the type %s of the formal input parameter\n", ln, chk1->u.rec_id, in_args->node->u.l->leaf_symbol->u.lexeme, chk2->u.rec_id);
+                        }
                     }
                     in_args = in_args->next;
                     f_in_pars = f_in_pars->next;

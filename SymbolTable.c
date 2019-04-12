@@ -194,7 +194,7 @@ SeqListPars* make_inpars_node(ASTNodeIt* ast)
 {
     SeqListPars* n=(SeqListPars*) malloc(sizeof(SeqListPars));
     n->out_flg=false;
-    n->t=(type*) malloc(sizeof(type));
+    n->t=(type*)malloc(sizeof(type));
     if(ast->node->u.n->children->node->u.l->leaf_symbol->tokenName==TK_INT)
     {
         n->t->is_record=0;
@@ -260,7 +260,7 @@ ASTNodeIt* populateSymbolTable(ASTNodeIt* root)
     }
     else
     {
-        printf("Line no: %d Redeclaration of function %s\n",temp->node->u.n->leaf_symbol->line_no,temp->node->u.n->leaf_symbol->u.lexeme);
+        printf("Line %d: Redeclaration of function %s\n",temp->node->u.n->leaf_symbol->line_no,temp->node->u.n->leaf_symbol->u.lexeme);
         return NULL;
     }
     
@@ -295,14 +295,14 @@ ASTNodeIt* populateSymbolTable(ASTNodeIt* root)
                     }
                     else
                     {
-                        printf("Line no: %d Redeclaration of variable %s\n",temp->node->u.n->leaf_symbol->line_no,temp->node->u.n->leaf_symbol->u.lexeme);    
+                        printf("Line %d: Redeclaration of variable %s\n",temp->node->u.n->leaf_symbol->line_no,temp->node->u.n->leaf_symbol->u.lexeme);    
                     }
                 }
                 else
                 {
                     ASTNodeIt* temp_children=temp->node->u.n->children;
                     if(temp_children->next==NULL)
-                    printf("Line no: %d Redeclaration of variable %s which already in global scope \n",temp->node->u.n->leaf_symbol->line_no,temp->node->u.n->leaf_symbol->u.lexeme);    
+                    printf("Line %d: Redeclaration of variable %s which already in global scope \n",temp->node->u.n->leaf_symbol->line_no,temp->node->u.n->leaf_symbol->u.lexeme);    
                 }
                 
             }
@@ -320,12 +320,12 @@ ASTNodeIt* populateSymbolTable(ASTNodeIt* root)
                         hashEle_identifier->ele->u.s->t=(type*) malloc(sizeof(type));
                         if(temp->node->u.n->leaf_symbol->tokenName!=TK_RECORDID)
                         {
-                            hashEle_func_elem->ele->u.g->is_record=false;
+                            hashEle_identifier->ele->u.s->t->is_record=false;
                             
                         }
                         else
                         {
-                            hashEle_func_elem->ele->u.g->is_record=true;    
+                            hashEle_identifier->ele->u.s->t->is_record=true;    
                         }
                         //type population
                         populate_type(hashEle_identifier,temp);
@@ -338,7 +338,7 @@ ASTNodeIt* populateSymbolTable(ASTNodeIt* root)
                     else
                     {
 
-                        printf("Line no: %d Redeclaration of variable %s\n",temp->node->u.n->leaf_symbol->line_no,temp->node->u.n->leaf_symbol->u.lexeme);
+                        printf("Line %d: Redeclaration of variable %s\n",temp->node->u.n->leaf_symbol->line_no,temp->node->u.n->leaf_symbol->u.lexeme);
 
                     }
                 }
@@ -346,14 +346,13 @@ ASTNodeIt* populateSymbolTable(ASTNodeIt* root)
                 {
                     ASTNodeIt* temp_children=temp->node->u.n->children;
                     if(temp_children->next==NULL)
-                    printf("Line no: %d Redeclaration of variable %s which already in global scope \n",temp->node->u.n->leaf_symbol->line_no,temp->node->u.n->leaf_symbol->u.lexeme);
+                    printf("Line %d: Redeclaration of variable %s which already in global scope \n",temp->node->u.n->leaf_symbol->line_no,temp->node->u.n->leaf_symbol->u.lexeme);
                 }    
                         
             }
             else if(temp->node->u.n->tag_info==TAG_OUTPUT_PARS)
             {
                 ASTNodeIt* temp_ast=temp->node->parent->node->u.n->children->node->u.n->children;
-                // if(temp_ast->node->u.n->children->node->u.l->leaf_symbol->tokenName==TK_INT)
                 func_elem->u.out_table->in_pars=make_inpars_node(temp_ast);
                 SeqListPars* temp_seq=func_elem->u.out_table->in_pars;
                 temp_ast=temp_ast->next;
@@ -445,7 +444,7 @@ void populateGlobalTable(ASTNodeIt* root)
                 }
                 else
                 {
-                    printf("Line no: %d Redeclaration of type definition of %s\n",temp->node->u.n->leaf_symbol->line_no,temp->node->u.n->leaf_symbol->u.lexeme);
+                    printf("Line %d: Redeclaration of type definition of %s\n",temp->node->u.n->leaf_symbol->line_no,temp->node->u.n->leaf_symbol->u.lexeme);
                 }
                  
             }
@@ -510,7 +509,7 @@ void populateGlobalTable(ASTNodeIt* root)
                     }
                     else
                     {
-                        printf("Line no: %d Redeclaration of global variable %s\n",temp->node->u.n->leaf_symbol->line_no,temp->node->u.n->leaf_symbol->u.lexeme);
+                        printf("Line %d: Redeclaration of global variable %s\n",temp->node->u.n->leaf_symbol->line_no,temp->node->u.n->leaf_symbol->u.lexeme);
                     }
                 }
             }
