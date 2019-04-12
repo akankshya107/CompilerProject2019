@@ -15,6 +15,20 @@ end
 % Notice here that  your compiler recognizes the type definition of marks even before it is 
 % declared. This will be handled at the semantic analyzer phase.
 
+_readMarks input parameter list[real b6,int b456,real b567]
+output parameter list [ record #marks b3c45,real c5];
+	read(b3c45.maths);
+	read(b3c45.physics);
+	read(b3c45.chemistry);
+	return [b3c45];
+end
+_readMarks input parameter list[real b6,int b456,real b567]
+output parameter list [ record #marks b3c45,real c5];
+	read(b3c45.maths);
+	read(b3c45.physics);
+	read(b3c45.chemistry);
+	return [b3c45];
+end
 %The following program computes the average of marks of total d5cb34567  students
 _main 
 	record #marks
@@ -33,9 +47,10 @@ _main
 	type record #marks : b5c67 : global;
 	type int : d5cb34567 : global;
 	type int : b4;
-	type int : b4;
+	type int : b4
 	%The identifier b5c6 stores the sum of marks
 
+	b5 <--- 1;
 	read(d5cb34567);
 	b5c6.maths <--- 0.00;
 	b5c6.physics <--- 0.00;

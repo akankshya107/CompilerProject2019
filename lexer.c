@@ -166,18 +166,16 @@ tokenInfo* getNextToken(FILE *fp){
             }
         }
         ch = input_buffer[input_buffer_pointer];
+        if(flag){
+            ch=temp;
+        }
         if(transition_table[state][ch].flag==0){
             state = transition_table[state][ch].u.state;
-            if(flag){
-                lex[j++]=temp;
-                flag=0;
+            if(exceed_length==0){
+                lex[j++]=ch;
             }
-            else{
-                if(exceed_length==0){
-                    lex[j++]=ch;
-                }
-                input_buffer_pointer++;
-            }
+            if(flag) flag=0;
+            else input_buffer_pointer++;
             if(j==MAX_LENGTH+1) exceed_length=1;
             
             if(ch=='\n') line_count++;
@@ -187,8 +185,10 @@ tokenInfo* getNextToken(FILE *fp){
                     flag=1;
                     temp=lex[j-1];
                 }
-                if(lex[j-1]=='\n') line_count--;
-                lex[j-1]='\0';
+                if(transition_table[state][ch].u.func.func_flag!=3){
+                    if(lex[j-1]=='\n') line_count--;
+                    lex[j-1]='\0';
+                }
             }
             else lex[j]='\0';
             if(transition_table[state][ch].u.func.func_flag==0){
@@ -225,9 +225,15 @@ tokenInfo* getNextToken(FILE *fp){
                 return return_no_token(lex, transition_table[state][ch].u.func.tkname, line_count, transition_table[state][ch].u.func.is_retract, &input_buffer_pointer);
             }else if(transition_table[state][ch].u.func.func_flag==3){
                 // if(ch=='\n') line_count--;
+                if(transition_table[state][ch].u.func.is_retract==1) {
+                    if(input_buffer_pointer==0){
+                        flag=1;
+                        temp=lex[j-1];
+                    }
+                    else input_buffer_pointer--;
+                }
                 memset(lex, 0, sizeof(char)*MAX_LENGTH);
                 j=0;
-                if(transition_table[state][ch].u.func.is_retract==1) input_buffer_pointer--;
                 state=0;
                 exceed_length=0;
             }

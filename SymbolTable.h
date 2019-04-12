@@ -25,5 +25,6 @@ void printGlobalTable_recDef();
 void printGlobalvar();
 void print_inpar_list();
 void print_outpar_list();
+void printMemActRec();
 void extractTypes(ASTNodeIt* root);
 

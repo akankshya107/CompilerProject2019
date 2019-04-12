@@ -213,3 +213,27 @@ void semanticRuleCheck(ASTNodeIt *chk, char *fun_id)
         temp = temp->next;
     }
 }
+
+ASTNodeIt *semanticAnalyzer(treeNodeIt *t){
+    ASTNodeIt *ast = makeAbstractSyntaxTree(t);
+    ASTNodeIt* temp=ast;
+    printAST(ast);
+    populateGlobalTable(ast);
+    SymbolTable=create_HTEle();
+    
+    ASTNodeIt *temp = ast->node->u.n->children;
+    ASTNodeIt *ch = temp->node->u.n->children;
+    while(ch!=NULL){
+        ASTNodeIt* stmts = populateSymbolTable(ch); //Populate Symbol Table for that function along with type extractor
+        if(stmts!=NULL) {
+            semanticRuleCheck(stmts, ch->node->u.n->leaf_symbol->u.lexeme);
+        }
+        ch=ch->next;
+    }
+    temp = ast->node->u.n->children->next;
+    ASTNodeIt* stmts = populateSymbolTable(temp); //Populate Symbol Table for that function along with type extractor
+    if(stmts!=NULL){
+        semanticRuleCheck(stmts, temp->node->u.n->leaf_symbol->u.lexeme);
+    }
+    return ast;
+}
