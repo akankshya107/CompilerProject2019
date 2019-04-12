@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "semanticdef.h": "c",
-        "ast.h": "c"
+        "ast.h": "c",
+        "symboltable.h": "c"
     }
 }

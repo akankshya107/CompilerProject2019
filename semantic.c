@@ -13,19 +13,6 @@ Ele* returnEle(ASTNodeIt *n){
     return e;
 }
 
-void printSymbolTable(ASTNodeIt *root);
-void extractTypes(ASTNodeIt* root);
-void checkTypes(ASTNodeIt* root);
-void semanticAnalyzer(treeNodeIt *t){
-    ASTNodeIt *ast = makeAbstractSyntaxTree(t);
-    printAST(ast);
-    populateSymbolTable(ast);
-    // extractTypes(ast);
-    // checkTypes(ast);
-    //Single/Double pass AST
-    // printSymbolTable(ast);
-}
-
 ASTNodeIt *searchTag(ASTNodeIt *root, TAG tg){
     ASTNodeIt *temp = root;
     Stack *st = newStack();
@@ -39,9 +26,7 @@ ASTNodeIt *searchTag(ASTNodeIt *root, TAG tg){
                 temp = temp->node->u.n->children; 
             }else{
                 temp = temp->next;
-      
             }
-            
         }
         if(isEmpty(st)) break;
         temp = pop(st)->node;
@@ -49,6 +34,24 @@ ASTNodeIt *searchTag(ASTNodeIt *root, TAG tg){
     }
     return NULL;
 }
+
+void semanticRuleCheck(ASTNodeIt *chk, char *fun_id);
+void semanticAnalyzer(treeNodeIt *t){
+    ASTNodeIt *ast = makeAbstractSyntaxTree(t);
+    printAST(ast);
+    globalSymbolTable = populateGlobalTable(ast);
+    ASTNodeIt *temp = searchTag(ast, TAG_FUN_LIST);
+    ASTNodeIt *ch = temp->node->u.n->children;
+    while(ch!=NULL){
+        ASTNodeIt* stmts = populateSymbolTable(ch); //Populate Symbol Table for that function along with type extractor
+        semanticRuleCheck(stmts, ch->node->u.n->leaf_symbol->u.lexeme);
+        ch=ch->next;
+    }
+    temp = searchTag(ast, TAG_MAIN);
+    ASTNodeIt* stmts = populateSymbolTable(temp); //Populate Symbol Table for that function along with type extractor
+    semanticRuleCheck(stmts, temp->node->u.n->leaf_symbol->u.lexeme);
+}
+
 
 // void checkTypes(ASTNodeIt* root){
 //     //Single pass through AST
@@ -79,7 +82,7 @@ ASTNodeIt *searchTag(ASTNodeIt *root, TAG tg){
 //                         if(ch->node->u.n->leaf_symbol->u.lexeme==temp->node->u.n->leaf_symbol->u.lexeme){
 //                             //input pars and input args
 //                             flg=1;
-//                             HashTable st = lookupEle(ch->node->u.n->leaf_symbol->u.lexeme, SymbolTable)->ele->u.SymbolTable;
+//                             HashTable st = lookupEle(ch->node->u.n->leaf_symbol->u.lexeme, SymbolTable)->ele->u.symT.SymbolTable;
 //                             ASTNodeIt *in_pars = ch->node->u.n->children->node->u.n->children;
 //                             while(in_pars!=NULL){
 //                                 if(lookupEle(in_args->node->u.l->leaf_symbol->u.lexeme, st)->ele->u.s->type =! in_pars->node->u.n->leaf_symbol->u.lexeme){
@@ -115,30 +118,72 @@ ASTNodeIt *searchTag(ASTNodeIt *root, TAG tg){
 //     ch0=ch0->next;
 // }
 
-void printSymbolTable(ASTNodeIt *root){
-    ASTNodeIt *temp = searchTag(root, TAG_FUN_LIST);
-    ASTNodeIt *ch = temp->node->u.n->children;
-    printf("Lexeme\tType\tScope\tOffset\n");
-    while(ch!=NULL){
-        printf("%s\n", ch->node->u.n->leaf_symbol->u.lexeme);
-        //print symbol table
-        HashTable st = lookupEle(ch->node->u.n->leaf_symbol->u.lexeme, SymbolTable)->ele->u.SymbolTable;
-        for(int i=0; i<LEN_HT; i++){
-            hash_ele *e = st[i];
-            while(e!=NULL&&e->ele!=NULL){
-                printf("%s\t%d\t%s\t%d\n", e->str, e->ele->u.s->type.pri_type, ch->node->u.n->leaf_symbol->u.lexeme, e->ele->u.s->offset);
-                e=e->next;
+void semanticRuleCheck(ASTNodeIt *chk, char *fun_id){
+    //preorder traversal;
+    ASTNodeIt *temp = chk;
+    Stack *st = newStack();
+
+    //Check for: The parameters being returned by a function must be assigned a value. If a parameter does not get a value assigned within the function definition, it should be reported as an error.
+    bool ret_error=0;
+    ASTNodeIt *ret = chk->next->node->u.n->children;
+    SeqListPars *op = lookupEle(fun_id, SymbolTable)->ele->u.symT.out_pars;
+    while(ret!=NULL && op!=NULL){
+        op->out.tag=0;
+        op->out.ret_par=ret->node->u.l->leaf_symbol->u.lexeme;
+        op = op->next;
+        ret = ret->next;
+    }
+    if(ret!=NULL) ret_error=1;
+    if(op!=NULL) ret_error=1;
+    
+    HashTable funcSymbolTable = lookupEle(fun_id, SymbolTable)->ele->u.symT.SymbolTable;
+
+    while(1){
+        while((temp!=NULL)){        
+            push(st, returnEle(temp));
+            if(temp->node->is_leaf==0){
+                //Non-leaf node: contains some TAG and is associated with some semantic check
+
+                //The right hand side expression of an assignment statement must be of the same type as that of the left hand side identifier.
+                if(temp->node->u.n->tag_info==TAG_ASSIGNMENT_STMT){
+
+                    type lhs_type;
+                    bool check_val = temp->node->u.n->children->next->node->is_leaf;
+                    if(!check_val){
+                        hash_ele *g = lookupEle(temp->node->u.n->children->node->u.l->leaf_symbol->u.lexeme, globalSymbolTable);
+                        hash_ele *s = lookupEle(temp->node->u.n->children->node->u.l->leaf_symbol->u.lexeme, funcSymbolTable);
+                        if(g->ele!=NULL){
+                            if(g->ele->u.g->is_record){
+                                lhs_type.is_record=1;
+                                lhs_type.u.rec_id=g->ele->u.g->u.rec.rec_id;
+                            }else{
+                                lhs_type.is_record=0;
+                                lhs_type = g->ele->u.g->u.t;
+                            }
+                        }
+                        else if(s->ele!=NULL){
+                            lhs_type=s->ele->u.s->t;
+                        }
+                    }else{
+
+                    }
+                }
+                if(temp->node->u.n->tag_info==TAG_ITERATIVE_STMT){
+                    
+                }
+                if(temp->node->u.n->tag_info==TAG_COND_STMT){
+                    
+                }
+                if(temp->node->u.n->tag_info==TAG_FUN_CALL_STMT){
+                    
+                }
+                temp = temp->node->u.n->children; 
+            }else{
+                temp = temp->next;
             }
         }
-        ch=ch->next;
+        if(isEmpty(st)) break;
+        temp = pop(st)->node;
+        temp = temp->next;
     }
-    // temp = searchTag(root, TAG_MAIN);
-    // printf("%s\n", TagString(temp->node->u.n->tag_info));
-    // for(int i=0; i<LEN_HT; i++){
-    //     hash_ele *e = globalSymbolTable[i];
-    //     while(e!=NULL){
-    //         printf("%s\t%d\t%s\t%d\n", e->str, e->ele->u.s->type.pri_type, ch->node->u.n->leaf_symbol->u.lexeme, e->ele->u.s->offset);
-    //         e=e->next;
-    //     }
-    // }
 }

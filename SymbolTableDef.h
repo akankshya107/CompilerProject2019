@@ -8,7 +8,6 @@
 #include <stdbool.h>
 #include "AST.h"
 #define LEN_HT 41
-typedef bool TYPE; // 0 for int, 1 for real
 
 typedef struct Ele{
   ASTNodeIt *node;
@@ -28,45 +27,49 @@ typedef hash_ele **HashTable;
 HashTable globalSymbolTable;
 HashTable SymbolTable;
 
-typedef union{
-    TYPE pri_type;
-    char* rec_id;
-}type;
-
 typedef struct symTableElem{
-    bool is_record;
+    type *t;
     int width;
     int offset;
-    type t;
 }symTableElem;
 
-typedef struct SeqListPars{
-    type t;
+typedef struct{
     bool tag;
+    char *ret_par;
+}out; //Should be made NULL for in_pars
+
+typedef struct SeqListPars{
+    bool out_flg;
+    type *t;
+    out *out_check;
     struct SeqListPars *next;
 }SeqListPars;
+
+typedef struct rec{
+    char *rec_id;
+    ASTNodeIt *record_ptr;
+    int width;
+}rec;
 
 typedef struct globalTableElem{
     bool is_record;
     union{
-        type t;
-        struct rec{
-            ASTNodeIt *record_ptr;
-            int width;
-        }rec;
+        type *t;
+        rec *rec_type_list;
     }u;
 }globalTableElem;
 
+typedef struct symT{
+    SeqListPars *in_pars;
+    SeqListPars *out_pars;
+    HashTable SymbolTable;
+}symT;
 
 typedef struct Element{
     int flag; 
-//0 for FUN_ID hashtable, 1 for Symbol Table for a function, 3 for global hashtable(containing global variables and record definitions)
+//0 for FUN_ID hashtable, 1 for Symbol Table for a function, 2 for global hashtable(containing global variables and record definitions)
     union{
-        struct symT{
-            SeqListPars *in_pars;
-            SeqListPars *out_pars;
-            HashTable SymbolTable;
-        }symT;
+        symT *out_table;
         symTableElem *s;
         globalTableElem *g;
     }u;
