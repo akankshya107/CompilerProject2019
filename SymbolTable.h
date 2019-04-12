@@ -3,31 +3,23 @@
 // NARAPAREDDY BHAVANA 2016A7PS0034P
 // KARABEE BATTA 2016A7PS0052P
 // AASTHA KATARIA 2016A7PS0062P
-#define everything
 #include "SymbolTableDef.h"
-
-
 //hashtable functions
+char *TypeString(int index);
 int hashEle(char *str);
 void insertIntoHTEle(hash_ele *elem, HashTable HT);
 hash_ele *create_hashEle(Element *ele, char* str);
 hash_ele* lookupEle(char *str, HashTable HT);
-<<<<<<< HEAD
 hash_ele *create_hashEle(Element *ele, char *str);
-Element* create_elem(bool flag);
+HashTable create_HTEle();
+Element* create_elem(int flag);
 ASTNodeIt* iterate_inorder(ASTNodeIt* temp);
-// void* populateSymbolTable(ASTNodeIt* root);
-
-//semantic analyzer functions
-void populateSymbolTable(ASTNodeIt* root);
-void extractTypes(ASTNodeIt* root);
-
-=======
-
-//semantic analyzer functions
 ASTNodeIt* populateSymbolTable(ASTNodeIt* root);
-void populateGlobalTable(ASTNodeIt *root); //two passes
+ASTNodeIt* populateGlobalTable(ASTNodeIt* root);
 void printSymbolTable();
-void printGlobalTable(bool flg);
-void printMemReqST();
->>>>>>> 1710f9d9377c283a8dfa2872115f3a01c987d24e
+void printGlobalTable_recDef();
+void printGlobalvar();
+void print_inpar_list();
+void print_outpar_list();
+void printMemActRec();
+void extractTypes(ASTNodeIt* root);

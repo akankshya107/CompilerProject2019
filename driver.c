@@ -18,56 +18,6 @@ extern parse_table T;
 // extern int ParseNodes;
 // extern int ASTNodes;
 int main(int argc, char *argv[]){
-<<<<<<< HEAD
-	// int option;
-	// printf("(a) FIRST and FOLLOW set automated: YES\n(c) Both lexical and syntax analysis modules implemented: YES\n(f) Parse tree constructed: YES\n");
-	populate_transition_table();
-	populateKeyWordTable();
-	// while(1){
-	// 	scanf("%d", &option);
-	// 	if(option==0){
-	// 		break;
-	// 	}else if(option==1){
-	// 		removeComments(argv[1], "clean.txt");
-	// 		FILE *pr = fopen("clean.txt", "r");
-	// 		char * buf = (char*)malloc(sizeof(char)*513);
-	// 		int s;
-	// 		do{
-	// 			s = fread(buf, sizeof(char), 512, pr);
-	// 			for(int i=0; i<s; i++){
-	// 				printf("%c", buf[i]);
-	// 			}
-	// 		}while(s==512);
-	// 		fclose(pr);
-	// 		printf("\n");
-	// 	}else if(option==2){
-	// 		//Invoke only lexer
-	// 		FILE *fp = fopen(argv[1], "r");
-	// 		tokenInfo *ti;
-	// 		do{
-	// 			ti = getNextToken(fp);
-	// 			if(ti->tokenName==TK_NUM) printf("Line %d: Token %s, Lexeme %d\n", ti->line_no, TerminalString(ti->tokenName), ti->u.value_of_int);
-	// 			else if(ti->tokenName==TK_RNUM) printf("Line %d: Token %s, Lexeme %.2f\n", ti->line_no, TerminalString(ti->tokenName), ti->u.value_of_real);
-	// 			else printf("Line %d: Token %s, Lexeme %s\n", ti->line_no, TerminalString(ti->tokenName), ti->u.lexeme);
-	// 			// free(ti);
-	// 		}while(ti->tokenName!=EOS);
-	// 		fclose(fp);
-	// 		printf("\n");
-
-	// 	}else if(option==3){
-	// 		populateGrammar();
-	// 		populateStrTable();
-	// 		ComputeFirstAndFollowSets();
-	// 		createParseTable();
-	// 		treeNodeIt* t = parseInputSourceCode("testcase1.txt");
-	// 		// printParseTree(t, argv[2]);
-	// 		ASTNodeIt *plgiveerror = makeAbstractSyntaxTree(t);
-	// 		// printAST(plgiveerror);
-	// 		populateSymbolTable(plgiveerror);
-			
-	// 		printf("\n");
-	// 	}else if(option==4){
-=======
 	int option;
 	populate_transition_table();
 	populateKeyWordTable();
@@ -82,7 +32,7 @@ int main(int argc, char *argv[]){
 			break;
 		}else if(option==1){
 			//Invoke only lexer
-			FILE *fp = fopen(argv[1], "r");
+			FILE *fp = fopen("sem_test_cases/testcase1.txt", "r");
 			tokenInfo *ti;
 			do{
 				ti = getNextToken(fp);
@@ -94,15 +44,15 @@ int main(int argc, char *argv[]){
 			fclose(fp);
 			printf("\n");
 		}else if(option==2){
-			treeNodeIt* t = parseInputSourceCode(argv[1]);
+			treeNodeIt* t = parseInputSourceCode("sem_test_cases/testcase1.txt");
 			printParseTree(t);
 		}else if(option==3){
 			printf("Traversal order of AST: Post-order\n");
-			treeNodeIt* t = parseInputSourceCode(argv[1]);
+			treeNodeIt* t = parseInputSourceCode("sem_test_cases/testcase1.txt");
 			ASTNodeIt* ast = makeAbstractSyntaxTree(t);
 			printAST(ast);
 		}else if(option==4){
-			treeNodeIt* t = parseInputSourceCode(argv[1]);
+			treeNodeIt* t = parseInputSourceCode("sem_test_cases/testcase1.txt");
 			size_t p = printParseTreeNodes(t);
 			printf("Parse tree Number of nodes = %d\t\tAllocated Memory = %lu Bytes\n", ParseNodes, p);
 			ASTNodeIt* ast = makeAbstractSyntaxTree(t);
@@ -111,24 +61,25 @@ int main(int argc, char *argv[]){
 			printf("Compression percentage = %f\n", (((float)p-a)/(float)p)*100 );
 		}
 		else if(option==5 || option==6 || option==7 || option==8){
-			treeNodeIt* t = parseInputSourceCode(argv[1]);
+			treeNodeIt* t = parseInputSourceCode("sem_test_cases/testcase1.txt");
 			ASTNodeIt* ast = makeAbstractSyntaxTree(t);
 			ASTNodeIt * ch = searchTag(ast, TAG_FUN_LIST)->node->u.n->children;
 			populateGlobalTable(ast);
+    		SymbolTable = create_HTEle();
 			while(ch!=NULL){
 				populateSymbolTable(ch);
+				ch=ch->next;
 			}
-			// if(option==5){
-			// 	printSymbolTable();
-			// }else if(option==6){
-			// 	printGlobalTable(0); //print global variables
-			// }else if(option==7){
-			// 	printMemReqST();
-			// }else{
-			// 	printGlobalTable(1); //print record defs
-			// }
+			if(option==5){
+				printSymbolTable();
+			}else if(option==6){
+				printGlobalvar();
+			}else if(option==7){
+				printMemActRec();
+			}else{
+				printGlobalTable_recDef();
+			}
 		}else if(option==9){
->>>>>>> 1710f9d9377c283a8dfa2872115f3a01c987d24e
 
 	// 		clock_t start_time, end_time;
 
@@ -145,6 +96,7 @@ int main(int argc, char *argv[]){
 
 	// 		// fclose(fp);
 
+<<<<<<< HEAD
 	// 		populateGrammar();
 	// 		populateStrTable();
 	// 		ComputeFirstAndFollowSets();
@@ -157,6 +109,9 @@ int main(int argc, char *argv[]){
 	// 		end_time = clock();
 =======
 			treeNodeIt* t = parseInputSourceCode(argv[1]);
+=======
+			treeNodeIt* t = parseInputSourceCode("sem_test_cases/testcase1.txt");
+>>>>>>> f95384e492e463fa1c7e7fc3ee8ee06e8e6cbcf4
 			if(parse_correct){
 				ASTNodeIt *ast = semanticAnalyzer(t);
 			}
@@ -194,7 +149,7 @@ int main(int argc, char *argv[]){
 			printf("To check, use option=9 first\n");
 			scanf("%d\n", &i);
 			if(i){
-				treeNodeIt* t = parseInputSourceCode(argv[1]);
+				treeNodeIt* t = parseInputSourceCode("sem_test_cases/testcase1.txt");
 				ASTNodeIt *ast;
 				if(parse_correct){
 					ast = semanticAnalyzer(t);

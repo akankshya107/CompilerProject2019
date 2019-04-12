@@ -8,6 +8,8 @@
 #include <stdbool.h>
 #include "AST.h"
 #define LEN_HT 41
+#define INT_WIDTH 2
+#define REAL_WIDTH 4
 
 typedef struct Ele{
   ASTNodeIt *node;
@@ -17,10 +19,11 @@ typedef struct Ele{
 #include "stack.h"
 
 typedef struct Element Element;
+typedef struct hT hash_ele;
 typedef struct hT{
     char *str;
     Element *ele;
-    struct hT *next;
+    hash_ele *next;
 }hash_ele;
 
 typedef hash_ele **HashTable;
@@ -28,7 +31,7 @@ HashTable globalSymbolTable;
 HashTable SymbolTable;
 
 typedef struct symTableElem{
-    type *t;
+    type* t;
     int width;
     int offset;
 }symTableElem;
@@ -54,9 +57,10 @@ typedef struct rec{
 typedef struct globalTableElem{
     bool is_record;
     union{
-        type *t;
-        rec *rec_type_list;
+        type* t;
+        rec* rec_type_list;    
     }u;
+    int offset;
 }globalTableElem;
 
 typedef struct symT{
@@ -69,7 +73,7 @@ typedef struct Element{
     int flag; 
 //0 for FUN_ID hashtable, 1 for Symbol Table for a function, 2 for global hashtable(containing global variables and record definitions)
     union{
-        symT *out_table;
+        symT* out_table;
         symTableElem *s;
         globalTableElem *g;
     }u;
