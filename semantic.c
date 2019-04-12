@@ -7,11 +7,6 @@
 #include "SymbolTable.h"
 #include <string.h>
 
-char *TypeString(int index){
-    static char *typeTable[3] = { "int", "real", "record" };
-    return typeTable[index];
-}
-
 Ele* returnEle(ASTNodeIt *n){
     Ele *e = (Ele*)malloc(sizeof(Ele));
     e->node=n;
@@ -44,10 +39,10 @@ ASTNodeIt *searchTag(ASTNodeIt *root, TAG tg){
 void semanticRuleCheck(ASTNodeIt *chk, char *fun_id);
 ASTNodeIt *semanticAnalyzer(treeNodeIt *t){
     ASTNodeIt *ast = makeAbstractSyntaxTree(t);
-    printAST(ast);
     populateGlobalTable(ast);
     ASTNodeIt *temp = ast->node->u.n->children;
     ASTNodeIt *ch = temp->node->u.n->children;
+    SymbolTable = create_HTEle();
     while(ch!=NULL){
         ASTNodeIt* stmts = populateSymbolTable(ch); //Populate Symbol Table for that function along with type extractor
         if(stmts!=NULL) {
@@ -202,14 +197,14 @@ type* verifyType(ASTNodeIt* tn, HashTable funcTable, TAG tag){
                                 temp->node->t->u.rec_id = chk2->u.rec_id;
                                 return temp->node->t;
                             }else{
-                                printf("Line %d: Type mismatch in arithmetic expression", temp->node->u.l->leaf_symbol->line_no);
+                                printf("Line %d: Type mismatch in arithmetic expression\n", temp->node->u.n->leaf_symbol->line_no);
                             }
                         }else if(chk1->is_record!=chk2->is_record){
-                            printf("Line %d: Type mismatch in arithmetic expression", temp->node->u.l->leaf_symbol->line_no);
+                            printf("Line %d: Type mismatch in arithmetic expression\n", temp->node->u.n->leaf_symbol->line_no);
                         }else if(chk1->is_record==0 && chk1->u.pri_type!=chk2->u.pri_type){
-                            printf("Line %d: Type mismatch in arithmetic expression", temp->node->u.l->leaf_symbol->line_no);
+                            printf("Line %d: Type mismatch in arithmetic expression\n", temp->node->u.n->leaf_symbol->line_no);
                         }else if(chk1->is_record==1 && strcmp(chk1->u.rec_id, chk2->u.rec_id)){
-                            printf("Line %d: Type mismatch in arithmetic expression", temp->node->u.l->leaf_symbol->line_no);
+                            printf("Line %d: Type mismatch in arithmetic expression\n", temp->node->u.n->leaf_symbol->line_no);
                         }else{
                             temp->node->t = (type*)malloc(sizeof(type));
                             temp->node->t->is_record = chk1->is_record;
@@ -233,17 +228,17 @@ type* verifyType(ASTNodeIt* tn, HashTable funcTable, TAG tag){
                             temp->node->t->is_record = chk2->is_record;
                             temp->node->t->u.rec_id = chk2->u.rec_id;
                         }else{
-                            printf("Line %d: Type mismatch in arithmetic expression", temp->node->u.l->leaf_symbol->line_no);
+                            printf("Line %d: Type mismatch in arithmetic expression\n", temp->node->u.n->leaf_symbol->line_no);
                             typ_err=0;
                         }
                     }else if(chk1->is_record!=chk2->is_record){
-                        printf("Line %d: Type mismatch in arithmetic expression", temp->node->u.l->leaf_symbol->line_no);
+                        printf("Line %d: Type mismatch in arithmetic expression\n", temp->node->u.n->leaf_symbol->line_no);
                         typ_err=0;
                     }else if(chk1->is_record==0 && chk1->u.pri_type!=chk2->u.pri_type){
-                        printf("Line %d: Type mismatch in arithmetic expression", temp->node->u.l->leaf_symbol->line_no);
+                        printf("Line %d: Type mismatch in arithmetic expression\n", temp->node->u.n->leaf_symbol->line_no);
                         typ_err=0;
                     }else if(chk1->is_record==1 && strcmp(chk1->u.rec_id, chk2->u.rec_id)){
-                        printf("Line %d: Type mismatch in arithmetic expression", temp->node->u.l->leaf_symbol->line_no);
+                        printf("Line %d: Type mismatch in arithmetic expression\n", temp->node->u.n->leaf_symbol->line_no);
                         typ_err=0;
                     }else{
                         temp->node->t = (type*)malloc(sizeof(type));
@@ -352,7 +347,7 @@ int noOfTerms(ASTNodeIt *b){
         while(temp->node->is_leaf==0){
             temp=temp->node->u.n->children;
         }
-        if(temp->node->is_leaf==1){
+        if(temp->node->is_leaf==1 && temp->node->u.l->leaf_symbol->flag==is_lexeme){
             count++;
         }
         while(temp->next==NULL){
@@ -370,12 +365,15 @@ void checkChange(ASTNodeIt *t){
     ASTNodeIt *temp = t->node->u.n->children;
     int size = noOfTerms(temp);
     char **arr = (char**)malloc(sizeof(char*)*size);
+    for(int i=0; i<size; i++){
+        arr[i]=NULL;
+    }
     int i=0;
     while(1){
         while(temp->node->is_leaf==0){
             temp=temp->node->u.n->children;
         }
-        if(temp->node->is_leaf==1){
+        if(temp->node->is_leaf==1 && temp->node->u.l->leaf_symbol->flag==is_lexeme){
             int flg=0;
             for(int j=0; j<i; j++){
                 if(strcmp(arr[j], temp->node->u.l->leaf_symbol->u.lexeme)==0){
@@ -436,13 +434,13 @@ void checkChange(ASTNodeIt *t){
             continue;
         }
         if(end_flag) break;
-        if(temp->next==NULL){
+        while(temp->next==NULL){
             if(temp->node->parent==t) break;
             if(temp->node->parent->node->u.n->tag_info==TAG_ITERATIVE_STMT) temp=temp->node->parent;
             else if(temp->node->parent->node->u.n->tag_info==TAG_THEN) temp=temp->node->parent;
             else if(temp->node->parent->node->u.n->tag_info==TAG_COND_STMT) temp=temp->node->parent;
         }
-        else temp = temp->next;
+        temp = temp->next;
     }
     if(!end_flag){
         printf("Lines %d: None of the variables participating in the iterations of the while loop gets updated\n", t->node->u.n->children->node->u.n->leaf_symbol->line_no);
@@ -472,7 +470,11 @@ void semanticRuleCheck(ASTNodeIt *chk, char *fun_id){
         }else{
             ret_declare_error=1;
         }
-        if(!((op->t->is_record==ret_t->is_record) && (op->t->u.pri_type==ret_t->u.pri_type || strcmp(op->t->u.rec_id, ret_t->u.rec_id)==0))){
+        if(ret_t->is_record!=op->t->is_record){
+            ret_type_error=1;
+        }else if(ret_t->is_record==0 && ret_t->u.pri_type!=op->t->u.pri_type){
+            ret_type_error=1;
+        }else if(ret_t->is_record==1 && strcmp(ret_t->u.rec_id, op->t->u.rec_id)){
             ret_type_error=1;
         }
         op = op->next;
@@ -482,7 +484,7 @@ void semanticRuleCheck(ASTNodeIt *chk, char *fun_id){
     if(op!=NULL) ret_no_error=1;
 
     temp=chk->node->u.n->children;
-    while(1){
+    while(temp!=NULL){
         //Non-leaf node: contains some TAG and is associated with some semantic check
 
         //The right hand side expression of an assignment statement must be of the same type as that of the left hand side identifier.
@@ -494,6 +496,7 @@ void semanticRuleCheck(ASTNodeIt *chk, char *fun_id){
                     op->out_check->tag=1;
                     break;
                 }
+                op=op->next;
             }
 
             temp = temp->node->u.n->children;
@@ -516,20 +519,20 @@ void semanticRuleCheck(ASTNodeIt *chk, char *fun_id){
             }
 
             temp = temp->node->parent;
-            if(temp->next==NULL){
+            while(temp->next==NULL){
                 if(temp->node->parent->node->u.n->tag_info==TAG_ITERATIVE_STMT) temp=temp->node->parent;
                 else if(temp->node->parent->node->u.n->tag_info==TAG_THEN) temp=temp->node->parent;
                 else if(temp->node->parent->node->u.n->tag_info==TAG_COND_STMT) temp=temp->node->parent;
                 else break;
             }
-            else temp = temp->next;
+            temp = temp->next;
         }
         else if(temp->node->u.n->tag_info==TAG_ITERATIVE_STMT){
             //While statement: one pass for checking if variables are being changed
             ASTNodeIt *chk = temp->node->u.n->children;
             type *cond = verifyType(chk, funcSymbolTable, TAG_BOOLEAN_EXPRESSION);
             if(cond!=NULL){
-                checkChange(temp);
+                // checkChange(temp);
             }
             temp=temp->node->u.n->children->next;
         }
@@ -548,6 +551,7 @@ void semanticRuleCheck(ASTNodeIt *chk, char *fun_id){
                         op->out_check->tag=1;
                         break;
                     }
+                    op=op->next;
                 }
                 out_args=out_args->next;
             }
@@ -601,13 +605,13 @@ void semanticRuleCheck(ASTNodeIt *chk, char *fun_id){
 
             }
 
-            if(temp->next==NULL){
+            while(temp->next==NULL){
                 if(temp->node->parent->node->u.n->tag_info==TAG_ITERATIVE_STMT) temp=temp->node->parent;
                 else if(temp->node->parent->node->u.n->tag_info==TAG_THEN) temp=temp->node->parent;
                 else if(temp->node->parent->node->u.n->tag_info==TAG_COND_STMT) temp=temp->node->parent;
                 else break;
             }
-            else temp = temp->next;
+            temp = temp->next;
         }
         else if(temp->node->u.n->tag_info==TAG_READ){
 
@@ -617,26 +621,27 @@ void semanticRuleCheck(ASTNodeIt *chk, char *fun_id){
                     op->out_check->tag=1;
                     break;
                 }
+                op=op->next;
             }
 
             getType(temp->node->u.n->children, funcSymbolTable, 0);
-            if(temp->next==NULL){
+            while(temp->next==NULL){
                 if(temp->node->parent->node->u.n->tag_info==TAG_ITERATIVE_STMT) temp=temp->node->parent;
                 else if(temp->node->parent->node->u.n->tag_info==TAG_THEN) temp=temp->node->parent;
                 else if(temp->node->parent->node->u.n->tag_info==TAG_COND_STMT) temp=temp->node->parent;
                 else break;
             }
-            else temp = temp->next;
+            temp = temp->next;
         }
         else if(temp->node->u.n->tag_info==TAG_WRITE){
             if(temp->node->u.n->children->node->u.l->leaf_symbol->flag==is_lexeme) getType(temp->node->u.n->children, funcSymbolTable, 0);
-            if(temp->next==NULL){
+            while(temp->next==NULL){
                 if(temp->node->parent->node->u.n->tag_info==TAG_ITERATIVE_STMT) temp=temp->node->parent;
                 else if(temp->node->parent->node->u.n->tag_info==TAG_THEN) temp=temp->node->parent;
                 else if(temp->node->parent->node->u.n->tag_info==TAG_COND_STMT) temp=temp->node->parent;
                 else break;
             }
-            else temp = temp->next;
+            temp = temp->next;
         }
         else printf("Check AST structure\n");
     }
@@ -655,7 +660,11 @@ void semanticRuleCheck(ASTNodeIt *chk, char *fun_id){
             }else{
                 printf("Line %d: Variable %s not declared\n", ret->node->u.l->leaf_symbol->line_no, ret->node->u.l->leaf_symbol->u.lexeme);
             }
-            if(!((op->t->is_record==ret_t->is_record) && (op->t->u.pri_type==ret_t->u.pri_type || strcmp(op->t->u.rec_id, ret_t->u.rec_id)==0))){
+            if(ret_t->is_record!=op->t->is_record){
+                ret_type_error=1;
+            }else if(ret_t->is_record==0 && ret_t->u.pri_type!=op->t->u.pri_type){
+                ret_type_error=1;
+            }else if(ret_t->is_record==1 && strcmp(ret_t->u.rec_id, op->t->u.rec_id)){
                 ret_type_error=1;
             }
             op = op->next;
@@ -669,5 +678,6 @@ void semanticRuleCheck(ASTNodeIt *chk, char *fun_id){
             printf("Line %d: Parameters in return statement of function must have a value assigned to them\n", chk->next->node->u.n->children->node->u.l->leaf_symbol->line_no);
             break;
         }
+        op=op->next;
     }
 }
