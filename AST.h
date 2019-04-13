@@ -15,8 +15,5 @@ ASTNodeIt* newLeafNode(tokenInfo *ti);
 void freeChildren(treeNodeIt *temp);
 void printAST(ASTNodeIt* root);
 char *TagString(int index);
-<<<<<<< HEAD
-=======
 size_t printASTNodes(ASTNodeIt *root);
->>>>>>> c630e9a652a27f15d3d79a5ac89ac8cb5a23c054
 //Nochestrell

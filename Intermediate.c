@@ -87,11 +87,30 @@ quadruple* generateIntermediateCode(ASTNodeIt* root)
 {
     //root=program
     ASTNodeIt *temp = root->node->u.n->children->next->node->u.n->children; //ignoring otherFunctions
+    HashTable funcTable = lookupEle("_main", SymbolTable)->ele->u.out_table->SymbolTable;
     while(1){
         if(temp->node->u.n->tag_info==TAG_DECLARES){
             ASTNodeIt *it = temp->node->u.n->children;
             while(it!=NULL){
+                hash_ele *g = lookupEle(it->node->u.n->leaf_symbol->u.lexeme, globalSymbolTable);
+                hash_ele *s = lookupEle(it->node->u.n->leaf_symbol->u.lexeme, funcTable);
+                if(g->ele!=NULL){
+                    it->quadhead=newQuad(newArg(0, g->ele, 0, 0, 0, 0.0), NULL, newOp(0, TAG_DECLARE, 0), -1, NULL);
+                }
+                else if(s->ele!=NULL){
+                    it->quadhead=newQuad(newArg(0, s->ele, 0, 0, 0, 0.0), NULL, newOp(0, TAG_DECLARE, 0), -1, NULL);
+                }
+                else print("Not possible\n");
                 it=it->next;
+            }
+            it = temp->node->u.n->children;
+            temp->quadhead=it->quadhead;
+            it=it->next;
+            quadruple *qptr=temp->quadhead;
+            while(it!=NULL){
+                qptr->next=it->quadhead;
+                it=it->next;
+                qptr=qptr->next;
             }
         }
         else if(temp->node->u.n->tag_info==TAG_TYPEDEFS){

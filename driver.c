@@ -13,11 +13,13 @@
 #include "grammar.h"
 #include "semantic.h"
 extern parse_table T;
+extern int semantic_correct;
 // extern int parse_correct;
 // extern int ParseNodes;
 // extern int ASTNodes;
 int main(int argc, char *argv[]){
 	int option;
+	printf("LEVEL 4: Symbol table/ AST/ Semantic Rules modules work.\n\n");
 	populate_transition_table();
 	populateKeyWordTable();
 	populateGrammar();
@@ -107,7 +109,10 @@ int main(int argc, char *argv[]){
 			if(parse_correct){
 				ASTNodeIt *ast = semanticAnalyzer(t);
 			}
-			printf("\n");
+			if(!semantic_correct){
+				printf("Code compiles successfully...\n");
+			}
+			else printf("\n");
 			end_time = clock();
 
 			total_CPU_time  =  (double) (end_time - start_time);
@@ -129,6 +134,10 @@ int main(int argc, char *argv[]){
 				if(parse_correct){
 					ast = semanticAnalyzer(t);
 				}
+				if(!semantic_correct){
+					printf("Code compiles successfully...\n");
+				}
+				else printf("\n");
 				// constructASMcode(ast, argv[2]);
 			}
 		}
