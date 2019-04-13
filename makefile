@@ -4,7 +4,7 @@
 # // KARABEE BATTA 2016A7PS0052P
 # // AASTHA KATARIA 2016A7PS0062P
 compile: keyhead lexhead parshead stackhead grammarhead ASThead symbolTablehead semantichead SymbolTable.o semantic.o key.o DFA.o AST.o grammar.o stack.o lexer.o parser.o driver.o
-	gcc driver.o AST.o SymbolTable.o semantic.o DFA.o grammar.o stack.o lexer.o parser.o key.o -o stage1exe
+	gcc driver.o AST.o SymbolTable.o semantic.o DFA.o grammar.o stack.o lexer.o parser.o key.o -o compiler
 driver.o: driver.c 
 	gcc -c -g driver.c
 AST.o: AST.c
