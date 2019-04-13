@@ -541,6 +541,7 @@ void semanticRuleCheck(ASTNodeIt *chk, char *fun_id){
             while(temp->next==NULL){
                 if(temp->node->parent->node->u.n->tag_info==TAG_ITERATIVE_STMT) temp=temp->node->parent;
                 else if(temp->node->parent->node->u.n->tag_info==TAG_THEN) temp=temp->node->parent;
+                else if(temp->node->parent->node->u.n->tag_info==TAG_ELSE) temp=temp->node->parent;
                 else if(temp->node->parent->node->u.n->tag_info==TAG_COND_STMT) temp=temp->node->parent;
                 else break;
             }
@@ -633,6 +634,7 @@ void semanticRuleCheck(ASTNodeIt *chk, char *fun_id){
             while(temp->next==NULL){
                 if(temp->node->parent->node->u.n->tag_info==TAG_ITERATIVE_STMT) temp=temp->node->parent;
                 else if(temp->node->parent->node->u.n->tag_info==TAG_THEN) temp=temp->node->parent;
+                else if(temp->node->parent->node->u.n->tag_info==TAG_ELSE) temp=temp->node->parent;
                 else if(temp->node->parent->node->u.n->tag_info==TAG_COND_STMT) temp=temp->node->parent;
                 else break;
             }
@@ -655,6 +657,7 @@ void semanticRuleCheck(ASTNodeIt *chk, char *fun_id){
             while(temp->next==NULL){
                 if(temp->node->parent->node->u.n->tag_info==TAG_ITERATIVE_STMT) temp=temp->node->parent;
                 else if(temp->node->parent->node->u.n->tag_info==TAG_THEN) temp=temp->node->parent;
+                else if(temp->node->parent->node->u.n->tag_info==TAG_ELSE) temp=temp->node->parent;
                 else if(temp->node->parent->node->u.n->tag_info==TAG_COND_STMT) temp=temp->node->parent;
                 else break;
             }
@@ -665,12 +668,13 @@ void semanticRuleCheck(ASTNodeIt *chk, char *fun_id){
             while(temp->next==NULL){
                 if(temp->node->parent->node->u.n->tag_info==TAG_ITERATIVE_STMT) temp=temp->node->parent;
                 else if(temp->node->parent->node->u.n->tag_info==TAG_THEN) temp=temp->node->parent;
+                else if(temp->node->parent->node->u.n->tag_info==TAG_ELSE) temp=temp->node->parent;
                 else if(temp->node->parent->node->u.n->tag_info==TAG_COND_STMT) temp=temp->node->parent;
                 else break;
             }
             temp = temp->next;
         }
-        else printf("Check AST structure\n");
+        else temp = temp->node->u.n->children;
     }
 
     if(ret_no_error){

@@ -62,13 +62,14 @@ int main(int argc, char *argv[]){
 		else if(option==5 || option==6 || option==7 || option==8){
 			treeNodeIt* t = parseInputSourceCode(argv[1]);
 			ASTNodeIt* ast = makeAbstractSyntaxTree(t);
-			ASTNodeIt * ch = searchTag(ast, TAG_FUN_LIST)->node->u.n->children;
+			ASTNodeIt * ch = ast->node->u.n->children->node->u.n->children;
 			populateGlobalTable(ast);
     		SymbolTable = create_HTEle();
 			while(ch!=NULL){
 				populateSymbolTable(ch);
 				ch=ch->next;
 			}
+			populateSymbolTable(ast->node->u.n->children->next);
 			if(option==5){
 				printSymbolTable();
 			}else if(option==6){
