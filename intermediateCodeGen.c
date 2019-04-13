@@ -74,50 +74,143 @@ arg* getArg(ASTNodeIt* ast)
     }
 }
 
+op* newOp(int flag, TAG tag, TOKEN tkname){
+    op* o = (op*)malloc(sizeof(op));
+    o->flag=flag;
+    switch(flag){
+        case 0:
+            o->u.tag=tag;
+            break;
+        case 1:
+            o->u.tkname=tkname;
+            break;
+        default:
+            return NULL;
+    }
+    return o;
+}
+
 
 
 quadruple* generateIntermediateCode(ASTNodeIt* root)
 {
     ASTNodeIt* temp=root;
+    ASTNodeIt* left_child=NULL;
+    ASTNodeIt* right_child=NULL;
     while(1){
         if(temp->node->u.n->tag_info==TAG_ASSIGNMENT_STMT)
-        {
-            //implement a post order
+        {                
             ASTNodeIt* temp_post=temp;
-            temp_post=temp_post->next; // because the left child will be a variable (x=arithmetic expression)
+            quadruple* quadIt=NULL;
+            left_child=temp->node->u.n->children;
+            temp_post=left_child->next;// because the left child will be a variable (x=arithmetic expression)
+            
+            //travel to the leaf nodes
             while(temp_post->node->is_leaf==0)
             {
                 temp_post=temp_post->node->u.n->children;
             }
-            while(temp_post!=temp)
+
+            //post order traversal
+            while(temp_post->node->parent!=temp)
             {
                 ASTNodeIt* temp_post_parent;
-                //temp_post_parent=temp_post->node->parent;
-                if(temp_post->node->parent->node->u.n->tag_info==TAG_ARITHMETIC_EXPRESSION);
+                temp_post_parent=temp_post->node->parent;
+                if(temp_post_parent->node->u.n->tag_info=TAG_ARITHMETIC_EXPRESSION)
                 {
-                    //lookup for child
-                    hash_ele* h=find_hash_ele(temp_post->node->u.l->leaf_symbol->u.lexeme);             
-                    
+                    temp_post_parent->quadhead->a1=getArg(temp_post);
+                    temp_post_parent->quadhead->a2=getArg(temp_post->next);
+                    //op* temp_post_parent-> = (op*)malloc(sizeof(op));
+                    temp_post_parent->quadhead->operand->flag=1;
+                    temp_post_parent->quadhead->operand=newOp(1,TAG_FUNCTION,temp_post_parent->node->u.n->leaf_symbol->tokenName);//can it be 
+                    temp_post_parent->quadhead->res=new_temp();
+                    temp_post_parent->quadtail=quadIt;//here it will be null for a leaf node
+                    quadIt=temp_post_parent->quadhead;
+                    temp_post=temp_post_parent;
                 }
-                
-                //temp_post_parent->quad->a1->flag=0;
-                temp_post_parent->quadhead->a1=getArg(temp_post);//take bahvanan;s code
-                //temp_post_parent->quad->a2->flag=0;
-                temp_post_parent->quadhead->a2=getArg(temp_post->next);
-                //temp_post_parent->quad->operand->flag=0;
-                temp_post_parent->quadhead->operand->u.tkname=temp_post_parent->node->u.n->leaf_symbol;
-                temp_post_parent->quadhead->res=new_temp(); //insert function
-                temp_post_parent->quadtail=temp_post->quadhead;
+                else //if rhs is also a leaf node or post order traversal has been completed , then generate a quad accordingly
+                {
+                    break;                
 
 
+                }
             }
+            //now lhs and rhs are ready
+            temp->quadhead->a1=getArg(left_leaf_child);
+            temp->quadhead->a1=getArg(temp_post);
+            temp->quadhead->operand->flag=0;
+            temp->quadhead->operand=newOp(0,TAG_ASSIGNMENT_STMT,TK_GT); //check shouldnt it be a token of tknmae TK_ASSIGN_OP
             
             
         }
-//         else if(temp->node->u.n->tag_info==TAG_ASSIGNMENT_STMT)
-//         {
+        else if(temp->node->u.n->tag_info==TAG_ARITHMETIC_EXPRESSION)
+        {
+            ASTNodeIt* temp_post=temp;
+            quadruple* quadIt=NULL;
+            while(temp_post->node->is_leaf==0)
+            {
+                temp_post=temp_post->node->u.n->children;
+            }
+            while(1)
+            {
+                ASTNodeIt* temp_post_parent;
+                temp_post_parent=temp_post->node->parent;
+                if(temp_post_parent!=temp)
+                {
+                    if(temp_post_parent->node->u.n->tag_info=TAG_ARITHMETIC_EXPRESSION)
+                    {
+                        temp_post_parent->quadhead->a1=getArg(temp_post);
+                        temp_post_parent->quadhead->a2=getArg(temp_post->next);
+                        temp_post_parent->quadhead->operand->flag=1;
+                        temp_post_parent->quadhead->operand=newOp(1,TAG_FUNCTION,temp_post_parent->node->u.n->leaf_symbol->tokenName);//can it be 
+                        temp_post_parent->quadhead->res=new_temp();
+                        temp_post_parent->quadtail=quadIt;//here it will be null for a leaf node
+                        quadIt=temp_post_parent->quadhead;
+                        temp_post=temp_post_parent;
+                    }
+                    else
+                    {
+                        break;
+                        //throw some error
+                    }
+                    
+                }
+                else
+                {
+                    if(temp_post->next!=NULL)
+                    {
+                        left_child=temp_post;
+                        temp_post=temp_post->next;//repeating the process for the right child
+                        //you need to go to the base leaf again
+                        while(temp_post->node->is_leaf==0)
+                        {
+                            temp_post=temp_post->node->u.n->children;
+                        }
 
-//         }
+                        continue;
+                    }
+                    else
+                    {
+                        right_child=temp_post;
+                    }
+                    // if((right_child!=NULL)&&(left_child!=NULL))
+                    // {
+                    //     break;
+                    // }
+                    break;
+                    
+                }
+            }              
+                
+                
+            temp->quadhead->a1=getArg(left_child);
+            temp->quadhead->a1=getArg(right_child);
+            temp->quadhead->operand->flag=0;
+            temp->quadhead->operand=newOp(0,TAG_ASSIGNMENT_STMT,TK_GT); //check shouldnt it be a token of tknmae TK_ASSIGN_OP
+            
+        }
+        
+            
 
 //         else if(temp->node->u.n->tag_info==TAG_READ)
 //         {
