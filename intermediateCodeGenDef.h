@@ -4,44 +4,43 @@
 // KARABEE BATTA 2016A7PS0052P
 // AASTHA KATARIA 2016A7PS0062P
 
-#include "SymbolTableDef.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
+#include "SymbolTable.h"
 typedef int LABEL;
 typedef int TEMP;
-typedef struct 
-{
-    
-    union 
-    {
+typedef struct IntermediateDef IntermediateDef;
+
+typedef struct arg{
+    int flag;
+    union{
         hash_ele* hElem;
-        LABEL l;  
         TEMP t;
+        LABEL L; //TRUE is stored in arg1, FALSE in arg2
         int num;
         float rnum;
-        int flag;
-    }arg1;
+    }u;
+}arg;
 
-    union 
-    {
-        hash_ele* hElem;
-        LABEL l;  
-        TEMP t;
-        int num;
-        float rnum;
-        int flag;
-    }arg2;
+typedef struct  op{
+    int flag;
+    union{
+        TAG tag;
+        TOKEN tkname;
+    }u;
+}op;
 
-    union 
-    {
-        /* data */
-    };
-    
+typedef struct{
+    int flag;
+    union{
+        TEMP t; //temporary
+        LABEL l;
+    }u;
+}result;
 
-    
-    
-      
+typedef struct quadruple{
+    arg* a1;
+    arg* a2;
+    op* operand;
+    result *res;
+    LABEL l;
+    struct quadruple* next;  
 }quadruple;
-

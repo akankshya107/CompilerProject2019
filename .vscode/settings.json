@@ -2,6 +2,7 @@
     "files.associations": {
         "semanticdef.h": "c",
         "ast.h": "c",
-        "symboltable.h": "c"
+        "symboltable.h": "c",
+        "intermediatecodegendef.h": "c"
     }
 }

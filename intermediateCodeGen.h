@@ -8,4 +8,4 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+//(hash_ele*)find_hash_ele(char* str);
