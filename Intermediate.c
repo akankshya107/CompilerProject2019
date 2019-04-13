@@ -74,13 +74,13 @@ arg* getArg(ASTNodeIt* ast)
             }
             
         }
-        if(ast->node->u.l->leaf_symbol->flag==1)
+        else if(ast->node->u.l->leaf_symbol->flag==1)
         {
             return newArg(3,0,0,0,ast->node->u.l->leaf_symbol->u.value_of_int,0,0);
         }
-        if(ast->node->u.l->leaf_symbol->flag==2)
+        else if(ast->node->u.l->leaf_symbol->flag==2)
         {
-            return newArg(3,0,0,0,ast->node->u.l->leaf_symbol->u.value_of_real,0,0);
+            return newArg(4,0,0,0,0,ast->node->u.l->leaf_symbol->u.value_of_real,0);
         }
     }
 }
