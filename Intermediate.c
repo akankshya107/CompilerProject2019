@@ -4,6 +4,7 @@
 // KARABEE BATTA 2016A7PS0052P
 // AASTHA KATARIA 2016A7PS0062P
 #include "IntermediateDef.h"
+#include "SymbolTable.h"
 quadruple* gen_arithematic(ASTNodeIt* root)
 {
     ASTNodeIt* temp=root;
@@ -17,6 +18,29 @@ quadruple* gen_arithematic(ASTNodeIt* root)
     {
         temp_post=temp_post->node->parent;
         temp_post->quad=(quadruple*) malloc(sizeof(quadruple));
+        temp_post->quad->a1=(arg1*) malloc(sizeof(arg1));
+        if(temp_post->node->u.n->children->node->is_leaf)
+        {
+            if(temp_post->node->u.n->children->node->u.l->leaf_symbol->flag==1)
+            {
+                temp_post->quad->a1->u.num=temp_post->node->u.n->children->node->u.l->leaf_symbol->u.value_of_int;
+            }
+            else if(temp_post->node->u.n->children->node->u.l->leaf_symbol->flag==2)
+            {
+                temp_post->quad->a1->u.num=temp_post->node->u.n->children->node->u.l->leaf_symbol->u.value_of_real;
+            }
+            else 
+            {
+                if(lookupEle(temp_post->node->u.n->children->node->u.l->leaf_symbol->u.lexeme,globalSymbolTable))
+                temp_post->quad->a1->u.hElem=
+            }
+
+        }
+        else
+        {
+            temp_post->quad->arg1.t=temp_post->node->u.n->children->quad->result.
+        }
+        
 
     }
 }

@@ -50,7 +50,7 @@ typedef struct quadruple
 {
    arg1* a1;
    arg2* a2;
-   op* oper;
+   op* operand;
     int result;
     quadruple* next;  
 }quadruple;
