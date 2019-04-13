@@ -4,35 +4,85 @@
 // KARABEE BATTA 2016A7PS0052P
 // AASTHA KATARIA 2016A7PS0062P
 #include "IntermediateDef.h"
-quadraple* generateIntermediateCode()
+quadruple* gen_arithematic(ASTNodeIt* root)
 {
-    while(1)
+    ASTNodeIt* temp=root;
+    ASTNodeIt* temp_post=temp->node->u.n->children;
+    while(!temp_post->node->is_leaf)
     {
-        while(temp->t->is_leaf==0){
-            temp = temp->t->treeNode_type.n->children;
-            if (temp==NULL) break;
-        }
-        if (temp==NULL) break;
-        //REACHED A LEAF
-        //do nothing
-        while(temp->next==NULL){
-            temp = temp->t->parent;
-            //If program node, ie root node is reached
-            if(temp->t->parent==NULL){
-                temp->node = semanticRuleExecute(temp, 0);
-                return temp->node;	
-            }
-            //REACHED A NON-LEAF
-            //Get ASTNode and free the subsequent nodes
-            if(temp->t->treeNode_type.n->children->t->is_leaf==0){
-                temp->node = semanticRuleExecute(temp, temp->t->treeNode_type.n->children->t->treeNode_type.n->rule_no);
-                
+        temp_post=temp_post->node->u.n->children;
+    }
 
-            }else{
-                temp->node = semanticRuleExecute(temp, temp->t->treeNode_type.n->children->t->treeNode_type.l->rule_no);
+    while(temp_post->next==NULL)
+    {
+        temp_post=temp_post->node->parent;
+        temp_post->quad=(quadruple*) malloc(sizeof(quadruple));
+
+    }
+}
+quadraple* generateIntermediateCode(ASTNodeIt* root)
+{
+    ASTNodeIt* temp=root;
+    while(1){
+        if(temp->node->u.n->tag_info==TAG_ASSIGNMENT_STMT){
+            ASTNodeIt* temp_post=temp->node->u.n->children;
+            while(!temp_post->node->is_leaf)
+            {
+                temp_post=temp_post->node->u.n->children;
+            }
+
+
+        }
+        else if(temp->node->u.n->tag_info==TAG_FUN_CALL_STMT){
+            ASTNodeIt* f_out = temp->node->u.n->children->node->u.n->children;
+            while(f_out!=NULL){
+                for(int j=0; j<i; j++){
+                    if(strcmp(f_out->node->u.l->leaf_symbol->u.lexeme, arr[j])==0){
+                        flgs[j]=1;
+                        end_flag=1;
+                        break;
+                    }
+                }
             }
         }
-        //iterate 
+        else if(temp->node->u.n->tag_info==TAG_READ){
+            for(int j=0; j<i; j++){
+                if(strcmp(temp->node->u.n->children->node->u.l->leaf_symbol->u.lexeme, arr[j])==0){
+                    flgs[j]=1;
+                    end_flag=1;
+                    break;
+                }
+            }
+        }
+        else if(temp->node->u.n->tag_info==TAG_ITERATIVE_STMT){
+            temp=temp->node->u.n->children->next;
+            continue;
+        }
+        else if(temp->node->u.n->tag_info==TAG_COND_STMT){
+            temp = temp->node->u.n->children->next->node->u.n->children;
+            continue;
+        }
+        if(end_flag) break;
+        while(temp->next==NULL){
+            if(temp->node->parent==root) break;
+            if(temp->node->parent->node->u.n->tag_info==TAG_ITERATIVE_STMT) temp=temp->node->parent;
+            else if(temp->node->parent->node->u.n->tag_info==TAG_THEN) temp=temp->node->parent;
+            else if(temp->node->parent->node->u.n->tag_info==TAG_COND_STMT) temp=temp->node->parent;
+        }
         temp = temp->next;
     }
+    if(!end_flag){
+        printf("Lines %d: None of the variables participating in the iterations of the while loop gets updated\n", t->node->u.n->children->node->u.n->leaf_symbol->line_no);
+    }
+}
+
+
+
+
+
+    
+
+
+
+    
 }

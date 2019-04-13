@@ -9,40 +9,48 @@
 typedef int LABEL;
 typedef int TEMP;
 typedef struct IntermediateDef IntermediateDef;
-typedef struct quadraple
-{
-   union 
-    {
-       int flag;
-       hash_ele* hElem;
-       LABEL l;
-       TEMP t;
-       int num;
-       float rnum;
-    }arg1;
 
+typedef struct arg1
+{
+    int flag;
     union 
     {
-        int flag;
         hash_ele* hElem;
         LABEL l;
         TEMP t;
         int num;
         float rnum;
-    }arg2;
+    }u;
+}arg1;
 
-    union
-    {
-        int flag;
-        TAG tag;
-        TOKEN tkname;
-    }op;
-
+typedef struct arg2
+{
+    int flag;
     union 
     {
-        int flag;
-        int result;
-        hash_ele* Hresult;
-    }result; 
-    quadraple* next;  
-}quadraple;
+        hash_ele* hElem;
+        LABEL l;
+        TEMP t;
+        int num;
+        float rnum;
+    }u;
+}arg2;
+
+typedef struct  op
+{
+    int flag;
+    union
+    {
+        TAG tag;
+        TOKEN tkname;
+    }u;
+}op;
+
+typedef struct quadruple
+{
+   arg1* a1;
+   arg2* a2;
+   op* oper;
+    int result;
+    quadruple* next;  
+}quadruple;

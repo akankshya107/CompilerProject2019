@@ -15,7 +15,7 @@ TAG_INPUT_ARGS, TAG_ITERATIVE_STMT, TAG_COND_STMT, TAG_THEN, TAG_ELSE, TAG_READ,
 TAG_ID
 }TAG;
 
-typedef struct quadraple quadraple;
+typedef struct quadruple quadruple;
 
 typedef struct{
     TAG tag_info;
@@ -40,6 +40,6 @@ typedef struct ASTNode{
 typedef struct ASTNodeIt{
     ASTNode *node;
     ASTNodeIt *next;
-    quadraple* quad;
+    quadruple* quad;
 }ASTNodeIt;
 
