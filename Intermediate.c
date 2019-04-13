@@ -115,30 +115,66 @@ quadruple* newQuad(arg *a1, arg *a2, op* op, label* l, result *res){
 quadruple* generateBoolean(ASTNodeIt* root)
 {
     ASTNodeIt* temp=root;
+    preorder_labelpopulation();
     while(1){
 		while(temp->node->is_leaf==0){
 			temp = temp->node->u.n->children;
 		}
 		//REACHED A LEAF
-        //do nothing
+        //do nothing TK_LT, TK_LE, TK_EQ,TK_GT, TK_GE, TK_NE
 		while(temp->next==NULL){
-			temp = temp->node->parent;
-            //If program node, ie root node is reached
-            arg* arg1=getArg(temp->node->u.n->children);
-            newQuad(newArg())
-			if(temp->node->u.n->tag_info==TAG_ITERATIVE_STMT){
-				// temp->node = semanticRuleExecute(temp, 0);
-				// return temp->node;	
-			}
-			//REACHED A NON-LEAF
-            //Get ASTNode and free the subsequent nodes
-            if(temp->t->treeNode_type.n->children->t->is_leaf==0){
-                temp->node = semanticRuleExecute(temp, temp->t->treeNode_type.n->children->t->treeNode_type.n->rule_no);
+            temp = temp->node->parent;
+            if(
+                temp->node->u.n->leaf_symbol->tokenName==TK_GE||
+                temp->node->u.n->leaf_symbol->tokenName==TK_LT||
+                temp->node->u.n->leaf_symbol->tokenName==TK_LE||
+                temp->node->u.n->leaf_symbol->tokenName==TK_EQ||
+                temp->node->u.n->leaf_symbol->tokenName==TK_NE||
+                temp->node->u.n->leaf_symbol->tokenName==TK_GT
+            )
+            {
                 
+                //If program node, ie root node is reached
+                LABEL temp1=temp->quadhead->a1->u.L;
+                LABEL temp2=temp->quadhead->a2->u.L;
+                temp->quadhead->a1=getArg(temp->node->u.n->children);
+                temp->quadhead->a2=getArg (temp->node->u.n->children->next);
+                temp->quadhead->operand=temp->node->u.n->leaf_symbol->tokenName;
+                temp->quadhead->res->u.l=temp1;
 
-            }else{
-                temp->node = semanticRuleExecute(temp, temp->t->treeNode_type.n->children->t->treeNode_type.l->rule_no);
+                temp->quadtail=newQuad(NULL,NULL,newOp(2,0,0),NULL,temp2);
+                temp->quadhead->next=temp->quadtail;
             }
+            else if(
+                temp->node->u.n->leaf_symbol->tokenName==TK_AND||
+                temp->node->u.n->leaf_symbol->tokenName==TK_OR||
+                temp->node->u.n->leaf_symbol->tokenName==TK_NOT
+            )
+            {
+                //figure out about arguments
+                temp->quadhead=temp->node->u.n->children->quadhead;
+                temp->node->u.n->children->quadtail=temp->node->u.n->children->next->quadhead;
+                temp->quadtail=temp->node->u.n->children->next->quadtail;
+            }
+
+            // newQuad(,,,NULL,temp->node->u.n->children->)
+			if(temp->node->parent->node->u.n->tag_info==TAG_ITERATIVE_STMT){
+                if(temp->node->u.n->leaf_symbol->tokenName==TK_AND)
+                {
+                    //b1,b2,label(b.true),stmts,goto l0
+                }
+                else if(temp->node->u.n->leaf_symbol->tokenName==TK_AND)
+                {
+                    //b1,label(b.true),stmts,goto l0,b2
+                }
+                else
+                {
+                    //b,label(b.false),stmts,goto l0
+                }
+                
+				break;	
+			}
+			
 		}
         //iterate 
 		temp = temp->next;
