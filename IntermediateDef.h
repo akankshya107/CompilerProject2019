@@ -4,53 +4,43 @@
 // KARABEE BATTA 2016A7PS0052P
 // AASTHA KATARIA 2016A7PS0062P
 
-#include "ASTDef.h"
-#include "SymbolTableDef.h"
+#include "SymbolTable.h"
 typedef int LABEL;
 typedef int TEMP;
 typedef struct IntermediateDef IntermediateDef;
 
-typedef struct arg1
-{
+typedef struct arg{
     int flag;
-    union 
-    {
+    union{
         hash_ele* hElem;
-        LABEL l;
         TEMP t;
+        LABEL L; //TRUE is stored in arg1, FALSE in arg2
         int num;
         float rnum;
     }u;
-}arg1;
+}arg;
 
-typedef struct arg2
-{
+typedef struct  op{
     int flag;
-    union 
-    {
-        hash_ele* hElem;
-        LABEL l;
-        TEMP t;
-        int num;
-        float rnum;
-    }u;
-}arg2;
-
-typedef struct  op
-{
-    int flag;
-    union
-    {
+    union{
         TAG tag;
         TOKEN tkname;
     }u;
 }op;
 
-typedef struct quadruple
-{
-   arg1* a1;
-   arg2* a2;
-   op* operand;
-    int result;
-    quadruple* next;  
+typedef struct{
+    int flag;
+    union{
+        TEMP t; //temporary
+        LABEL l;
+    }u;
+}result;
+
+typedef struct quadruple{
+    arg* a1;
+    arg* a2;
+    op* operand;
+    result *res;
+    LABEL l;
+    struct quadruple* next;  
 }quadruple;

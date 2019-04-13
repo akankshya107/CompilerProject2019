@@ -8,6 +8,8 @@
 #include "lexer.h"
 #include "ASTDef.h"
 
+int ASTNodes=0;
+
 char *TagString(int index){
     static char *tagTable[TAG_ID+1] = {"TAG_PROGRAM", "TAG_FUN_LIST", "TAG_MAIN", "TAG_ARITHMETIC_EXPRESSION", "TAG_BOOLEAN_EXPRESSION", 
 "TAG_OTHERSTMTS", "TAG_RETURNSTMT", "TAG_DECLARES", "TAG_TYPEDEFS", "TAG_TYPEDEF", "TAG_FIELDDEF", "TAG_DECLARE",
@@ -41,6 +43,9 @@ ASTNodeIt* newNonLeafNode(TAG taginf, tokenInfo *ti, ASTNodeIt* input1, ASTNodeI
     }
     ASTNodeIt* final_node=(ASTNodeIt*)malloc(sizeof(ASTNodeIt));
     final_node->node = (ASTNode*)malloc(sizeof(ASTNode));
+    final_node->quadhead=NULL;
+    final_node->quadtail=NULL;
+    final_node->node->t=NULL;
     final_node->node->u.n=(nonLeaf*)malloc(sizeof(nonLeaf));
     final_node->node->u.n->tag_info=taginf;
     final_node->node->u.n->leaf_symbol=ti;
@@ -68,6 +73,7 @@ ASTNodeIt* newLeafNode(tokenInfo *ti){
     final_node->node = (ASTNode*)malloc(sizeof(ASTNode));
     final_node->node->parent=NULL;
     final_node->node->is_leaf=1;
+    final_node->node->t=NULL;
     final_node->node->u.l=(Leaf*)malloc(sizeof(Leaf));
     final_node->node->u.l->leaf_symbol=ti;
     final_node->next=NULL;
@@ -75,7 +81,11 @@ ASTNodeIt* newLeafNode(tokenInfo *ti){
 }
 
 void freeChildren(treeNodeIt *temp){
+<<<<<<< HEAD
     static int arr[24]= {TK_FUNID, TK_ID, TK_INT, TK_REAL, TK_RECORDID, TK_FIELDID, TK_GLOBAL, TK_ASSIGNOP, TK_NUM, TK_RNUM, TK_MUL, TK_DIV, TK_MINUS, TK_PLUS, TK_NOT, TK_AND, TK_OR, TK_LT, TK_LE, TK_GT, TK_GE,  TK_EQ,  TK_NE,TK_MAIN};
+=======
+    static int arr[24]= {TK_FUNID, TK_ID, TK_INT, TK_REAL, TK_RECORDID, TK_FIELDID, TK_GLOBAL, TK_ASSIGNOP, TK_NUM, TK_RNUM, TK_MUL, TK_DIV, TK_MINUS, TK_PLUS, TK_NOT, TK_AND, TK_OR, TK_LT, TK_LE, TK_GT, TK_GE,  TK_EQ,  TK_NE, TK_MAIN};
+>>>>>>> c630e9a652a27f15d3d79a5ac89ac8cb5a23c054
     treeNodeIt *freetemp;
     while(temp!=NULL){
         int flag=0;
@@ -116,10 +126,13 @@ ASTNodeIt* semanticRuleExecute(treeNodeIt *t, int rule_no){
             n->node->parent=NULL;
             return n;
         }
-        //mainFunction.node=newNonLeafNode(TAG_MAIN, NULL, stmts.node) 
+        //mainFunction.node=newNonLeafNode(TAG_MAIN, LeafNode(TK_MAIN), stmts.node) 
         case 1:{
             treeNodeIt *temp = t->t->treeNode_type.n->children;
+<<<<<<< HEAD
             printf("%s\n",temp->t->treeNode_type.l->leaf_symbol->u.lexeme);
+=======
+>>>>>>> c630e9a652a27f15d3d79a5ac89ac8cb5a23c054
             ASTNodeIt* n = newNonLeafNode(TAG_MAIN, temp->t->treeNode_type.l->leaf_symbol, temp->next->node, NULL, NULL);
             freeChildren(temp);
             return n;
@@ -133,6 +146,8 @@ ASTNodeIt* semanticRuleExecute(treeNodeIt *t, int rule_no){
         }
         //otherFunctions.node=NULL
         case 3:{
+            treeNodeIt *temp = t->t->treeNode_type.n->children;
+            freeChildren(temp);
             return NULL;
         }
 
@@ -163,6 +178,8 @@ ASTNodeIt* semanticRuleExecute(treeNodeIt *t, int rule_no){
         }
         //output_par.node = NULL
         case 7:{
+            treeNodeIt *temp = t->t->treeNode_type.n->children;
+            freeChildren(temp);
             return NULL;
         }
         //parameter_list.node = ChildrenList(dataType.node, ChildrenList(LeafNode(TK_ID), remaining_list.node))
@@ -181,6 +198,8 @@ ASTNodeIt* semanticRuleExecute(treeNodeIt *t, int rule_no){
         }
         //remaining_list.node = NULL
         case 15:{
+            treeNodeIt *temp = t->t->treeNode_type.n->children;
+            freeChildren(temp);
             return NULL;
         }
 
@@ -232,6 +251,8 @@ ASTNodeIt* semanticRuleExecute(treeNodeIt *t, int rule_no){
         // typeDefinitions.node = NULL
         case 18:{
             // t->t->node=NULL;
+            treeNodeIt *temp = t->t->treeNode_type.n->children;
+            freeChildren(temp);
             return NULL;
         }
         // typeDefinition.node = new Node(TAG_TYPEDEF,LeafNode(TK_RECORDID),fieldDefinitions.node)
@@ -266,6 +287,8 @@ ASTNodeIt* semanticRuleExecute(treeNodeIt *t, int rule_no){
         }
         // moreFields.node=NULL
         case 23:{
+            treeNodeIt *temp = t->t->treeNode_type.n->children;
+            freeChildren(temp);
             return NULL;
         }
 
@@ -279,6 +302,8 @@ ASTNodeIt* semanticRuleExecute(treeNodeIt *t, int rule_no){
         }
         // declarations.node = NULL
         case 25:{
+            treeNodeIt *temp = t->t->treeNode_type.n->children;
+            freeChildren(temp);
             return NULL;
         }
         // declaration.node=new Node(TAG_DECLARE, LeafNode(TK_ID),dataType.node, global_or_not.node)
@@ -297,6 +322,8 @@ ASTNodeIt* semanticRuleExecute(treeNodeIt *t, int rule_no){
         }
         // global_or_not.node = NULL
         case 28:{
+            treeNodeIt *temp = t->t->treeNode_type.n->children;
+            freeChildren(temp);
             return NULL;
         }
 
@@ -310,6 +337,8 @@ ASTNodeIt* semanticRuleExecute(treeNodeIt *t, int rule_no){
         }
         // otherStmts.node = NULL
         case 30:{
+            treeNodeIt *temp = t->t->treeNode_type.n->children;
+            freeChildren(temp);
             return NULL;
         }
         
@@ -373,6 +402,8 @@ ASTNodeIt* semanticRuleExecute(treeNodeIt *t, int rule_no){
         //new_24.node = NULL
         case 38 :
         {
+            treeNodeIt *temp = t->t->treeNode_type.n->children;
+            freeChildren(temp);
             return NULL;
         }
         //new_24.node = LeafNode(TK_FIELDID)
@@ -406,6 +437,8 @@ ASTNodeIt* semanticRuleExecute(treeNodeIt *t, int rule_no){
         //outputParameters.node=NULL
         case 42 :
         {
+            treeNodeIt *temp = t->t->treeNode_type.n->children;
+            freeChildren(temp);
             return NULL;
         }
         //inputParameters --> TK_SQL idList  TK_SQR
@@ -422,7 +455,7 @@ ASTNodeIt* semanticRuleExecute(treeNodeIt *t, int rule_no){
         case 44 :
         {
             treeNodeIt *temp = t->t->treeNode_type.n->children;
-            ASTNodeIt* n = newNonLeafNode(TAG_ITERATIVE_STMT, NULL, temp->next->next->node, temp->next->next->next->next->node,temp->next->next->next->next->next->node );
+            ASTNodeIt* n = newNonLeafNode(TAG_ITERATIVE_STMT, NULL, temp->next->next->node, temp->next->next->next->next->node, temp->next->next->next->next->next->node );
             freeChildren(temp);
             return n;
         }
@@ -448,6 +481,8 @@ ASTNodeIt* semanticRuleExecute(treeNodeIt *t, int rule_no){
         //elsePart.node = NULL
         case 47 :
         {
+            treeNodeIt *temp = t->t->treeNode_type.n->children;
+            freeChildren(temp);
             return NULL;
         }
         // ioStmt --> TK_READ  TK_OP singleOrRecId  TK_CL  TK_SEM
@@ -640,6 +675,8 @@ ASTNodeIt* semanticRuleExecute(treeNodeIt *t, int rule_no){
         }
         // optionalReturn.node = NULL
         case 83:{
+            treeNodeIt *temp = t->t->treeNode_type.n->children;
+            freeChildren(temp);
             return NULL;
         }
         // idList.node = ChildrenList(LeafNode(TK_ID), more_ids.node)
@@ -659,6 +696,8 @@ ASTNodeIt* semanticRuleExecute(treeNodeIt *t, int rule_no){
         }
         // more_ids.node =NULL
         case 86:{
+            treeNodeIt *temp = t->t->treeNode_type.n->children;
+            freeChildren(temp);
             return NULL;
         }
 
@@ -671,9 +710,7 @@ ASTNodeIt* makeAbstractSyntaxTree(treeNodeIt *root){
 	while(1){
 		while(temp->t->is_leaf==0){
 			temp = temp->t->treeNode_type.n->children;
-			if (temp==NULL) break;
 		}
-		if (temp==NULL) break;
 		//REACHED A LEAF
         //do nothing
 		while(temp->next==NULL){
@@ -736,6 +773,59 @@ void printAST(ASTNodeIt* root)
             else
             {
                 printf("nonleaf node:\t\t token: not stored tag: %s \n", TagString(temp->node->u.n->tag_info));
+            }
+            
+        }
+        temp=temp->next;
+    }
+
+}
+
+size_t printASTNodes(ASTNodeIt *root){
+    ASTNodes=0;
+    ASTNodeIt *temp = root;
+    ASTNodeIt* temp_child;
+    size_t allocatedBytes=0;
+    while(1)
+    {
+        while(temp->node->is_leaf==0){
+            temp_child=temp->node->u.n->children;
+            if(temp_child==NULL)
+            {
+                ASTNodes++;
+                allocatedBytes+= sizeof(temp) + sizeof(&temp) + sizeof(&(temp->node)) + sizeof(&(temp->node->u.n)) + sizeof(&(temp->node->t));
+                
+                if(temp->next==NULL)
+                break;
+
+                temp=temp->next;
+            }
+            else
+            {
+                temp=temp->node->u.n->children;
+            }
+            
+            
+        }
+        // if (temp==NULL) break;
+        if(temp->node->is_leaf==1){
+            ASTNodes++;
+            allocatedBytes+= sizeof(temp) + sizeof(&temp) + sizeof(&(temp->node)) + sizeof(&(temp->node->u.l)) + sizeof(&(temp->node->u.l->leaf_symbol)) + sizeof(&(temp->node->t));
+        }
+        while(temp->next==NULL){
+            temp=temp->node->parent;
+            if(temp==NULL){
+                ASTNodes++;
+                allocatedBytes+= sizeof(temp) + sizeof(&temp) + sizeof(&(temp->node)) + sizeof(&(temp->node->u.n));
+                return allocatedBytes;
+            }
+            ASTNodes++;
+            if(temp->node->u.n->leaf_symbol!=NULL){
+                allocatedBytes+= sizeof(temp) + sizeof(&temp) + sizeof(&(temp->node)) + sizeof(&(temp->node->u.n)) + sizeof(&(temp->node->u.n->leaf_symbol)) + sizeof(&(temp->node->t));
+            }
+            else
+            {
+                allocatedBytes+= sizeof(temp) + sizeof(&temp) + sizeof(&(temp->node)) + sizeof(&(temp->node->u.n));
             }
             
         }

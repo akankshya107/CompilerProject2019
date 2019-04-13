@@ -12,6 +12,10 @@
 #include "grammarDef.h"
 #define GRAM_INCLUDED
 #endif
+
+extern int parse_correct;
+extern int ParseNodes;
+
 typedef struct f_node{
 	int is_error;
 	int rule_no_index;
@@ -50,5 +54,4 @@ typedef struct treeNodeIt{
 	treeNode *t;
 	treeNodeIt *next;
 	ASTNodeIt *node;
-	ASTNodeIt *inh;
 }treeNodeIt;

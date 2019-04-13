@@ -10,7 +10,6 @@
 #define LEN_HT 41
 #define INT_WIDTH 2
 #define REAL_WIDTH 4
-typedef bool TYPE; // 0 for int, 1 for real
 
 typedef struct Ele{
   ASTNodeIt *node;
@@ -31,14 +30,6 @@ typedef hash_ele **HashTable;
 HashTable globalSymbolTable;
 HashTable SymbolTable;
 
-typedef struct{
-    int is_record;
-    union{
-        TYPE pri_type;
-        char* rec_id;
-    }u;
-}type;
-
 typedef struct symTableElem{
     type* t;
     int width;
@@ -50,17 +41,15 @@ typedef struct{
     char *ret_par;
 }out; //Should be made NULL for in_pars
 
-typedef struct SeqListPars SeqListPars;
-
 typedef struct SeqListPars{
     bool out_flg;
-    type* t;
-    out* out_check;//null for inpar
-    SeqListPars *next;
+    type *t;
+    out *out_check;
+    struct SeqListPars *next;
 }SeqListPars;
 
 typedef struct rec{
-    char* rec_id;
+    char *rec_id;
     ASTNodeIt *record_ptr;
     int width;
 }rec;

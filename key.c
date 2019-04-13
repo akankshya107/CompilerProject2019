@@ -40,7 +40,7 @@ void insertIntoHT(hash_elem *elem){
 }
 
 void populateKeyWordTable(){
-    KeyWordTable = (hashTable)malloc(sizeof(hash_elem*)*43);
+    KeyWordTable = (hTable)malloc(sizeof(hash_elem*)*43);
     for(int i=0; i<43; i++){
         KeyWordTable[i]=create_hash_elem(0, "none");
     }

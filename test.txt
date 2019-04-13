@@ -1,14 +1,42 @@
 %Test Case 1
 %Following function computes the sum of user defined real numbers
 %The variable d3 maintains the sum of values
-%_sumN  input parameter list [int d5cc34]  
-%output parameter list[real d3];
-%	type int : b5b567;
-%	return;
-%end
-
-_main
-	b3 <--- c3bd+3;
-	return;
+_sumN  input parameter list [int d5cc34]  
+output parameter list[real d3,int d2,real b5];
+	type int : b5b567;
+	type int : b5b567;
+	b5b567 <--- 1;
+	%d3 <--- 0.00;
+	while ( b5b567 <= d5cc34)
+		read( c3bd);
+		d3 <--- d3 + c3bd;
+		b5b567 <--- b5b567 + 1;
+	endwhile
+	return [d3];
 end
 
+_sumN  input parameter list [int d5cc34,int b3]  
+output parameter list[real d3,int d2,real b5];
+	type int : b5b567;
+	type int : b5b57;
+	b5b567 <--- 1;
+	%d3 <--- 0.00;
+	while ( b5b567 <= d5cc34)
+		read( c3bd);
+		d3 <--- d3 + c3bd;
+		b5b567 <--- b5b567 + 1;
+	endwhile
+	return [d3];
+end
+_main
+<<<<<<< HEAD
+	b3 <--- c3bd+3;
+=======
+	type int :b3;
+	type real :c4bd56;
+	b3 <--- 7;
+	[c4bd56]<--- call _sumN with parameters [b3];
+	write(c4bd56);
+>>>>>>> c630e9a652a27f15d3d79a5ac89ac8cb5a23c054
+	return;
+end
