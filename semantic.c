@@ -383,12 +383,7 @@ int noOfTerms(ASTNodeIt *b){
                 return count;
             }
         }
-        ch=ch->next;
-    }
-    temp = ast->node->u.n->children->next;
-    ASTNodeIt* stmts = populateSymbolTable(temp); //Populate Symbol Table for that function along with type extractor
-    if(stmts!=NULL){
-        semanticRuleCheck(stmts, temp->node->u.n->leaf_symbol->u.lexeme);
+        temp=temp->next;
     }
 }
 

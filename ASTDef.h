@@ -17,8 +17,6 @@ TAG_FUNCTION, TAG_INPUT_PARS, TAG_OUTPUT_PARS, TAG_ASSIGNMENT_STMT, TAG_FUN_CALL
 TAG_INPUT_ARGS, TAG_ITERATIVE_STMT, TAG_COND_STMT, TAG_THEN, TAG_ELSE, TAG_READ, TAG_WRITE, TAG_ID
 }TAG;
 
-typedef struct quadruple quadruple;
-
 typedef struct{
     TAG tag_info;
     tokenInfo *leaf_symbol;

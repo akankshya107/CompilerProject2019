@@ -5,12 +5,12 @@
 // AASTHA KATARIA 2016A7PS0062P
 #include "IntermediateDef.h"
 
-int newTemp(){
+TEMP newTemp(){
     static int t=0;
     return t++;
 }
 
-int newLabel(){
+LABEL newLabel(){
     static int l=0;
     return l++;
 }
@@ -30,7 +30,7 @@ result *newResult(int flag, TEMP t, LABEL l){
     return res;
 }
 
-arg* newArg(int flag, hash_ele* h, TEMP t, LABEL L, int num, float rnum){
+arg* newArg(int flag, hash_ele* h, TEMP t, LABEL L, int num, float rnum,int width){
     arg* a = (arg*)malloc(sizeof(arg));
     a->flag=flag;
     switch (flag)
@@ -50,10 +50,39 @@ arg* newArg(int flag, hash_ele* h, TEMP t, LABEL L, int num, float rnum){
         case 4:
             a->u.rnum=rnum;
             break;
+        case 5:
+            a->u.width=width;
         default:
             return NULL;
     }
     return a;
+}
+
+arg* getArg(ASTNodeIt* ast)
+{
+    if(ast->node->is_leaf)
+    {
+        if(ast->node->u.l->leaf_symbol->flag==0)
+        {
+            if(lookup(ast->node->u.l->leaf_symbol->u.lexeme,globalSymbolTable)!=NULL)
+            {
+                return newArg(0, lookup(ast->node->u.l->leaf_symbol->u.lexeme,globalSymbolTable),0,0,0,0,0);
+            }
+            else
+            {
+                return newArg(0,lookupEle(ast->node->u.l->leaf_symbol->u.lexeme, lookupEle("_main",SymbolTable)->ele->u.out_table->SymbolTable),0,0,0,0,0);
+            }
+            
+        }
+        if(ast->node->u.l->leaf_symbol->flag==1)
+        {
+            return newArg(3,0,0,0,ast->node->u.l->leaf_symbol->u.value_of_int,0,0);
+        }
+        if(ast->node->u.l->leaf_symbol->flag==2)
+        {
+            return newArg(3,0,0,0,ast->node->u.l->leaf_symbol->u.value_of_real,0,0);
+        }
+    }
 }
 
 op* newOp(int flag, TAG tag, TOKEN tkname){
@@ -72,7 +101,7 @@ op* newOp(int flag, TAG tag, TOKEN tkname){
     return o;
 }
 
-quadruple* newQuad(arg *a1, arg *a2, op* op, LABEL l, result *res){
+quadruple* newQuad(arg *a1, arg *a2, op* op, label* l, result *res){
     quadruple *q = (quadruple*)malloc(sizeof(quadruple));
     q->a1=a1;
     q->a2=a2;
@@ -81,6 +110,45 @@ quadruple* newQuad(arg *a1, arg *a2, op* op, LABEL l, result *res){
     q->res=res;
     q->next=NULL;
     return q;
+}
+
+quadruple* generateBoolean(ASTNodeIt* root)
+{
+    ASTNodeIt* temp=root;
+    while(1){
+		while(temp->node->is_leaf==0){
+			temp = temp->node->u.n->children;
+		}
+		//REACHED A LEAF
+        //do nothing
+		while(temp->next==NULL){
+			temp = temp->node->parent;
+            //If program node, ie root node is reached
+            arg* arg1=getArg(temp->node->u.n->children);
+            newQuad(newArg())
+			if(temp->node->u.n->tag_info==TAG_ITERATIVE_STMT){
+				// temp->node = semanticRuleExecute(temp, 0);
+				// return temp->node;	
+			}
+			//REACHED A NON-LEAF
+            //Get ASTNode and free the subsequent nodes
+            if(temp->t->treeNode_type.n->children->t->is_leaf==0){
+                temp->node = semanticRuleExecute(temp, temp->t->treeNode_type.n->children->t->treeNode_type.n->rule_no);
+                
+
+            }else{
+                temp->node = semanticRuleExecute(temp, temp->t->treeNode_type.n->children->t->treeNode_type.l->rule_no);
+            }
+		}
+        //iterate 
+		temp = temp->next;
+	}
+
+
+
+
+
+
 }
 
 quadruple* generateIntermediateCode(ASTNodeIt* root)

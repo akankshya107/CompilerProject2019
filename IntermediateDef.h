@@ -17,6 +17,7 @@ typedef struct arg{
         LABEL L; //TRUE is stored in arg1, FALSE in arg2
         int num;
         float rnum;
+        int width;
     }u;
 }arg;
 
@@ -36,11 +37,19 @@ typedef struct{
     }u;
 }result;
 
+typedef struct label{
+    int flag;
+    union{
+        LABEL l;
+        char* dataDef;
+    }u;
+}label;
+
 typedef struct quadruple{
     arg* a1;
     arg* a2;
     op* operand;
     result *res;
-    LABEL l;
+    label* l;
     struct quadruple* next;  
 }quadruple;

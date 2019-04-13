@@ -64,21 +64,6 @@ int main(int argc, char *argv[]){
 		else if(option==5 || option==6 || option==7 || option==8){
 			treeNodeIt* t = parseInputSourceCode(argv[1]);
 			ASTNodeIt* ast = makeAbstractSyntaxTree(t);
-<<<<<<< HEAD
-			ASTNodeIt * ch = searchTag(ast, TAG_FUN_LIST)->node->u.n->children;
-			populateGlobalTable(ast);
-			while(ch!=NULL){
-				populateSymbolTable(ch);
-			}
-			if(option==5){
-				printSymbolTable();
-			}else if(option==6){
-				printGlobalvar(); //print global variables
-			}else if(option==7){
-				printMemActRec();
-			}else{
-				printGlobalTable_recDef(); //print record defs
-=======
 			ASTNodeIt * ch = ast->node->u.n->children->node->u.n->children;
 			populateGlobalTable(ast);
     		SymbolTable = create_HTEle();
@@ -95,7 +80,6 @@ int main(int argc, char *argv[]){
 				printMemActRec();
 			}else{
 				printGlobalTable_recDef();
->>>>>>> c630e9a652a27f15d3d79a5ac89ac8cb5a23c054
 			}
 		}else if(option==9){
 
