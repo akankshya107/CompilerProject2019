@@ -43,6 +43,8 @@ ASTNodeIt* newNonLeafNode(TAG taginf, tokenInfo *ti, ASTNodeIt* input1, ASTNodeI
     }
     ASTNodeIt* final_node=(ASTNodeIt*)malloc(sizeof(ASTNodeIt));
     final_node->node = (ASTNode*)malloc(sizeof(ASTNode));
+    final_node->quadhead=NULL;
+    final_node->quadtail=NULL;
     final_node->node->t=NULL;
     final_node->node->u.n=(nonLeaf*)malloc(sizeof(nonLeaf));
     final_node->node->u.n->tag_info=taginf;

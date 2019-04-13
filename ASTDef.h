@@ -52,6 +52,7 @@ typedef struct quadruple quadruple;
 typedef struct ASTNodeIt{
     ASTNode *node;
     ASTNodeIt *next;
-    quadruple *quad;
+    quadruple *quadhead;
+    quadruple *quadtail;
 }ASTNodeIt;
 

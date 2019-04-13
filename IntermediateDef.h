@@ -9,27 +9,16 @@ typedef int LABEL;
 typedef int TEMP;
 typedef struct IntermediateDef IntermediateDef;
 
-typedef struct arg1{
+typedef struct arg{
     int flag;
     union{
         hash_ele* hElem;
-        LABEL l;
         TEMP t;
+        LABEL L; //TRUE is stored in arg1, FALSE in arg2
         int num;
         float rnum;
     }u;
-}arg1;
-
-typedef struct arg2{
-    int flag;
-    union{
-        hash_ele* hElem;
-        LABEL l;
-        TEMP t;
-        int num;
-        float rnum;
-    }u;
-}arg2;
+}arg;
 
 typedef struct  op{
     int flag;
@@ -39,10 +28,19 @@ typedef struct  op{
     }u;
 }op;
 
+typedef struct{
+    int flag;
+    union{
+        TEMP t; //temporary
+        LABEL l;
+    }u;
+}result;
+
 typedef struct quadruple{
-    arg1* a1;
-    arg2* a2;
+    arg* a1;
+    arg* a2;
     op* operand;
-    int result;
+    result *res;
+    LABEL l;
     struct quadruple* next;  
 }quadruple;

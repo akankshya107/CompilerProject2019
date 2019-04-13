@@ -535,8 +535,6 @@ void populateGlobalTable(ASTNodeIt* root)
 
 }
 
-
-
 void printSymbolTable(){
     int i,j;
     hash_ele* temp1,*temp2;
@@ -553,11 +551,25 @@ void printSymbolTable(){
                 {
                     if(temp2->ele->u.s->t->is_record==0)
                     {
-                        printf("%s\t%s\t%s\t%d\n", temp2->str, TypeString(temp2->ele->u.s->t->u.pri_type), temp1->str, temp2->ele->u.s->offset);
+                        printf("%s\t", temp2->str);
+                        if(temp2->ele->u.s->t->u.pri_type==0)
+                        printf("%s\t","int");
+                        else if(temp2->ele->u.s->t->u.pri_type==1)
+                        printf("%s\t","real");
+                        printf("%s\t%d\t\t%s\t%d\n", temp2->str, temp2->ele->u.s->t->u.pri_type, temp1->str, temp2->ele->u.s->offset);
                     }
                     else if (temp2->ele->u.s->t->is_record==1)
                     {
-                    printf("%s\t%s\t%s\t%d\n", temp2->str, temp2->ele->u.s->t->u.rec_id, temp1->str, temp2->ele->u.s->offset); 
+                        printf("%s\t", temp2->str);
+                        ASTNodeIt* temp_ast= lookupEle(temp2->ele->u.s->t->u.rec_id,globalSymbolTable)->ele->u.g->u.rec_type_list->record_ptr;
+                        while(temp_ast->next!=NULL)
+                        {
+                            printf("%sx",temp_ast->node->u.n->children->node->u.l->leaf_symbol->u.lexeme);
+                            temp_ast=temp_ast->next;
+                        }
+                        if(temp_ast->next==NULL)
+                        printf("%s\t",temp_ast->node->u.n->children->node->u.l->leaf_symbol->u.lexeme);
+                        printf("%s\t%d\n",temp1->str, temp2->ele->u.s->offset);
                     }
                     temp2=temp2->next;
                 }
@@ -583,11 +595,13 @@ void printGlobalTable_recDef()
             {
                 temp_ast=temp->ele->u.g->u.rec_type_list->record_ptr;
                 printf("%s\t",temp->str);
-                while(temp_ast!=NULL)
+                while(temp_ast->next!=NULL)
                 {
                     printf("%s,",temp_ast->node->u.n->children->node->u.l->leaf_symbol->u.lexeme);
                     temp_ast=temp_ast->next;
                 }
+                if(temp_ast->next==NULL)
+                printf("%s",temp_ast->node->u.n->children->node->u.l->leaf_symbol->u.lexeme);
                 printf("\t");
 
                 printf("%d\n",temp->ele->u.g->u.rec_type_list->width);
