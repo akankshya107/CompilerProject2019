@@ -373,6 +373,11 @@ quadruple* generateIntermediateCode(ASTNodeIt* root)
                             }
                             temp->quadtail=p;
                         }
+                        else
+                        {
+                            
+                        }
+                        
 
 
                         temp=temp->node->parent;
