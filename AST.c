@@ -43,6 +43,8 @@ ASTNodeIt* newNonLeafNode(TAG taginf, tokenInfo *ti, ASTNodeIt* input1, ASTNodeI
     }
     ASTNodeIt* final_node=(ASTNodeIt*)malloc(sizeof(ASTNodeIt));
     final_node->node = (ASTNode*)malloc(sizeof(ASTNode));
+    final_node->quadhead=NULL;
+    final_node->quadtail=NULL;
     final_node->node->t=NULL;
     final_node->node->u.n=(nonLeaf*)malloc(sizeof(nonLeaf));
     final_node->node->u.n->tag_info=taginf;
@@ -674,9 +676,7 @@ ASTNodeIt* makeAbstractSyntaxTree(treeNodeIt *root){
 	while(1){
 		while(temp->t->is_leaf==0){
 			temp = temp->t->treeNode_type.n->children;
-			if (temp==NULL) break;
 		}
-		if (temp==NULL) break;
 		//REACHED A LEAF
         //do nothing
 		while(temp->next==NULL){

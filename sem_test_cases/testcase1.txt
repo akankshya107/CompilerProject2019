@@ -8,6 +8,12 @@ output parameter list[real d3];
 	type real : c3bd;
 	b5b567 <--- 1;
 	d3 <--- 0.00;
+	if(b5b567 <= d5cc34)
+	then
+		d3<---d3+100;
+	else
+		d3<---d3-200;
+	endif
 	while ( b5b567 <= d5cc34)
 		read( c3bd);
 		d3 <--- d3 + c3bd;

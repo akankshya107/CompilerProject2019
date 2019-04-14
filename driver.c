@@ -14,11 +14,13 @@
 // #include "AST.h"
 #include "semantic.h"
 extern parse_table T;
+extern int semantic_correct;
 // extern int parse_correct;
 // extern int ParseNodes;
 // extern int ASTNodes;
 int main(int argc, char *argv[]){
 	int option;
+	printf("LEVEL 4: Symbol table/ AST/ Semantic Rules modules work.\n\n");
 	populate_transition_table();
 	populateKeyWordTable();
 	populateGrammar();
@@ -32,7 +34,7 @@ int main(int argc, char *argv[]){
 			break;
 		}else if(option==1){
 			//Invoke only lexer
-			FILE *fp = fopen("sem_test_cases/testcase1.txt", "r");
+			FILE *fp = fopen(argv[1], "r");
 			tokenInfo *ti;
 			do{
 				ti = getNextToken(fp);
@@ -44,15 +46,15 @@ int main(int argc, char *argv[]){
 			fclose(fp);
 			printf("\n");
 		}else if(option==2){
-			treeNodeIt* t = parseInputSourceCode("sem_test_cases/testcase1.txt");
+			treeNodeIt* t = parseInputSourceCode(argv[1]);
 			printParseTree(t);
 		}else if(option==3){
 			printf("Traversal order of AST: Post-order\n");
-			treeNodeIt* t = parseInputSourceCode("sem_test_cases/testcase1.txt");
+			treeNodeIt* t = parseInputSourceCode(argv[1]);
 			ASTNodeIt* ast = makeAbstractSyntaxTree(t);
 			printAST(ast);
 		}else if(option==4){
-			treeNodeIt* t = parseInputSourceCode("sem_test_cases/testcase1.txt");
+			treeNodeIt* t = parseInputSourceCode(argv[1]);
 			size_t p = printParseTreeNodes(t);
 			printf("Parse tree Number of nodes = %d\t\tAllocated Memory = %lu Bytes\n", ParseNodes, p);
 			ASTNodeIt* ast = makeAbstractSyntaxTree(t);
@@ -61,15 +63,16 @@ int main(int argc, char *argv[]){
 			printf("Compression percentage = %f\n", (((float)p-a)/(float)p)*100 );
 		}
 		else if(option==5 || option==6 || option==7 || option==8){
-			treeNodeIt* t = parseInputSourceCode("sem_test_cases/testcase1.txt");
+			treeNodeIt* t = parseInputSourceCode(argv[1]);
 			ASTNodeIt* ast = makeAbstractSyntaxTree(t);
-			ASTNodeIt * ch = searchTag(ast, TAG_FUN_LIST)->node->u.n->children;
+			ASTNodeIt * ch = ast->node->u.n->children->node->u.n->children;
 			populateGlobalTable(ast);
     		SymbolTable = create_HTEle();
 			while(ch!=NULL){
 				populateSymbolTable(ch);
 				ch=ch->next;
 			}
+			populateSymbolTable(ast->node->u.n->children->next);
 			if(option==5){
 				printSymbolTable();
 			}else if(option==6){
@@ -87,6 +90,7 @@ int main(int argc, char *argv[]){
 
 	// 		start_time = clock();
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 	// 		// FILE *fp = fopen("testcase1.txt", "r");
 	// 		// tokenInfo *ti;
@@ -112,10 +116,16 @@ int main(int argc, char *argv[]){
 =======
 			treeNodeIt* t = parseInputSourceCode("sem_test_cases/testcase1.txt");
 >>>>>>> f95384e492e463fa1c7e7fc3ee8ee06e8e6cbcf4
+=======
+			treeNodeIt* t = parseInputSourceCode(argv[1]);
+>>>>>>> 9b567cb0d198469b4bd4cad57fa37de8ff41b7fd
 			if(parse_correct){
 				ASTNodeIt *ast = semanticAnalyzer(t);
 			}
-			printf("\n");
+			if(!semantic_correct){
+				printf("Code compiles successfully...\n");
+			}
+			else printf("\n");
 			end_time = clock();
 >>>>>>> 1710f9d9377c283a8dfa2872115f3a01c987d24e
 
@@ -149,11 +159,15 @@ int main(int argc, char *argv[]){
 			printf("To check, use option=9 first\n");
 			scanf("%d\n", &i);
 			if(i){
-				treeNodeIt* t = parseInputSourceCode("sem_test_cases/testcase1.txt");
+				treeNodeIt* t = parseInputSourceCode(argv[1]);
 				ASTNodeIt *ast;
 				if(parse_correct){
 					ast = semanticAnalyzer(t);
 				}
+				if(!semantic_correct){
+					printf("Code compiles successfully...\n");
+				}
+				else printf("\n");
 				// constructASMcode(ast, argv[2]);
 			}
 		}
