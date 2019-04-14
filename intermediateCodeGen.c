@@ -9,6 +9,12 @@
 #include "SymbolTableDef.h"
 #include "SymbolTable.h"
 #include "ASTDef.h"
+
+TEMP newTemp(){
+    static int t=0;
+    printf("%d\n",t);
+    return t++;
+}
 hash_ele* find_hash_ele(char* str)
 {
     if(lookupEle(str,globalSymbolTable)==NULL)
@@ -27,21 +33,27 @@ arg* newArg(int flag, hash_ele* h, TEMP t, LABEL L, int num, float rnum,int widt
     {
         case 0:
             a->u.hElem=h;
+            printf("%s\n",h->str);
             break;
         case 1:
             a->u.t=t;
+            printf("%d\n",t);
             break;
         case 2:
             a->u.L=L;
+            printf("%d\n",L);
             break;
         case 3:
             a->u.num=num;
+            printf("%d\n",num);
             break;
         case 4:
             a->u.rnum=rnum;
+            printf("%f\n",rnum);
             break;
         case 5:
             a->u.width=width;
+            printf("%d\n",width);
         default:
             return NULL;
     }
@@ -80,9 +92,11 @@ op* newOp(int flag, TAG tag, TOKEN tkname){
     switch(flag){
         case 0:
             o->u.tag=tag;
+            printf("%d\n",tag);
             break;
         case 1:
             o->u.tkname=tkname;
+            printf("%d\n",tkname);
             break;
         default:
             return NULL;
@@ -118,14 +132,17 @@ quadruple* generateIntermediateCode(ASTNodeIt* root)
                 temp_post_parent=temp_post->node->parent;
                 if(temp_post_parent->node->u.n->tag_info=TAG_ARITHMETIC_EXPRESSION)
                 {
+                    printf("QUADRUPLE generation for quad TAG_ARITHMETIC_EXPRESSION\n");
                     temp_post_parent->quadhead->a1=getArg(temp_post);
                     temp_post_parent->quadhead->a2=getArg(temp_post->next);
                     //op* temp_post_parent-> = (op*)malloc(sizeof(op));
                     temp_post_parent->quadhead->operand->flag=1;
                     temp_post_parent->quadhead->operand=newOp(1,TAG_FUNCTION,temp_post_parent->node->u.n->leaf_symbol->tokenName);//can it be 
-                    temp_post_parent->quadhead->res=new_temp();
+                    temp_post_parent->quadhead->res=newTemp();
+                    // printf("%d")
                     temp_post_parent->quadtail=quadIt;//here it will be null for a leaf node
                     quadIt=temp_post_parent->quadhead;
+                    
                     temp_post=temp_post_parent;
                 }
                 else //if rhs is also a leaf node or post order traversal has been completed , then generate a quad accordingly
@@ -163,7 +180,7 @@ quadruple* generateIntermediateCode(ASTNodeIt* root)
                         temp_post_parent->quadhead->a2=getArg(temp_post->next);
                         temp_post_parent->quadhead->operand->flag=1;
                         temp_post_parent->quadhead->operand=newOp(1,TAG_FUNCTION,temp_post_parent->node->u.n->leaf_symbol->tokenName);//can it be 
-                        temp_post_parent->quadhead->res=new_temp();
+                        temp_post_parent->quadhead->res=newTemp();
                         temp_post_parent->quadtail=quadIt;//here it will be null for a leaf node
                         quadIt=temp_post_parent->quadhead;
                         temp_post=temp_post_parent;
