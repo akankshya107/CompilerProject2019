@@ -11,7 +11,6 @@
 #include "key.h"
 #include "parser.h"
 #include "grammar.h"
-// #include "AST.h"
 #include "semantic.h"
 extern parse_table T;
 extern int semantic_correct;
@@ -84,41 +83,13 @@ int main(int argc, char *argv[]){
 			}
 		}else if(option==9){
 
-	// 		clock_t start_time, end_time;
+			clock_t start_time, end_time;
 
-	// 		double total_CPU_time, total_CPU_time_in_seconds;
+			double total_CPU_time, total_CPU_time_in_seconds;
 
-	// 		start_time = clock();
+			start_time = clock();
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-	// 		// FILE *fp = fopen("testcase1.txt", "r");
-	// 		// tokenInfo *ti;
-	// 		// do{
-	// 		// 	ti = getNextToken(fp);
-	// 		// }while(ti->tokenName!=EOS);
-
-	// 		// fclose(fp);
-
-<<<<<<< HEAD
-	// 		populateGrammar();
-	// 		populateStrTable();
-	// 		ComputeFirstAndFollowSets();
-	// 		createParseTable();
-	// 		// free_first_follow();
-	// 		treeNodeIt* t = parseInputSourceCode(argv[1]);
-	// 		printParseTree(t, argv[2]);
-	// 		printf("\n");
-
-	// 		end_time = clock();
-=======
 			treeNodeIt* t = parseInputSourceCode(argv[1]);
-=======
-			treeNodeIt* t = parseInputSourceCode("sem_test_cases/testcase1.txt");
->>>>>>> f95384e492e463fa1c7e7fc3ee8ee06e8e6cbcf4
-=======
-			treeNodeIt* t = parseInputSourceCode(argv[1]);
->>>>>>> 9b567cb0d198469b4bd4cad57fa37de8ff41b7fd
 			if(parse_correct){
 				ASTNodeIt *ast = semanticAnalyzer(t);
 			}
@@ -127,32 +98,15 @@ int main(int argc, char *argv[]){
 			}
 			else printf("\n");
 			end_time = clock();
->>>>>>> 1710f9d9377c283a8dfa2872115f3a01c987d24e
 
-	// 		total_CPU_time  =  (double) (end_time - start_time);
+			total_CPU_time  =  (double) (end_time - start_time);
 
-	// 		total_CPU_time_in_seconds =   total_CPU_time / CLOCKS_PER_SEC;
+			total_CPU_time_in_seconds =   total_CPU_time / CLOCKS_PER_SEC;
 
-    //          // Print both total_CPU_time and total_CPU_time_in_seconds 
+             // Print both total_CPU_time and total_CPU_time_in_seconds 
 
-	// 		printf("Total CPU time: %f\nTotal CPU time in seconds: %f\n", total_CPU_time, total_CPU_time_in_seconds);
+			printf("Total CPU time: %f\nTotal CPU time in seconds: %f\n", total_CPU_time, total_CPU_time_in_seconds);
 
-<<<<<<< HEAD
-	// 	}else{
-	// 		printf("Enter correct option\n");
-	// 	}
-	// }
-	populateGrammar();
-	populateStrTable();
-	ComputeFirstAndFollowSets();
-	createParseTable();
-	treeNodeIt* t = parseInputSourceCode("testcase1.txt");
-	// printParseTree(t, argv[2]);
-	ASTNodeIt *plgiveerror = makeAbstractSyntaxTree(t);
-	// printAST(plgiveerror);
-	populateSymbolTable(plgiveerror);
-	printSymbolTable(plgiveerror);
-=======
 		}else if(option==10){
 			int i;
 			printf("Please enter whether code is free of syntactic, semantic or type mismatch errors(0 for no, 1 for yes)\n");
@@ -175,6 +129,5 @@ int main(int argc, char *argv[]){
 			printf("Enter correct option\n");
 		}
 	}
->>>>>>> 1710f9d9377c283a8dfa2872115f3a01c987d24e
 	return 0;
 }

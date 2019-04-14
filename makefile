@@ -3,13 +3,8 @@
 # // NARAPAREDDY BHAVANA 2016A7PS0034P
 # // KARABEE BATTA 2016A7PS0052P
 # // AASTHA KATARIA 2016A7PS0062P
-<<<<<<< HEAD
-compile: keyhead lexhead parshead stackhead grammarhead ASThead symbolTablehead semantichead intermediatehead SymbolTable.o semantic.o key.o DFA.o AST.o grammar.o stack.o lexer.o parser.o driver.o
-	gcc driver.o AST.o SymbolTable.o semantic.o DFA.o grammar.o stack.o lexer.o parser.o key.o intermediate.o -o stage1exe
-=======
-compile: keyhead lexhead parshead stackhead grammarhead ASThead symbolTablehead semantichead SymbolTable.o semantic.o key.o DFA.o AST.o grammar.o stack.o lexer.o parser.o driver.o
-	gcc driver.o AST.o SymbolTable.o semantic.o DFA.o grammar.o stack.o lexer.o parser.o key.o -o compiler
->>>>>>> 9b567cb0d198469b4bd4cad57fa37de8ff41b7fd
+compile: keyhead lexhead parshead stackhead grammarhead ASThead symbolTablehead semantichead intermediatehead SymbolTable.o semantic.o key.o DFA.o AST.o grammar.o stack.o lexer.o parser.o driver.o intermediate.o
+	gcc driver.o AST.o SymbolTable.o semantic.o DFA.o grammar.o stack.o lexer.o parser.o key.o intermediate.o -o compiler
 driver.o: driver.c 
 	gcc -c -g driver.c
 AST.o: AST.c
@@ -56,4 +51,5 @@ symbolTablehead:
 semantichead:
 	gcc semantic.h
 intermediatehead:
-	gcc intermediateCodeGenDef.h
+	gcc intermediateCodeGen.h
+	
