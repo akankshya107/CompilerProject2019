@@ -4,11 +4,15 @@
 // KARABEE BATTA 2016A7PS0052P
 // AASTHA KATARIA 2016A7PS0062P
 
+#ifndef SYM_INCLUDED
 #include "SymbolTable.h"
+#define SYM_INCLUDED
+#endif
 typedef int LABEL;
 typedef int TEMP;
 typedef struct IntermediateDef IntermediateDef;
 
+typedef struct label label;
 typedef struct arg{
     int flag;
     union{

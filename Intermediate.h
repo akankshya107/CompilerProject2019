@@ -7,3 +7,5 @@ op* newOp(int flag, TAG tag, TOKEN tkname);
 label* returnLabel(int flag, LABEL l, char* dataDef);
 quadruple* newQuad(arg *a1, arg *a2, op* op, LABEL *l, result *res);
 quadruple* generateIntermediateCode(ASTNodeIt* root);
+char* concat(const char *s1, const char *s2);
+arg* getArg(ASTNodeIt* ast);

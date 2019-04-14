@@ -4,7 +4,7 @@
 // KARABEE BATTA 2016A7PS0052P
 // AASTHA KATARIA 2016A7PS0062P
 #include "IntermediateDef.h"
-
+#include <string.h>
 TEMP newTemp(){
     static int t=0;
     return t++;
@@ -75,33 +75,6 @@ op* newOp(int flag, TAG tag, TOKEN tkname){
     return o;
 }
 
-arg* getArg(ASTNodeIt* ast)
-{
-    if(ast->node->is_leaf)
-    {
-        if(ast->node->u.l->leaf_symbol->flag==0)
-        {
-            if(lookup(ast->node->u.l->leaf_symbol->u.lexeme,globalSymbolTable)!=NULL)
-            {
-                return newArg(0, lookup(ast->node->u.l->leaf_symbol->u.lexeme,globalSymbolTable),0,0,0,0,0);
-            }
-            else
-            {
-                return newArg(0,lookupEle(ast->node->u.l->leaf_symbol->u.lexeme, lookupEle("_main",SymbolTable)->ele->u.out_table->SymbolTable),0,0,0,0,0);
-            }
-            
-        }
-        else if(ast->node->u.l->leaf_symbol->flag==1)
-        {
-            return newArg(3,0,0,0,ast->node->u.l->leaf_symbol->u.value_of_int,0,0);
-        }
-        else if(ast->node->u.l->leaf_symbol->flag==2)
-        {
-            return newArg(4,0,0,0,0,ast->node->u.l->leaf_symbol->u.value_of_real,0);
-        }
-    }
-}
-
 label* returnLabel(int flag, LABEL l, char* dataDef){
     label *L = (label*)malloc(sizeof(label));
     switch (flag)
@@ -117,6 +90,66 @@ label* returnLabel(int flag, LABEL l, char* dataDef){
     }
 }
 
+char* concat(const char *s1, const char *s2)
+{
+    char *result = malloc(strlen(s1) + strlen(s2) + 2);
+    strcpy(result, s1);
+    strcat(result, ".");
+    strcat(result, s2);
+    return result;
+}
+
+arg* getArg(ASTNodeIt* ast)
+{
+    int check_val;
+    ast=ast->node->u.n->children;
+    if(ast->next->node->is_leaf){
+        check_val=1;
+    }
+    else check_val=0;
+    if(!check_val)
+    {
+        if(ast->node->u.l->leaf_symbol->flag==is_lexeme)
+        {
+            if(lookupEle(ast->node->u.l->leaf_symbol->u.lexeme,globalSymbolTable)!=NULL)
+            {
+                return newArg(0, lookupEle(ast->node->u.l->leaf_symbol->u.lexeme,globalSymbolTable),0,0,0,0,0);
+            }
+            else
+            {
+                return newArg(0,lookupEle(ast->node->u.l->leaf_symbol->u.lexeme, lookupEle("_main",SymbolTable)->ele->u.out_table->SymbolTable),0,0,0,0,0);
+            }
+            
+        }
+        else if(ast->node->u.l->leaf_symbol->flag==is_int)
+        {
+            return newArg(3,0,0,0,ast->node->u.l->leaf_symbol->u.value_of_int,0,0);
+        }
+        else if(ast->node->u.l->leaf_symbol->flag==is_real)
+        {
+            return newArg(4,0,0,0,0,ast->node->u.l->leaf_symbol->u.value_of_real,0);
+        }
+    }
+    else{
+        hash_ele *g = lookupEle(ast->node->u.n->leaf_symbol->u.lexeme, globalSymbolTable);
+        hash_ele *s = lookupEle(ast->node->u.n->leaf_symbol->u.lexeme, lookupEle("_main", SymbolTable)->ele->u.out_table->SymbolTable);
+        if(g->ele!=NULL){
+            ASTNodeIt *r = lookupEle(g->ele->u.g->u.t->u.rec_id, globalSymbolTable)->ele->u.g->u.rec_type_list->record_ptr;
+            while(r!=NULL){
+                if(strcmp(r->node->u.n->leaf_symbol->u.lexeme, ast->next->node->u.n->leaf_symbol->u.lexeme)==0) return newArg(2, 0, 0, returnLabel(1, 0, concat(ast->node->u.n->leaf_symbol->u.lexeme, ast->next->node->u.n->leaf_symbol->u.lexeme)), 0, 0.0, 0);
+                r=r->next;
+            }
+        }
+        else if(s->ele!=NULL){
+            ASTNodeIt *r = lookupEle(s->ele->u.s->t->u.rec_id, globalSymbolTable)->ele->u.g->u.rec_type_list->record_ptr;
+            while(r!=NULL){
+                if(strcmp(r->node->u.n->leaf_symbol->u.lexeme, ast->next->node->u.n->leaf_symbol->u.lexeme)==0) return newArg(2, 0, 0, returnLabel(1, 0, concat(ast->node->u.n->leaf_symbol->u.lexeme, ast->next->node->u.n->leaf_symbol->u.lexeme)), 0, 0.0, 0);
+                r=r->next;
+            }
+        }
+    }
+}
+
 quadruple* newQuad(arg *a1, arg *a2, op* op, label *l, result *res){
     quadruple *q = (quadruple*)malloc(sizeof(quadruple));
     q->a1=a1;
@@ -128,19 +161,100 @@ quadruple* newQuad(arg *a1, arg *a2, op* op, label *l, result *res){
     return q;
 }
 
-char* concat(const char *s1, const char *s2)
+LABEL getLabel(ASTNodeIt* n)
 {
-    char *result = malloc(strlen(s1) + strlen(s2) + 2);
-    strcpy(result, s1);
-    strcat(result, ".");
-    strcat(result, s2);
-    return result;
+    int temp;
+    if(n->quadhead==NULL)
+    {
+        temp=newLabel();
+        // n->quadhead=newQuad(NULL,NULL,NULL,temp,NULL);
+        return temp;
+    }
+    else
+    {
+        if(n->quadhead->L=NULL)
+        {
+            temp=newLabel();
+            n->quadhead->L->flag=0;
+            n->quadhead->L->u.l=temp;
+            return temp;
+        }
+        else
+        {
+            // if(n->quadhead->L->flag==0)
+            {
+                return n->quadhead->L->u.l;
+            }
+        }
+    }
+}
+
+void preorder_labelpopulation(ASTNodeIt* root)
+{
+    // root->node->parent->next->quadhead=newQuad(NULL,NULL,NULL,newLabel(),NULL);
+    // root->next->quadhead=newQuad(NULL,NULL,NULL,newLabel(),NULL);
+    root->quadhead->a1->u.L=returnLabel(0, getLabel(root->node->parent->next), NULL);
+    root->quadhead->a2->u.L=returnLabel(0, getLabel(root->next), NULL);
+
+    ASTNodeIt* temp=root;
+    while(1)
+    {
+        while(!temp->node->is_leaf)
+        {
+            temp=temp->node->u.n->children;
+            // temp->next->quadhead=newQuad(NULL,NULL,NULL,newLabel(),NULL);
+            // temp->quadhead=newQuad(NULL,NULL,NULL,newLabel(),NULL);
+            if(temp->quadhead==NULL)
+                temp->quadhead=newQuad(NULL,NULL,NULL,NULL,NULL);
+            if(temp->next->quadhead==NULL)
+            temp->next->quadhead=newQuad(NULL,NULL,NULL,NULL,NULL);
+
+            if(temp->node->parent->node->u.n->tag_info==TK_AND)
+            {
+                
+                temp->quadhead->a1->u.L=returnLabel(0, getLabel(temp->next), NULL);
+                temp->next->quadhead->a1->u.L=temp->node->parent->quadhead->a1->u.L;
+                temp->quadhead->a2->u.L=temp->node->parent->quadhead->a2->u.L;
+                temp->next->quadhead->a2->u.L=temp->next->node->parent->quadhead->a2->u.L;
+
+            }
+            if(temp->node->parent->node->u.n->tag_info==TK_OR)
+            {
+                temp->quadhead->a2->u.L=returnLabel(0, getLabel(temp->next), NULL);
+                temp->next->quadhead->a1->u.L=temp->node->parent->quadhead->a2->u.L;
+                temp->quadhead->a1->u.L=temp->node->parent->quadhead->a1->u.L;
+                temp->next->quadhead->a1->u.L=temp->next->node->parent->quadhead->a1->u.L;
+            }
+
+            if(temp->node->parent->node->u.n->tag_info==TK_NOT)
+            {
+                temp->quadhead->a1->u.L=temp->node->parent->quadhead->a2->u.L;
+                temp->quadhead->a2->u.L=temp->node->parent->quadhead->a1->u.L;
+            }
+
+        }
+        if(temp->node->is_leaf)
+        {
+            if(temp->next!=NULL)
+                temp=temp->next;
+            else
+            {
+                while(temp->node->parent->next!=NULL)
+                {
+                    temp=temp->node->parent;
+                    if(temp==root)
+                    break;
+                }
+                temp=temp->next;
+            }
+        }
+    }
 }
 
 quadruple* generateBoolean(ASTNodeIt* root)
 {
     ASTNodeIt* temp=root;
-    preorder_labelpopulation();
+    preorder_labelpopulation(root);
     while(1){
 		while(temp->node->is_leaf==0){
 			temp = temp->node->u.n->children;
@@ -160,20 +274,19 @@ quadruple* generateBoolean(ASTNodeIt* root)
             {
                 
                 //If program node, ie root node is reached
-                LABEL temp1=temp->quadhead->a1->u.L;
-                LABEL temp2=temp->quadhead->a2->u.L;
+                label *temp1=temp->quadhead->a1->u.L;
+                label *temp2=temp->quadhead->a2->u.L;
                 temp->quadhead->a1=getArg(temp->node->u.n->children);
                 temp->quadhead->a2=getArg (temp->node->u.n->children->next);
-                temp->quadhead->operand=temp->node->u.n->leaf_symbol->tokenName;
-                temp->quadhead->res->u.l=temp1;
+                temp->quadhead->operand=newOp(1,0,temp->node->u.n->leaf_symbol->tokenName);
+                // temp->quadhead->res->u.l=temp1;
 
-                temp->quadtail=newQuad(NULL,NULL,newOp(2,0,0),NULL,temp2);
+                // temp->quadtail=newQuad(NULL,NULL,newOp(2,0,0),NULL,temp2);
                 temp->quadhead->next=temp->quadtail;
             }
             else if(
                 temp->node->u.n->leaf_symbol->tokenName==TK_AND||
-                temp->node->u.n->leaf_symbol->tokenName==TK_OR||
-                temp->node->u.n->leaf_symbol->tokenName==TK_NOT
+                temp->node->u.n->leaf_symbol->tokenName==TK_OR
             )
             {
                 //figure out about arguments
@@ -182,18 +295,35 @@ quadruple* generateBoolean(ASTNodeIt* root)
                 temp->quadtail=temp->node->u.n->children->next->quadtail;
             }
 
+            else if(temp->node->u.n->leaf_symbol->tokenName==TK_NOT)
+            {
+                temp->quadhead=temp->node->u.n->children->quadhead;
+                temp->quadtail=temp->node->u.n->children->quadtail;
+            }
+
             // newQuad(,,,NULL,temp->node->u.n->children->)
 			if(temp->node->parent->node->u.n->tag_info==TAG_ITERATIVE_STMT){
                 if(temp->node->u.n->leaf_symbol->tokenName==TK_AND)
                 {
+                    temp->quadhead=temp->node->u.n->children->quadhead;
+                    temp->node->u.n->children->quadtail=temp->node->u.n->children->next->quadhead;
+                    temp->quadtail=temp->node->u.n->children->next->quadtail;
+                    temp->quadtail->next=newQuad(NULL,NULL,NULL,NULL,NULL);
+                    // temp->quadtail=temp->quadtail->next;
+
                     //b1,b2,label(b.true),stmts,goto l0
                 }
-                else if(temp->node->u.n->leaf_symbol->tokenName==TK_AND)
+                else if(temp->node->u.n->leaf_symbol->tokenName==TK_OR)
                 {
+                    temp->quadhead=temp->node->u.n->children->quadhead;
+                    temp->quadhead->next=newQuad(NULL,NULL,NULL,NULL,NULL);
+                    temp->quadhead->next->next=temp->node->u.n->children->next->quadhead;
+
                     //b1,label(b.true),stmts,goto l0,b2
                 }
                 else
                 {
+                    // temp->quadhead=temp->node->u.n->children;
                     //b,label(b.false),stmts,goto l0
                 }
                 
@@ -211,6 +341,7 @@ quadruple* generateIntermediateCode(ASTNodeIt* root)
     //root=program
     ASTNodeIt *temp = root->node->u.n->children->next->node->u.n->children; //ignoring otherFunctions
     HashTable funcTable = lookupEle("_main", SymbolTable)->ele->u.out_table->SymbolTable;
+    return NULL;
     while(1){
         if(temp->node->u.n->tag_info==TAG_DECLARES){
             ASTNodeIt *it = temp->node->u.n->children;
@@ -264,13 +395,115 @@ quadruple* generateIntermediateCode(ASTNodeIt* root)
         }
         else if(temp->node->u.n->tag_info==TAG_OTHERSTMTS){
             temp=temp->node->u.n->children;
+            int flag=0;
             while(1){
-                if(temp->node->u.n->tag_info==TAG_ASSIGNMENT_STMT){
-                    //Traverse RHS: get RHS code-ARITHMETIC EXPRESSION
+                if(temp->node->u.n->tag_info==TAG_ASSIGNMENT_STMT){       
+                    ASTNodeIt* temp_post=temp;
+                    quadruple* quadIt=NULL;
+                    ASTNodeIt *left_child=temp->node->u.n->children;
+                    temp_post=left_child->next;// because the left child will be a variable (x=arithmetic expression)
+            
+                    //travel to the leaf nodes
+                    while(temp_post->node->is_leaf==0){
+                        temp_post=temp_post->node->u.n->children;
+                    }
+
+                    //post order traversal
+                    while(temp->next==NULL)
+                    {
+                        ASTNodeIt* temp_post_parent;
+                        temp_post_parent=temp_post->node->parent;
+                        if(temp_post_parent!=temp)
+                        {
+                            quadIt = newQuad(getArg(temp_post), getArg(temp_post->next), newOp(1,0,temp_post_parent->node->u.n->leaf_symbol->tokenName), NULL, newResult(0, newTemp(), 0));
+                            
+                            if(temp_post->quadhead!=NULL && temp_post->next->quadhead!=NULL){
+                                temp_post_parent->quadhead=temp_post->quadhead;
+                                temp_post->quadtail->next=temp_post->next->quadhead;
+                                temp_post->next->quadtail->next=quadIt;
+                                temp_post_parent->quadtail=quadIt;
+                            }
+                            else if(temp_post->quadhead!=NULL){
+                                temp_post_parent->quadhead=temp_post->quadhead;
+                                temp_post->quadtail->next=quadIt;
+                                temp_post_parent->quadtail=quadIt;
+                            }
+                            else if(temp_post->next->quadhead!=NULL){
+                                temp_post_parent->quadhead=temp_post->next->quadhead;
+                                temp_post->next->quadtail->next=quadIt;
+                                temp_post_parent->quadtail=quadIt;
+                            }
+                            else{
+                                temp_post_parent->quadhead=quadIt;
+                                temp_post_parent->quadtail=quadIt;
+                            }
+
+                            temp_post=temp_post_parent;
+                        }
+                        else //if rhs is also a leaf node or post order traversal has been completed , then generate a quad accordingly
+                        {
+                            //now lhs and rhs are ready
+                            if(temp->quadhead!=NULL){
+                                LABEL x = temp->quadhead->L->u.l;
+                                quadIt=newQuad(getArg(left_child), getArg(temp_post), newOp(0, TAG_ASSIGNMENT_STMT, 0), returnLabel(0, x, NULL), NULL);
+                            }else{
+                                quadIt=newQuad(getArg(left_child), getArg(temp_post), newOp(0, TAG_ASSIGNMENT_STMT, 0), NULL, NULL);
+                                
+                            }
+                            if(temp_post->quadhead!=NULL && temp_post->next->quadhead!=NULL){
+                                temp->quadhead=temp_post->quadhead;
+                                temp_post->quadtail->next=temp_post->next->quadhead;
+                                temp_post->next->quadtail->next=quadIt;
+                                temp->quadtail=quadIt;
+                            }
+                            else if(temp_post->quadhead!=NULL){
+                                temp->quadhead=temp_post->quadhead;
+                                temp_post->quadtail->next=quadIt;
+                                temp->quadtail=quadIt;
+                            }
+                            else if(temp_post->next->quadhead!=NULL){
+                                temp->quadhead=temp_post->next->quadhead;
+                                temp_post->next->quadtail->next=quadIt;
+                                temp->quadtail=quadIt;
+                            }
+                            else{
+                                temp->quadhead=quadIt;
+                                temp->quadtail=quadIt;
+                            }
+                            break;
+                        }
+                        temp=temp->next;
+                    }
                 }
+
                 else if(temp->node->u.n->tag_info==TAG_ITERATIVE_STMT){
                     //While statement: one pass for checking if variables are being changed
                     //Boolean respective code
+                    if(temp->node->u.n->leaf_symbol->tokenName==TK_AND)
+                    {
+                        temp->quadtail->next=temp->node->parent->quadhead;
+                        temp->quadtail=temp->node->parent->quadtail;
+                    }
+                    else if(temp->node->u.n->leaf_symbol->tokenName==TK_OR)
+                    {
+                        quadruple* dummy=temp->quadtail->next->next;
+                        temp->quadtail->next=temp->node->parent->node->u.n->children->next->quadhead;
+                        // temp->quadtail=temp->node->parent->quadtail;
+                        temp->quadtail->next=dummy;
+                        quadruple* p=temp->quadtail->next;
+                        while(p->next!=NULL)
+                        {
+                            p=p->next;
+                        }
+                        temp->quadtail=p;
+                    }
+                    else
+                    {
+                        
+                    }
+                    temp=temp->node->parent;
+
+                    //attach inner code to dummy var
                     temp=temp->node->u.n->children->next;
                 }
                 else if(temp->node->u.n->tag_info==TAG_COND_STMT){
@@ -327,14 +560,19 @@ quadruple* generateIntermediateCode(ASTNodeIt* root)
                         check_val=0;
                     }
                     else check_val=1;
-                    if(!check_val){
+                    if(temp->node->u.l->leaf_symbol->flag!=is_lexeme){
+                        if(temp->node->u.l->leaf_symbol->flag==is_int) temp->quadhead = newQuad(newArg(3, NULL, 0, NULL, temp->node->u.l->leaf_symbol->u.value_of_int, 0, 0), NULL, newOp(0, TAG_WRITE, 0), NULL, NULL);
+                        if(temp->node->u.l->leaf_symbol->flag==is_real) temp->quadhead = newQuad(newArg(4, NULL, 0, NULL, 0, temp->node->u.l->leaf_symbol->u.value_of_real, 0), NULL, newOp(0, TAG_WRITE, 0), NULL, NULL);
+                    }
+                    else if(!check_val){
+                        
                         hash_ele *g = lookupEle(temp->node->u.n->leaf_symbol->u.lexeme, globalSymbolTable);
                         hash_ele *s = lookupEle(temp->node->u.n->leaf_symbol->u.lexeme, funcTable);
                         if(g->ele!=NULL){
-                            temp->quadhead = newQuad(newArg(2, 0, 0, returnLabel(1, 0, temp->node->u.n->leaf_symbol->u.lexeme), 0, 0.0, 0), NULL, newOp(0, TAG_READ, 0), NULL, NULL);
+                            temp->quadhead = newQuad(newArg(2, 0, 0, returnLabel(1, 0, temp->node->u.n->leaf_symbol->u.lexeme), 0, 0.0, 0), NULL, newOp(0, TAG_WRITE, 0), NULL, NULL);
                         }
                         else if(s->ele!=NULL){
-                            temp->quadhead = newQuad(newArg(2, 0, 0, returnLabel(1, 0, temp->node->u.n->leaf_symbol->u.lexeme), 0, 0.0, 0), NULL, newOp(0, TAG_READ, 0), NULL, NULL);
+                            temp->quadhead = newQuad(newArg(2, 0, 0, returnLabel(1, 0, temp->node->u.n->leaf_symbol->u.lexeme), 0, 0.0, 0), NULL, newOp(0, TAG_WRITE, 0), NULL, NULL);
                         }
                     }
                     else{
@@ -343,14 +581,14 @@ quadruple* generateIntermediateCode(ASTNodeIt* root)
                         if(g->ele!=NULL){
                             ASTNodeIt *r = lookupEle(g->ele->u.g->u.t->u.rec_id, globalSymbolTable)->ele->u.g->u.rec_type_list->record_ptr;
                             while(r!=NULL){
-                                if(strcmp(r->node->u.n->leaf_symbol->u.lexeme, temp->next->node->u.n->leaf_symbol->u.lexeme)==0) temp->quadhead = newQuad(newArg(2, 0, 0, returnLabel(1, 0, concat(temp->node->u.n->leaf_symbol->u.lexeme, temp->next->node->u.n->leaf_symbol->u.lexeme)), 0, 0.0, 0), NULL, newOp(0, TAG_READ, 0), NULL, NULL);
+                                if(strcmp(r->node->u.n->leaf_symbol->u.lexeme, temp->next->node->u.n->leaf_symbol->u.lexeme)==0) temp->quadhead = newQuad(newArg(2, 0, 0, returnLabel(1, 0, concat(temp->node->u.n->leaf_symbol->u.lexeme, temp->next->node->u.n->leaf_symbol->u.lexeme)), 0, 0.0, 0), NULL, newOp(0, TAG_WRITE, 0), NULL, NULL);
                                 r=r->next;
                             }
                         }
                         else if(s->ele!=NULL){
                             ASTNodeIt *r = lookupEle(s->ele->u.s->t->u.rec_id, globalSymbolTable)->ele->u.g->u.rec_type_list->record_ptr;
                             while(r!=NULL){
-                                if(strcmp(r->node->u.n->leaf_symbol->u.lexeme, temp->next->node->u.n->leaf_symbol->u.lexeme)==0) temp->quadhead = newQuad(newArg(2, 0, 0, returnLabel(1, 0, concat(temp->node->u.n->leaf_symbol->u.lexeme, temp->next->node->u.n->leaf_symbol->u.lexeme)), 0, 0.0, 0), NULL, newOp(0, TAG_READ, 0), NULL, NULL);
+                                if(strcmp(r->node->u.n->leaf_symbol->u.lexeme, temp->next->node->u.n->leaf_symbol->u.lexeme)==0) temp->quadhead = newQuad(newArg(2, 0, 0, returnLabel(1, 0, concat(temp->node->u.n->leaf_symbol->u.lexeme, temp->next->node->u.n->leaf_symbol->u.lexeme)), 0, 0.0, 0), NULL, newOp(0, TAG_WRITE, 0), NULL, NULL);
                                 r=r->next;
                             }
                         }
@@ -361,6 +599,14 @@ quadruple* generateIntermediateCode(ASTNodeIt* root)
                 while(temp->next==NULL){
                     if(temp->node->parent->node->u.n->tag_info==TAG_OTHERSTMTS){
                         //make LL and
+                        ASTNodeIt *ch = temp->node->parent->node->u.n->children;
+                        temp->node->parent->quadhead = ch->quadhead;
+                        while(ch->next!=NULL){
+                            ch->quadtail->next=ch->next->quadhead;
+                            ch=ch->next;
+                        }
+                        temp->node->parent->quadtail=ch->quadtail;
+                        flag=1;
                         break;
                     }
                     if(temp->node->parent->node->u.n->tag_info==TAG_ITERATIVE_STMT){
@@ -369,11 +615,23 @@ quadruple* generateIntermediateCode(ASTNodeIt* root)
                     }
                     if(temp->node->parent->node->u.n->tag_info==TAG_THEN){
                         temp=temp->node->parent;
-                        //attach inner code to dummy var
+                        ASTNodeIt *ch = temp->node->parent->node->u.n->children;
+                        temp->node->parent->quadhead = ch->quadhead;
+                        while(ch->next!=NULL){
+                            ch->quadtail->next=ch->next->quadhead;
+                            ch=ch->next;
+                        }
+                        temp->node->parent->quadtail=ch->quadtail;
                     }
                     if(temp->node->parent->node->u.n->tag_info==TAG_ELSE){
                         temp=temp->node->parent;
-                        //attach inner code to dummy var
+                        ASTNodeIt *ch = temp->node->parent->node->u.n->children;
+                        temp->node->parent->quadhead = ch->quadhead;
+                        while(ch->next!=NULL){
+                            ch->quadtail->next=ch->next->quadhead;
+                            ch=ch->next;
+                        }
+                        temp->node->parent->quadtail=ch->quadtail;
                     }
                     if(temp->node->parent->node->u.n->tag_info==TAG_COND_STMT){
                         temp=temp->node->parent;
@@ -381,13 +639,21 @@ quadruple* generateIntermediateCode(ASTNodeIt* root)
                     }
                     else temp=temp->node->parent;
                 }
+                if(flag) break;
                 temp=temp->next;
             }
         }
         if(temp->next!=NULL) temp=temp->next;
         else{
             temp = root->node->u.n->children->next; 
-            //Construct LL here
+            ASTNodeIt *ch = temp->node->u.n->children;
+            temp->quadhead = ch->quadhead;
+            while(ch->next!=NULL){
+                if(ch->quadhead==NULL) break;
+                ch->quadtail->next=ch->next->quadhead;
+                ch=ch->next;
+            }
+            temp->quadtail=ch->quadtail;
             return temp->quadhead;
         }
     }

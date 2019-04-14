@@ -12,6 +12,7 @@
 #include "parser.h"
 #include "grammar.h"
 #include "semantic.h"
+#include "codegen.h"
 extern parse_table T;
 extern int semantic_correct;
 // extern int parse_correct;
@@ -111,19 +112,17 @@ int main(int argc, char *argv[]){
 			int i;
 			printf("Please enter whether code is free of syntactic, semantic or type mismatch errors(0 for no, 1 for yes)\n");
 			printf("To check, use option=9 first\n");
-			scanf("%d\n", &i);
-			if(i){
-				treeNodeIt* t = parseInputSourceCode(argv[1]);
-				ASTNodeIt *ast;
-				if(parse_correct){
-					ast = semanticAnalyzer(t);
-				}
-				if(!semantic_correct){
-					printf("Code compiles successfully...\n");
-				}
-				else printf("\n");
-				// constructASMcode(ast, argv[2]);
+			treeNodeIt* t = parseInputSourceCode(argv[1]);
+			ASTNodeIt *ast;
+			if(parse_correct){
+				ast = semanticAnalyzer(t);
 			}
+			if(!semantic_correct){
+				printf("Code compiles successfully...\n");
+				continue;
+			}
+			else printf("\n");
+			generateCode(ast, argv[2]);
 		}
 		else{
 			printf("Enter correct option\n");
