@@ -4,19 +4,24 @@
 // KARABEE BATTA 2016A7PS0052P
 // AASTHA KATARIA 2016A7PS0062P
 
+#ifndef SYM_INCLUDED
 #include "SymbolTable.h"
+#define SYM_INCLUDED
+#endif
 typedef int LABEL;
 typedef int TEMP;
 typedef struct IntermediateDef IntermediateDef;
 
+typedef struct label label;
 typedef struct arg{
     int flag;
     union{
         hash_ele* hElem;
         TEMP t;
-        LABEL L; //TRUE is stored in arg1, FALSE in arg2
+        label *L; //TRUE is stored in arg1, FALSE in arg2
         int num;
         float rnum;
+        int width;
     }u;
 }arg;
 
@@ -36,11 +41,19 @@ typedef struct{
     }u;
 }result;
 
+typedef struct label{
+    int flag;
+    union{
+        LABEL l;
+        char *dataDef;
+    }u;    
+}label;
+
 typedef struct quadruple{
     arg* a1;
     arg* a2;
     op* operand;
     result *res;
-    LABEL l;
+    label *L;
     struct quadruple* next;  
 }quadruple;

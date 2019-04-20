@@ -1,0 +1,45 @@
+_nestedwhile  input parameter list [int d5cc34]  
+output parameter list[real d3];
+	type int : b5b567:global;
+	type int : b3;
+	type int : b3bbcc33;
+	type int : b2bbcc;
+	type real : c3bd;
+	type int : c5cc:global;
+	type real : c4;
+	type real: c5;
+	type real : d2;
+	type real: c6:global;
+	type real: c7;
+	type int: d3ddd333;
+	b5b567 <--- 1;
+	while (d3 > d2)
+		b3bbcc33 <--- b5b567 - b3*3;
+		c7<--- d2+23.46;
+	endwhile
+	d3 <--- 0.00;
+	% variables of ourmost while loop are not assigned any value
+	while ((c4 >= c5) @@@ (c5>=c6))
+		% variables b3bbcc33 or c5cc of the while loop below never get assigned any value
+		while (b3bbcc33 < c5cc)
+			while ( b5b567 <= d5cc34)
+				read( c3bd);
+				while ( (b3bbcc33 <= d3ddd333) &&& (b2bbcc <= d3ddd333))
+					c7 <--- c4 - c5;
+					while (d3 > d2)
+						d3 <--- d3 + c3bd;
+						b3bbcc33 <--- b5b567 - b3*3;
+					endwhile
+					b5b567 <--- b5b567 + 1;
+				endwhile
+				d3 <--- d3 + c3bd;
+			endwhile
+		endwhile
+	endwhile
+	return [d3];
+end
+_main 
+	type int :c2;
+	write(c2);
+	return;
+end

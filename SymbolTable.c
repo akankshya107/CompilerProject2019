@@ -180,7 +180,7 @@ void populate_type(hash_ele* hashEle_identifier,ASTNodeIt* temp)
         else if(temp->node->u.n->children->node->u.l->leaf_symbol->tokenName==TK_REAL)
         {
             hashEle_identifier->ele->u.g->u.t->is_record=0;
-            hashEle_identifier->ele->u.g->u.t->u.pri_type=false;
+            hashEle_identifier->ele->u.g->u.t->u.pri_type=true;
         }
         else
         {

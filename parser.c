@@ -188,6 +188,10 @@ treeNodeIt* parseInputSourceCode(char *testcaseFile){
 				printf("Line %d: The token %s for lexeme %.2f does not match with expected token %s\n", ti->line_no, TerminalString(ti->tokenName), ti->u.value_of_real, nonTerminalStringTable[e->elem.nonterminal]->nonterminal);
 			}
 			do{
+				if(ti->tokenName==EOS){
+					 e_flag=1;
+					 break;
+				}
 				ti = getNextToken(fp);
 				// printf("%s\n", TerminalString(ti->tokenName));
 				if((T[e->elem.nonterminal][ti->tokenName].is_error==0)){

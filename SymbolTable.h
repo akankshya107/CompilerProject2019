@@ -4,6 +4,7 @@
 // KARABEE BATTA 2016A7PS0052P
 // AASTHA KATARIA 2016A7PS0062P
 #include "SymbolTableDef.h"
+#define SYM_INCLUDED
 //hashtable functions
 char *TypeString(int index);
 int hashEle(char *str);

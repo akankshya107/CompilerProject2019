@@ -58,7 +58,7 @@ typedef struct globalTableElem{
     bool is_record;
     union{
         type* t;
-        rec* rec_type_list;    
+        rec* rec_type_list;
     }u;
     int offset;
 }globalTableElem;

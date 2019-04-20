@@ -1,0 +1,47 @@
+_sumabcd  input parameter list [int d5c34]  
+output parameter list[real d3];
+	record #marks
+		type real : subjectone;
+		type real: subjecttwo;
+		type int: subjectthree;
+	endrecord;
+	type record #marks : d4;
+	type int : b3;
+	type real : c3bd:global;
+	type record #weather: b6;
+	type real: b7;
+	b5b567 <--- 1;
+	d3 <--- 2.56;
+	c3bd<--- 23.67 + d3;
+	d3 <--- 0.00;
+	b3 <--- 23;
+	return [d3];
+end
+_anotherfunction input parameter list [int d5cc34, int d5c34, record #marks d6d777, real d6d6666]  
+output parameter list[int d3];
+	record #weather
+		type real : temperature;
+		type real: pressure;
+		type int: day;
+		type real: wind;
+	endrecord;
+	type int : b5b567:global;
+	type record #marks : b3;
+	type real : c3bc;
+	b5b567 <--- 1;
+	d3<---0;
+	return [d3];
+end
+_main
+	type record #marks : d4;
+	type int : b5;
+	type int : d5cb34567;
+	type record #weather: b6;
+	type record #weather: b7;
+	type int: b5c4;
+	type record #marks : b5c6;
+	type real : b7b3;
+	b5 <--- 1;
+	read(d5cb34567);
+	return;
+end
